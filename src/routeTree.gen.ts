@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BrandRouteImport } from './routes/brand'
 import { Route as DocsRouteImport } from './routes/docs'
+import { Route as MerchRouteImport } from './routes/merch'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ProductRouteImport } from './routes/product'
 
@@ -30,6 +31,11 @@ const DocsRoute = DocsRouteImport.update({
   path: '/docs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MerchRoute = MerchRouteImport.update({
+  id: '/merch',
+  path: '/merch',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/brand': typeof BrandRoute
   '/docs': typeof DocsRoute
+  '/merch': typeof MerchRoute
   '/pricing': typeof PricingRoute
   '/product': typeof ProductRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/brand': typeof BrandRoute
   '/docs': typeof DocsRoute
+  '/merch': typeof MerchRoute
   '/pricing': typeof PricingRoute
   '/product': typeof ProductRoute
 }
@@ -60,21 +68,23 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/brand': typeof BrandRoute
   '/docs': typeof DocsRoute
+  '/merch': typeof MerchRoute
   '/pricing': typeof PricingRoute
   '/product': typeof ProductRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/brand' | '/docs' | '/pricing' | '/product'
+  fullPaths: '/' | '/brand' | '/docs' | '/merch' | '/pricing' | '/product'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/brand' | '/docs' | '/pricing' | '/product'
-  id: '__root__' | '/' | '/brand' | '/docs' | '/pricing' | '/product'
+  to: '/' | '/brand' | '/docs' | '/merch' | '/pricing' | '/product'
+  id: '__root__' | '/' | '/brand' | '/docs' | '/merch' | '/pricing' | '/product'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BrandRoute: typeof BrandRoute
   DocsRoute: typeof DocsRoute
+  MerchRoute: typeof MerchRoute
   PricingRoute: typeof PricingRoute
   ProductRoute: typeof ProductRoute
 }
@@ -102,6 +112,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/merch': {
+      id: '/merch'
+      path: '/merch'
+      fullPath: '/merch'
+      preLoaderRoute: typeof MerchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pricing': {
       id: '/pricing'
       path: '/pricing'
@@ -123,6 +140,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BrandRoute: BrandRoute,
   DocsRoute: DocsRoute,
+  MerchRoute: MerchRoute,
   PricingRoute: PricingRoute,
   ProductRoute: ProductRoute,
 }
