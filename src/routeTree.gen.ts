@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BrandRouteImport } from './routes/brand'
+import { Route as DemoRouteImport } from './routes/demo'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as MerchRouteImport } from './routes/merch'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -24,6 +25,11 @@ const IndexRoute = IndexRouteImport.update({
 const BrandRoute = BrandRouteImport.update({
   id: '/brand',
   path: '/brand',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DocsRoute = DocsRouteImport.update({
@@ -50,6 +56,7 @@ const ProductRoute = ProductRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/brand': typeof BrandRoute
+  '/demo': typeof DemoRoute
   '/docs': typeof DocsRoute
   '/merch': typeof MerchRoute
   '/pricing': typeof PricingRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/brand': typeof BrandRoute
+  '/demo': typeof DemoRoute
   '/docs': typeof DocsRoute
   '/merch': typeof MerchRoute
   '/pricing': typeof PricingRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/brand': typeof BrandRoute
+  '/demo': typeof DemoRoute
   '/docs': typeof DocsRoute
   '/merch': typeof MerchRoute
   '/pricing': typeof PricingRoute
@@ -74,15 +83,25 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/brand' | '/docs' | '/merch' | '/pricing' | '/product'
+  fullPaths:
+    '/' | '/brand' | '/demo' | '/docs' | '/merch' | '/pricing' | '/product'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/brand' | '/docs' | '/merch' | '/pricing' | '/product'
-  id: '__root__' | '/' | '/brand' | '/docs' | '/merch' | '/pricing' | '/product'
+  to: '/' | '/brand' | '/demo' | '/docs' | '/merch' | '/pricing' | '/product'
+  id:
+    | '__root__'
+    | '/'
+    | '/brand'
+    | '/demo'
+    | '/docs'
+    | '/merch'
+    | '/pricing'
+    | '/product'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BrandRoute: typeof BrandRoute
+  DemoRoute: typeof DemoRoute
   DocsRoute: typeof DocsRoute
   MerchRoute: typeof MerchRoute
   PricingRoute: typeof PricingRoute
@@ -103,6 +122,13 @@ declare module '@tanstack/react-router' {
       path: '/brand'
       fullPath: '/brand'
       preLoaderRoute: typeof BrandRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/docs': {
@@ -139,6 +165,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BrandRoute: BrandRoute,
+  DemoRoute: DemoRoute,
   DocsRoute: DocsRoute,
   MerchRoute: MerchRoute,
   PricingRoute: PricingRoute,
