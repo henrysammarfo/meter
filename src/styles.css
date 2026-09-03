@@ -11,7 +11,7 @@
  */
 
 @theme inline {
-  --font-display: "Askan Light", "Times New Roman", serif;
+  --font-display: "Askan Light", "Instrument Serif", "Times New Roman", serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
