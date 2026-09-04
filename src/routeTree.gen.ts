@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BrandRouteImport } from './routes/brand'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as MerchRouteImport } from './routes/merch'
@@ -25,6 +26,11 @@ const IndexRoute = IndexRouteImport.update({
 const BrandRoute = BrandRouteImport.update({
   id: '/brand',
   path: '/brand',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoRoute = DemoRouteImport.update({
@@ -56,6 +62,7 @@ const ProductRoute = ProductRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/brand': typeof BrandRoute
+  '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/docs': typeof DocsRoute
   '/merch': typeof MerchRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/brand': typeof BrandRoute
+  '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/docs': typeof DocsRoute
   '/merch': typeof MerchRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/brand': typeof BrandRoute
+  '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/docs': typeof DocsRoute
   '/merch': typeof MerchRoute
@@ -84,13 +93,29 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/brand' | '/demo' | '/docs' | '/merch' | '/pricing' | '/product'
+    | '/'
+    | '/brand'
+    | '/dashboard'
+    | '/demo'
+    | '/docs'
+    | '/merch'
+    | '/pricing'
+    | '/product'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/brand' | '/demo' | '/docs' | '/merch' | '/pricing' | '/product'
+  to:
+    | '/'
+    | '/brand'
+    | '/dashboard'
+    | '/demo'
+    | '/docs'
+    | '/merch'
+    | '/pricing'
+    | '/product'
   id:
     | '__root__'
     | '/'
     | '/brand'
+    | '/dashboard'
     | '/demo'
     | '/docs'
     | '/merch'
@@ -101,6 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BrandRoute: typeof BrandRoute
+  DashboardRoute: typeof DashboardRoute
   DemoRoute: typeof DemoRoute
   DocsRoute: typeof DocsRoute
   MerchRoute: typeof MerchRoute
@@ -122,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/brand'
       fullPath: '/brand'
       preLoaderRoute: typeof BrandRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo': {
@@ -165,6 +198,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BrandRoute: BrandRoute,
+  DashboardRoute: DashboardRoute,
   DemoRoute: DemoRoute,
   DocsRoute: DocsRoute,
   MerchRoute: MerchRoute,
