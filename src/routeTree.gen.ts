@@ -20,6 +20,7 @@ import { Route as ProductRouteImport } from './routes/product'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardInvoicesRouteImport } from './routes/dashboard.invoices'
 import { Route as DashboardPaystreamRouteImport } from './routes/dashboard.paystream'
+import { Route as DashboardReceiptsRouteImport } from './routes/dashboard.receipts'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +77,11 @@ const DashboardPaystreamRoute = DashboardPaystreamRouteImport.update({
   path: '/paystream',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardReceiptsRoute = DashboardReceiptsRouteImport.update({
+  id: '/receipts',
+  path: '/receipts',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/product': typeof ProductRoute
   '/dashboard/invoices': typeof DashboardInvoicesRoute
   '/dashboard/paystream': typeof DashboardPaystreamRoute
+  '/dashboard/receipts': typeof DashboardReceiptsRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/product': typeof ProductRoute
   '/dashboard/invoices': typeof DashboardInvoicesRoute
   '/dashboard/paystream': typeof DashboardPaystreamRoute
+  '/dashboard/receipts': typeof DashboardReceiptsRoute
   '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
@@ -114,6 +122,7 @@ export interface FileRoutesById {
   '/product': typeof ProductRoute
   '/dashboard/invoices': typeof DashboardInvoicesRoute
   '/dashboard/paystream': typeof DashboardPaystreamRoute
+  '/dashboard/receipts': typeof DashboardReceiptsRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
@@ -129,6 +138,7 @@ export interface FileRouteTypes {
     | '/product'
     | '/dashboard/invoices'
     | '/dashboard/paystream'
+    | '/dashboard/receipts'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -141,6 +151,7 @@ export interface FileRouteTypes {
     | '/product'
     | '/dashboard/invoices'
     | '/dashboard/paystream'
+    | '/dashboard/receipts'
     | '/dashboard'
   id:
     | '__root__'
@@ -154,6 +165,7 @@ export interface FileRouteTypes {
     | '/product'
     | '/dashboard/invoices'
     | '/dashboard/paystream'
+    | '/dashboard/receipts'
     | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
@@ -247,18 +259,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardPaystreamRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/receipts': {
+      id: '/dashboard/receipts'
+      path: '/receipts'
+      fullPath: '/dashboard/receipts'
+      preLoaderRoute: typeof DashboardReceiptsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
 interface DashboardRouteChildren {
   DashboardInvoicesRoute: typeof DashboardInvoicesRoute
   DashboardPaystreamRoute: typeof DashboardPaystreamRoute
+  DashboardReceiptsRoute: typeof DashboardReceiptsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardInvoicesRoute: DashboardInvoicesRoute,
   DashboardPaystreamRoute: DashboardPaystreamRoute,
+  DashboardReceiptsRoute: DashboardReceiptsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 
