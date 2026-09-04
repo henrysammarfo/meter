@@ -64,7 +64,7 @@ function DashboardLayout() {
                 <Link
                   key={n.to}
                   to={n.to}
-                  activeOptions={{ exact: "exact" in n ? n.exact : false }}
+                  activeOptions={{ exact: n.to === "/dashboard" }}
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-card hover:text-foreground"
                   activeProps={{ className: "bg-primary/12 text-foreground" }}
