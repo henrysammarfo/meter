@@ -19,6 +19,7 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ProductRouteImport } from './routes/product'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardInvoicesRouteImport } from './routes/dashboard.invoices'
+import { Route as DashboardLimitsRouteImport } from './routes/dashboard.limits'
 import { Route as DashboardPaystreamRouteImport } from './routes/dashboard.paystream'
 import { Route as DashboardReceiptsRouteImport } from './routes/dashboard.receipts'
 
@@ -72,6 +73,11 @@ const DashboardInvoicesRoute = DashboardInvoicesRouteImport.update({
   path: '/invoices',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardLimitsRoute = DashboardLimitsRouteImport.update({
+  id: '/limits',
+  path: '/limits',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardPaystreamRoute = DashboardPaystreamRouteImport.update({
   id: '/paystream',
   path: '/paystream',
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/product': typeof ProductRoute
   '/dashboard/invoices': typeof DashboardInvoicesRoute
+  '/dashboard/limits': typeof DashboardLimitsRoute
   '/dashboard/paystream': typeof DashboardPaystreamRoute
   '/dashboard/receipts': typeof DashboardReceiptsRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/product': typeof ProductRoute
   '/dashboard/invoices': typeof DashboardInvoicesRoute
+  '/dashboard/limits': typeof DashboardLimitsRoute
   '/dashboard/paystream': typeof DashboardPaystreamRoute
   '/dashboard/receipts': typeof DashboardReceiptsRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/product': typeof ProductRoute
   '/dashboard/invoices': typeof DashboardInvoicesRoute
+  '/dashboard/limits': typeof DashboardLimitsRoute
   '/dashboard/paystream': typeof DashboardPaystreamRoute
   '/dashboard/receipts': typeof DashboardReceiptsRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/product'
     | '/dashboard/invoices'
+    | '/dashboard/limits'
     | '/dashboard/paystream'
     | '/dashboard/receipts'
     | '/dashboard/'
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/product'
     | '/dashboard/invoices'
+    | '/dashboard/limits'
     | '/dashboard/paystream'
     | '/dashboard/receipts'
     | '/dashboard'
@@ -164,6 +175,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/product'
     | '/dashboard/invoices'
+    | '/dashboard/limits'
     | '/dashboard/paystream'
     | '/dashboard/receipts'
     | '/dashboard/'
@@ -252,6 +264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardInvoicesRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/limits': {
+      id: '/dashboard/limits'
+      path: '/limits'
+      fullPath: '/dashboard/limits'
+      preLoaderRoute: typeof DashboardLimitsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/paystream': {
       id: '/dashboard/paystream'
       path: '/paystream'
@@ -271,6 +290,7 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardInvoicesRoute: typeof DashboardInvoicesRoute
+  DashboardLimitsRoute: typeof DashboardLimitsRoute
   DashboardPaystreamRoute: typeof DashboardPaystreamRoute
   DashboardReceiptsRoute: typeof DashboardReceiptsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
@@ -278,6 +298,7 @@ interface DashboardRouteChildren {
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardInvoicesRoute: DashboardInvoicesRoute,
+  DashboardLimitsRoute: DashboardLimitsRoute,
   DashboardPaystreamRoute: DashboardPaystreamRoute,
   DashboardReceiptsRoute: DashboardReceiptsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
