@@ -11,11 +11,17 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BrandRouteImport } from './routes/brand'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as MerchRouteImport } from './routes/merch'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ProductRouteImport } from './routes/product'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardInvoicesRouteImport } from './routes/dashboard.invoices'
+import { Route as DashboardLimitsRouteImport } from './routes/dashboard.limits'
+import { Route as DashboardPaystreamRouteImport } from './routes/dashboard.paystream'
+import { Route as DashboardReceiptsRouteImport } from './routes/dashboard.receipts'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -25,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
 const BrandRoute = BrandRouteImport.update({
   id: '/brand',
   path: '/brand',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoRoute = DemoRouteImport.update({
@@ -52,15 +63,46 @@ const ProductRoute = ProductRouteImport.update({
   path: '/product',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardInvoicesRoute = DashboardInvoicesRouteImport.update({
+  id: '/invoices',
+  path: '/invoices',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardLimitsRoute = DashboardLimitsRouteImport.update({
+  id: '/limits',
+  path: '/limits',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardPaystreamRoute = DashboardPaystreamRouteImport.update({
+  id: '/paystream',
+  path: '/paystream',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardReceiptsRoute = DashboardReceiptsRouteImport.update({
+  id: '/receipts',
+  path: '/receipts',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/brand': typeof BrandRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/demo': typeof DemoRoute
   '/docs': typeof DocsRoute
   '/merch': typeof MerchRoute
   '/pricing': typeof PricingRoute
   '/product': typeof ProductRoute
+  '/dashboard/invoices': typeof DashboardInvoicesRoute
+  '/dashboard/limits': typeof DashboardLimitsRoute
+  '/dashboard/paystream': typeof DashboardPaystreamRoute
+  '/dashboard/receipts': typeof DashboardReceiptsRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,25 +112,46 @@ export interface FileRoutesByTo {
   '/merch': typeof MerchRoute
   '/pricing': typeof PricingRoute
   '/product': typeof ProductRoute
+  '/dashboard/invoices': typeof DashboardInvoicesRoute
+  '/dashboard/limits': typeof DashboardLimitsRoute
+  '/dashboard/paystream': typeof DashboardPaystreamRoute
+  '/dashboard/receipts': typeof DashboardReceiptsRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/brand': typeof BrandRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/demo': typeof DemoRoute
   '/docs': typeof DocsRoute
   '/merch': typeof MerchRoute
   '/pricing': typeof PricingRoute
   '/product': typeof ProductRoute
+  '/dashboard/invoices': typeof DashboardInvoicesRoute
+  '/dashboard/limits': typeof DashboardLimitsRoute
+  '/dashboard/paystream': typeof DashboardPaystreamRoute
+  '/dashboard/receipts': typeof DashboardReceiptsRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/brand' | '/demo' | '/docs' | '/merch' | '/pricing' | '/product'
+    | '/'
+    | '/brand'
+    | '/dashboard'
+    | '/demo'
+    | '/docs'
+    | '/merch'
+    | '/pricing'
+    | '/product'
+    | '/dashboard/invoices'
+    | '/dashboard/limits'
+    | '/dashboard/paystream'
+    | '/dashboard/receipts'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/brand' | '/demo' | '/docs' | '/merch' | '/pricing' | '/product'
-  id:
-    | '__root__'
+  to:
     | '/'
     | '/brand'
     | '/demo'
@@ -96,11 +159,32 @@ export interface FileRouteTypes {
     | '/merch'
     | '/pricing'
     | '/product'
+    | '/dashboard/invoices'
+    | '/dashboard/limits'
+    | '/dashboard/paystream'
+    | '/dashboard/receipts'
+    | '/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/brand'
+    | '/dashboard'
+    | '/demo'
+    | '/docs'
+    | '/merch'
+    | '/pricing'
+    | '/product'
+    | '/dashboard/invoices'
+    | '/dashboard/limits'
+    | '/dashboard/paystream'
+    | '/dashboard/receipts'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BrandRoute: typeof BrandRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
   DemoRoute: typeof DemoRoute
   DocsRoute: typeof DocsRoute
   MerchRoute: typeof MerchRoute
@@ -122,6 +206,13 @@ declare module '@tanstack/react-router' {
       path: '/brand'
       fullPath: '/brand'
       preLoaderRoute: typeof BrandRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo': {
@@ -159,12 +250,68 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/invoices': {
+      id: '/dashboard/invoices'
+      path: '/invoices'
+      fullPath: '/dashboard/invoices'
+      preLoaderRoute: typeof DashboardInvoicesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/limits': {
+      id: '/dashboard/limits'
+      path: '/limits'
+      fullPath: '/dashboard/limits'
+      preLoaderRoute: typeof DashboardLimitsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/paystream': {
+      id: '/dashboard/paystream'
+      path: '/paystream'
+      fullPath: '/dashboard/paystream'
+      preLoaderRoute: typeof DashboardPaystreamRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/receipts': {
+      id: '/dashboard/receipts'
+      path: '/receipts'
+      fullPath: '/dashboard/receipts'
+      preLoaderRoute: typeof DashboardReceiptsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
+
+interface DashboardRouteChildren {
+  DashboardInvoicesRoute: typeof DashboardInvoicesRoute
+  DashboardLimitsRoute: typeof DashboardLimitsRoute
+  DashboardPaystreamRoute: typeof DashboardPaystreamRoute
+  DashboardReceiptsRoute: typeof DashboardReceiptsRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardInvoicesRoute: DashboardInvoicesRoute,
+  DashboardLimitsRoute: DashboardLimitsRoute,
+  DashboardPaystreamRoute: DashboardPaystreamRoute,
+  DashboardReceiptsRoute: DashboardReceiptsRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BrandRoute: BrandRoute,
+  DashboardRoute: DashboardRouteWithChildren,
   DemoRoute: DemoRoute,
   DocsRoute: DocsRoute,
   MerchRoute: MerchRoute,
