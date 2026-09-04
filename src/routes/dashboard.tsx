@@ -15,11 +15,20 @@ import { MeterMark } from "@/components/brand/MeterMark";
 import { SETTLE_ASSET, SETTLE_CHAIN } from "@/lib/meter-data";
 
 export const Route = createFileRoute("/dashboard")({
-  component: DashboardLayout;
+  head: () => ({
+    meta: [
+      { title: "Ledger — METER dashboard" },
+      {
+        name: "description",
+        content: "Paystream, invoices, receipts and limits for every agent spending against your metered APIs.",
+      },
+    ],
+  }),
+  component: DashboardLayout,
 });
 
 const NAV = [
-  { to: "/dashboard", label: "Overview", icon: LayoutDashboard, exact: true },
+  { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { to: "/dashboard/paystream", label: "Paystream", icon: Waves },
   { to: "/dashboard/invoices", label: "Invoices", icon: FileText },
   { to: "/dashboard/receipts", label: "Receipts", icon: ReceiptText },
