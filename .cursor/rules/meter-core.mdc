@@ -1,0 +1,16 @@
+---
+description: METER core doctrine — Track A, no mocks, live ledger, residual risk honesty
+alwaysApply: true
+---
+
+# METER Core
+
+- **Product:** Agent↔agent pay + API metering + shared receipts on Binance Agent OS Track A.
+- **Modules:** PAYSTREAM (metered endpoints) · INVOICE (A2A bills) · FLOVIA (analytics from ledger).
+- **Doctrine:** No mocks, no silent fallbacks, no invented receipts. If a live provider fails, return a typed error.
+- **Deletion test:** Removing the ledger must remove shared payment truth.
+- **Security honesty:** Never claim unhackable / immune to nation-state attackers. Document residual risk in memory/FACT_CHECK.md.
+- **Secrets:** Only in `.env` / `grounds/.env` (gitignored). Never commit keys. Rotate keys pasted into chat.
+- **LLM:** Prefer `AGENTROUTER_API_KEY` + `AGENTROUTER_BASE_URL`. No OpenAI key required. Do not invent completions if the gateway is blocked.
+- **Memory:** On material changes update `memory/CURRENT_STATE.md`, `memory/SESSION_LOG.md`, `memory/FACT_CHECK.md`.
+- **Contest:** Track A only unless explicitly told otherwise. Deadline Sep 8, 2026 23:59 UTC.

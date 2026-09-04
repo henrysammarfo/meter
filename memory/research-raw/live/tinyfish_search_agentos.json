@@ -1,0 +1,78 @@
+{
+  "query": "Binance Agent OS x402",
+  "results": [
+    {
+      "date": "Aug 20, 2026",
+      "position": 1,
+      "site_name": "www.binance.com",
+      "snippet": "Binance x402: Payment and settlement primitives designed to support agent-driven payment flows.",
+      "title": "Introducing Binance Agent OS",
+      "url": "https://www.binance.com/en/support/announcement/detail/07d45cdd3831498f8a4ff339031a8480"
+    },
+    {
+      "date": "Aug 25, 2026",
+      "position": 2,
+      "site_name": "www.binance.com",
+      "snippet": "Through Binance's x402 integration, agents can send and settle payments with other agents. The Agentic Wallet lets them interact with tokens ...",
+      "title": "How Binance Agent OS Is Changing Crypto Trading",
+      "url": "https://www.binance.com/en/academy/articles/how-binance-agent-os-is-changing-crypto-trading"
+    },
+    {
+      "date": "Aug 27, 2026",
+      "position": 3,
+      "site_name": "www.binance.com",
+      "snippet": "Agent OS is the broader platform and toolkit. Its MCP server, APIs, Agentic Wallet, x402, and Skills Hub each address a different part of the ...",
+      "title": "Choosing the Right Tools for Your AI Agent",
+      "url": "https://www.binance.com/en/square/post/360156406124103"
+    },
+    {
+      "date": "Aug 27, 2026",
+      "position": 4,
+      "site_name": "www.binance.com",
+      "snippet": "Binance Agent OS gives developers multiple ways to connect AI agents to Binance, Agent OS is the broader platform and toolkit. Wallet, x402, ...",
+      "title": "Choosing the Right Tools for Your AI Agent",
+      "url": "https://www.binance.com/en/blog/ecosystem/96878495076464452"
+    },
+    {
+      "date": "2 days ago",
+      "position": 5,
+      "site_name": "www.prnewswire.com",
+      "snippet": "Agent OS brings together Binance APIs, Binance Wallet Agentic Hub, Binance x402 (programmable payments), Binance Skill Hub and newly ...",
+      "title": "Binance Introduces Agent OS to Connect AI Applications ...",
+      "url": "https://www.prnewswire.com/apac/news-releases/binance-introduces-agent-os-to-connect-ai-applications-to-financial-infrastructure-302865254.html"
+    },
+    {
+      "date": "6 days ago",
+      "position": 6,
+      "site_name": "www.binance.com",
+      "snippet": "It ties Binance APIs, Wallet Agentic Hub, x402, Skill Hub and an MCP server into one developer ecosystem - so agents can trade, pay, and act on- ...",
+      "title": "Step by step guides to activate your Binance Agent OS",
+      "url": "https://www.binance.com/en/square/post/360896227137048"
+    },
+    {
+      "date": "3 days ago",
+      "position": 7,
+      "site_name": "blockchain.news",
+      "snippet": "Binance Agent OS leverages its Wallet Agentic Hub and x402 transaction APIs to enable AI agents to facilitate cross-border payments.",
+      "title": "3 Ways Binance Agent OS Is Already Being Used in Crypto",
+      "url": "https://blockchain.news/news/binance-agent-os-use-cases"
+    },
+    {
+      "date": "Aug 20, 2026",
+      "position": 8,
+      "site_name": "www.tradingview.com",
+      "snippet": "Agent OS brings together Binance APIs, the Binance Wallet Agentic Hub, Binance x402, Binance Skill Hub and support for the Model Context ...",
+      "title": "Binance Creates Operating System for Agents as AI ...",
+      "url": "https://www.tradingview.com/news/financemagnates:219351c09094b:0-binance-creates-operating-system-for-agents-as-ai-trading-moves-beyond-apis/"
+    },
+    {
+      "position": 9,
+      "site_name": "www.binance.com",
+      "snippet": "Binance x402 is a transaction verification and submission API. We make it easy for developers to execute user-authorized, on-chain token transfers across all ...",
+      "title": "Binance x402 - Empowering the Future of Blockchain ...",
+      "url": "https://www.binance.com/en/binancex402"
+    }
+  ],
+  "total_results": 9,
+  "page": 0
+}

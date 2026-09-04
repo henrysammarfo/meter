@@ -1,26 +1,34 @@
 # METER
 
-GO THROUGH MD ATTACHED ,CREATE GOOD BRAND,logo WILL USE FORR future MERCH AND HODDIES , CREATE FULL PAGES AND ROUTES AND DASHBOARD ALL FLOWS ,ROUTES EERYTHING , USE THE RIGHT PRO PREMIUM ICONS , SUBPAGES FULL should match template prompt design
+Agent↔agent pay + API metering + shared receipts for **Binance Agent OS Track A**.
 
-AND USE THIS TEMPLATE
+> Soft pitch: When AIs pay each other or charge for an API call, METER shows the money, the receipt, and settles it — inside limits you set.
 
-This project was built with [Lovable](https://lovable.dev).
+## Live surface
 
-## Build with Lovable
+| Method | Path | Job |
+|---|---|---|
+| GET | `/api/v1/health` | Provider wiring |
+| POST | `/api/v1/subaccounts` | Fund sandbox agent (withdrawals restricted) |
+| GET | `/api/v1/research?q=` | Paid research (402 or prepaid → Tavily + TinyFish) |
+| POST | `/api/v1/invoices` | Issue invoice from unbilled receipts |
+| GET | `/api/v1/ledger` | Flovia overview |
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/31455f2e-fb0d-456f-b67f-cf904f224cc3).
+Headers for prepaid settle: `X-Meter-Agent-Id`, `X-Meter-Payment: prepaid`.
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+## Setup
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
+cp .env.example .env   # add TAVILY_API_KEY, TINYFISH_API_KEY, optional AGENTROUTER_*
 npm i
 npm run dev
+npm run smoke          # live health → 402 → paid research → invoice → stress×5
 ```
+
+Architecture + fact-check: `memory/ARCHITECTURE.md`, `memory/FACT_CHECK.md`.
+
+## Doctrine
+
+No mocks. No silent fallbacks. Not “unhackable” — residual risk documented in memory.
+
+Built with [Lovable](https://lovable.dev). Continue in the [Lovable editor](https://lovable.dev/projects/31455f2e-fb0d-456f-b67f-cf904f224cc3).

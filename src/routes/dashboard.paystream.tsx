@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Waves } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -11,16 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import { Badge, Kpi, PageHead, Panel, Table, Td } from "@/components/dashboard/ui";
-import {
-  BATCH_SIZE,
-  SETTLE_ASSET,
-  avgPricePerCall,
-  calls24h,
-  endpointRevenue,
-  grossVolume24h,
-  num,
-  usd,
-} from "@/lib/meter-data";
+import { fetchLedgerOverview, num, SETTLE_ASSET, type LedgerOverview, usd } from "@/lib/meter-data";
 
 export const Route = createFileRoute("/dashboard/paystream")({
   head: () => ({
@@ -28,7 +18,7 @@ export const Route = createFileRoute("/dashboard/paystream")({
       { title: "Paystream — METER ledger" },
       {
         name: "description",
-        content: "Rate card, live call volume and per-endpoint revenue for every metered route behind x402.",
+        content: "Rate card and live call volume for every metered route behind x402.",
       },
     ],
   }),
@@ -37,71 +27,60 @@ export const Route = createFileRoute("/dashboard/paystream")({
 
 function Paystream() {
   const [filter, setFilter] = useState<"all" | "live" | "paused">("all");
-  const rows = endpointRevenue.filter((e) => filter === "all" || e.status === filter);
+  const [data, setData] = useState<LedgerOverview | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchLedgerOverview()
+      .then(setData)
+      .catch((e: Error) => setError(e.message));
+  }, []);
+
+  const rows = useMemo(() => {
+    const list = data?.endpoints ?? [];
+    return filter === "all" ? list : list.filter((e) => e.status === filter);
+  }, [data, filter]);
+
+  if (error) return <p className="text-sm text-destructive">{error}</p>;
+  if (!data) return <PageHead title="Paystream" sub="Loading…" />;
+
+  const avg = data.calls24h ? data.grossVolume24h / data.calls24h : 0;
 
   return (
     <div>
       <PageHead
         title="Paystream"
-        sub={`Your rate card in production. Prices are quoted per unit in ${SETTLE_ASSET} and charged per call at settle time.`}
-        action={
-          <div className="flex gap-1 rounded-full border border-border p-1 text-xs">
-            {(["all", "live", "paused"] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`rounded-full px-3 py-1.5 capitalize transition-colors ${
-                  filter === f ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-        }
+        sub={`Metered endpoints settle in ${SETTLE_ASSET}. Price × units → 402 → receipt.`}
       />
-
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Kpi label="Volume 24h" value={usd(grossVolume24h)} tone="signal" />
-        <Kpi label="Paid calls" value={num(calls24h)} />
-        <Kpi label="Avg price / call" value={usd(avgPricePerCall)} />
-        <Kpi label="Batch size" value={`${BATCH_SIZE} calls`} hint="Rolled into one on-chain settlement" />
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Kpi label="Gross 24h" value={usd(data.grossVolume24h)} tone="signal" />
+        <Kpi label="Calls 24h" value={num(data.calls24h)} />
+        <Kpi label="Avg price" value={usd(avg)} />
       </div>
 
-      <div className="mt-6 grid gap-6">
-        <Panel title="Revenue by endpoint" subtitle="Last 24 hours">
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={endpointRevenue.map((e) => ({ name: e.path, revenue: e.revenue24h }))} layout="vertical">
-                <CartesianGrid stroke="var(--color-border)" horizontal={false} />
-                <XAxis type="number" stroke="var(--color-muted-foreground)" fontSize={11} tickLine={false} />
-                <YAxis type="category" dataKey="name" width={110} stroke="var(--color-muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
-                <Tooltip
-                  cursor={{ fill: "var(--color-muted)" }}
-                  formatter={(v: number) => usd(v)}
-                  contentStyle={{
-                    background: "var(--color-card)",
-                    border: "1px solid var(--color-border)",
-                    borderRadius: 12,
-                    fontSize: 12,
-                  }}
-                />
-                <Bar dataKey="revenue" fill="var(--color-primary)" radius={[0, 6, 6, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Panel>
+      <div className="mt-4 flex gap-2">
+        {(["all", "live", "paused"] as const).map((s) => (
+          <button
+            key={s}
+            type="button"
+            onClick={() => setFilter(s)}
+            className={`rounded-full px-4 py-1.5 text-xs ${filter === s ? "bg-primary text-primary-foreground" : "bg-secondary"}`}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
 
-        <Panel title="Rate card" subtitle="Every route, its unit of account and what it earned">
-          <Table head={["Route", "Unit", "Price", "Calls 24h", "Revenue", "p95", "Status"]}>
+      <div className="mt-6 grid gap-6 xl:grid-cols-2">
+        <Panel title="Rate card" subtitle="Live status from ledger">
+          <Table head={["Path", "Unit", "Price", "Calls", "Revenue", "Status"]}>
             {rows.map((e) => (
               <tr key={e.id}>
-                <Td mono>{e.path}</Td>
+                <Td>{e.path}</Td>
                 <Td>{e.unit}</Td>
-                <Td mono>{usd(e.pricePerUnit)}</Td>
-                <Td mono>{num(e.calls24h)}</Td>
-                <Td mono>{usd(e.revenue24h)}</Td>
-                <Td mono>{e.p95ms} ms</Td>
+                <Td>{usd(e.pricePerUnit)}</Td>
+                <Td>{num(e.calls24h)}</Td>
+                <Td>{usd(e.revenue24h ?? 0)}</Td>
                 <Td>
                   <Badge value={e.status} />
                 </Td>
@@ -109,14 +88,19 @@ function Paystream() {
             ))}
           </Table>
         </Panel>
-
-        <div className="panel flex items-start gap-3 rounded-2xl p-5 text-sm text-muted-foreground">
-          <Waves className="mt-0.5 size-4 shrink-0 text-primary" />
-          <p>
-            Changing a price takes effect on the next 402 challenge. In-flight vouchers always settle at the price
-            they were quoted, so an agent is never charged more than it agreed to.
-          </p>
-        </div>
+        <Panel title="Revenue bars" subtitle="Last 24h">
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={rows}>
+                <CartesianGrid stroke="var(--color-border)" vertical={false} />
+                <XAxis dataKey="path" stroke="var(--color-muted-foreground)" fontSize={11} tickLine={false} />
+                <YAxis stroke="var(--color-muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
+                <Tooltip />
+                <Bar dataKey="revenue24h" fill="var(--color-primary)" radius={4} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Panel>
       </div>
     </div>
   );

@@ -21,23 +21,28 @@ export const Route = createFileRoute("/docs")({
   component: DocsPage,
 });
 
-const install = `npm i @meter/sdk`;
+const install = `# Keys in .env (gitignored)
+TAVILY_API_KEY=...
+TINYFISH_API_KEY=...
+AGENTROUTER_API_KEY=...   # optional LLM; no OpenAI required
+npm run dev`;
 
-const middleware = `import { meter } from "@meter/sdk";
+const middleware = `# Fund sandbox subaccount (withdrawals restricted)
+curl -X POST /api/v1/subaccounts \\
+  -H 'content-type: application/json' \\
+  -d '{"id":"agent_b7f2","amount":5}'
 
-export const research = meter({
-  unit: "query",
-  price: 0.02,           // USDC per unit
-  settle: "x402",
-  batch: { window: "5m", maxDaily: 20 },
-})(async (req) => runResearch(req));`;
+# Paid research (live Tavily + TinyFish)
+curl '/api/v1/research?q=bnb+agent+os' \\
+  -H 'X-Meter-Agent-Id: agent_b7f2' \\
+  -H 'X-Meter-Payment: prepaid'`;
 
 const challenge = `HTTP/1.1 402 Payment Required
+PAYMENT-REQUIRED: <base64 PaymentRequired>
 X-Meter-Endpoint: /research
 X-Meter-Unit: query
 X-Meter-Price: 0.02
-X-Meter-Settle: x402://agentos/settle
-X-Meter-Invoice: INV-2091`;
+X-Meter-Settle: x402`;
 
 const invoice = `{
   "id": "INV-2091",

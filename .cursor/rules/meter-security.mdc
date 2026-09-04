@@ -1,0 +1,15 @@
+---
+description: Security and secrets handling for METER — residual risk, no unhackable claims
+globs: src/meter/**/*.ts,.env.example,grounds/**/*
+alwaysApply: false
+---
+
+# METER Security
+
+- Input-validate every API body and query (`q` required for research).
+- Secrets only via env; never hardcode; never echo in logs or UI.
+- Subaccounts: `withdrawalsRestricted: true` always.
+- Daily cap + call ceiling enforced before debit.
+- Atomic ledger writes (temp file + rename).
+- Residual risk to document: key leakage, facilitator trust, host WAF, prompt injection on agent tooling, file-ledger single-host durability.
+- Forbidden phrasing: "unhackable", "North Korea can't hack", "zero bugs forever".
