@@ -17,6 +17,7 @@ import { Route as DocsRouteImport } from './routes/docs'
 import { Route as MerchRouteImport } from './routes/merch'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ProductRouteImport } from './routes/product'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -58,37 +59,44 @@ const ProductRoute = ProductRouteImport.update({
   path: '/product',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/brand': typeof BrandRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/demo': typeof DemoRoute
   '/docs': typeof DocsRoute
   '/merch': typeof MerchRoute
   '/pricing': typeof PricingRoute
   '/product': typeof ProductRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/brand': typeof BrandRoute
-  '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/docs': typeof DocsRoute
   '/merch': typeof MerchRoute
   '/pricing': typeof PricingRoute
   '/product': typeof ProductRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/brand': typeof BrandRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/demo': typeof DemoRoute
   '/docs': typeof DocsRoute
   '/merch': typeof MerchRoute
   '/pricing': typeof PricingRoute
   '/product': typeof ProductRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,16 +109,17 @@ export interface FileRouteTypes {
     | '/merch'
     | '/pricing'
     | '/product'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/brand'
-    | '/dashboard'
     | '/demo'
     | '/docs'
     | '/merch'
     | '/pricing'
     | '/product'
+    | '/dashboard'
   id:
     | '__root__'
     | '/'
@@ -121,12 +130,13 @@ export interface FileRouteTypes {
     | '/merch'
     | '/pricing'
     | '/product'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BrandRoute: typeof BrandRoute
-  DashboardRoute: typeof DashboardRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
   DemoRoute: typeof DemoRoute
   DocsRoute: typeof DocsRoute
   MerchRoute: typeof MerchRoute
@@ -192,13 +202,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
+
+interface DashboardRouteChildren {
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BrandRoute: BrandRoute,
-  DashboardRoute: DashboardRoute,
+  DashboardRoute: DashboardRouteWithChildren,
   DemoRoute: DemoRoute,
   DocsRoute: DocsRoute,
   MerchRoute: MerchRoute,
