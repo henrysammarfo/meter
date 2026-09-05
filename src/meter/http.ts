@@ -1,14 +1,25 @@
 /**
  * HTTP router for /api/v1/* — production Agent OS surface.
+ * Live providers only. No mocks, no silent fallbacks.
  */
 
 import { MeterConfigError, MeterLiveError, getEnv } from "./env";
 import { buildFloviaOverview } from "./flovia";
-import { fundAgent, getLedger, refreshLimitUsage } from "./ledger";
+import { fundAgent, getLedger, getReceipt, refreshLimitUsage } from "./ledger";
 import { issueInvoiceForAgent, markInvoicePaid } from "./invoice";
 import { handleResearch } from "./research";
 import { agentRouterChat } from "./clients/llm";
 import { tinyfishWallet } from "./clients/tinyfish";
+import { probeLiveProviders } from "./health";
+import { mcpSkillCatalog, openApiDocument } from "./catalog";
+import {
+  corsHeaders,
+  idempotencyKey,
+  readIdempotent,
+  requireOperator,
+  storeIdempotent,
+} from "./security";
+import { joinWaitlist, waitlistCount } from "./waitlist";
 
 function jsonError(err: unknown): Response {
   if (err instanceof MeterLiveError) {
@@ -38,35 +49,65 @@ async function readJson<T>(request: Request): Promise<T> {
   }
 }
 
+function withCors(request: Request, response: Response): Response {
+  const headers = new Headers(response.headers);
+  corsHeaders(request).forEach((v, k) => headers.set(k, v));
+  return new Response(response.body, { status: response.status, headers });
+}
+
 export async function handleMeterApi(request: Request): Promise<Response | null> {
   const url = new URL(request.url);
   if (!url.pathname.startsWith("/api/v1/")) return null;
 
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders(request) });
+  }
+
   try {
+    const idem = request.method === "POST" ? idempotencyKey(request) : null;
+    if (idem) {
+      const replay = readIdempotent(idem);
+      if (replay) return withCors(request, replay);
+    }
+
+    let response: Response;
+
     if (url.pathname === "/api/v1/health" && request.method === "GET") {
+      const deep =
+        url.searchParams.get("deep") === "1" ||
+        url.searchParams.get("deep") === "true";
+      const probes = await probeLiveProviders(deep);
       const env = getEnv();
-      return Response.json({
-        ok: true,
+      const ok =
+        probes.tavily.configured &&
+        probes.tinyfish.configured &&
+        (!deep ||
+          (Boolean(probes.tavily.reachable) && Boolean(probes.tinyfish.reachable)));
+      response = Response.json({
+        ok,
         service: "METER",
         track: "A",
-        live: {
-          tavily: Boolean(env.TAVILY_API_KEY),
-          tinyfish: Boolean(env.TINYFISH_API_KEY),
-          agentrouter: Boolean(env.AGENTROUTER_API_KEY),
-          onchainX402: Boolean(env.METER_PAY_TO && env.METER_USDC_ASSET),
-          binanceAgentOs: Boolean(env.BINANCE_AGENT_OS_API_KEY),
-        },
+        doctrine: "no_mocks_no_fallbacks",
         dailyCapUsdc: env.METER_DAILY_CAP_USDC,
         researchPriceUsdc: env.METER_RESEARCH_PRICE_USDC,
-        doctrine: "no_mocks_no_fallbacks",
+        takeRate: env.METER_TAKE_RATE,
+        live: {
+          tavily: probes.tavily,
+          tinyfish: probes.tinyfish,
+          llm: probes.llm,
+          onchainX402: probes.onchainX402,
+          binanceAgentOs: probes.binanceAgentOs,
+          operatorAuth: probes.operatorAuth,
+        },
+        waitlistCount: await waitlistCount(),
       });
-    }
-
-    if (url.pathname === "/api/v1/research" && (request.method === "GET" || request.method === "POST")) {
-      return await handleResearch(request);
-    }
-
-    if (url.pathname === "/api/v1/subaccounts" && request.method === "POST") {
+    } else if (
+      url.pathname === "/api/v1/research" &&
+      (request.method === "GET" || request.method === "POST")
+    ) {
+      response = await handleResearch(request);
+    } else if (url.pathname === "/api/v1/subaccounts" && request.method === "POST") {
+      requireOperator(request);
       const body = await readJson<{
         agent?: string;
         id?: string;
@@ -77,13 +118,16 @@ export async function handleMeterApi(request: Request): Promise<Response | null>
       const id = body.id ?? body.agent;
       if (!id) throw new MeterLiveError("MISSING_AGENT", "Provide id or agent", 400);
       const amount = body.amount ?? 5;
+      if (!(amount > 0)) {
+        throw new MeterLiveError("INVALID_AMOUNT", "amount must be > 0", 400);
+      }
       const agent = await fundAgent({
         id,
         label: body.label ?? id,
-        owner: body.owner ?? "demo-operator",
+        owner: body.owner ?? "operator",
         amount,
       });
-      return Response.json(
+      response = Response.json(
         {
           balance: agent.balance,
           funded: agent.funded,
@@ -93,51 +137,89 @@ export async function handleMeterApi(request: Request): Promise<Response | null>
         },
         { status: 201 },
       );
-    }
-
-    if (url.pathname === "/api/v1/invoices" && request.method === "POST") {
+    } else if (url.pathname === "/api/v1/invoices" && request.method === "POST") {
+      requireOperator(request);
       const body = await readJson<{ agentId?: string }>(request);
-      if (!body.agentId) throw new MeterLiveError("MISSING_AGENT", "agentId required", 400);
-      const invoice = await issueInvoiceForAgent(body.agentId);
-      return Response.json(invoice, { status: 201 });
-    }
-
-    if (url.pathname.startsWith("/api/v1/invoices/") && request.method === "POST") {
-      const id = url.pathname.replace("/api/v1/invoices/", "").replace(/\/pay$/, "");
-      if (url.pathname.endsWith("/pay")) {
-        const invoice = await markInvoicePaid(id);
-        return Response.json(invoice);
+      if (!body.agentId) {
+        throw new MeterLiveError("MISSING_AGENT", "agentId required", 400);
       }
-    }
-
-    if (url.pathname === "/api/v1/ledger" && request.method === "GET") {
-      const overview = await buildFloviaOverview();
-      return Response.json(overview);
-    }
-
-    if (url.pathname === "/api/v1/limits" && request.method === "GET") {
-      return Response.json({ limits: await refreshLimitUsage() });
-    }
-
-    if (url.pathname === "/api/v1/agents" && request.method === "GET") {
+      response = Response.json(await issueInvoiceForAgent(body.agentId), {
+        status: 201,
+      });
+    } else if (url.pathname.startsWith("/api/v1/invoices/") && request.method === "POST") {
+      requireOperator(request);
+      const id = url.pathname
+        .replace("/api/v1/invoices/", "")
+        .replace(/\/pay$/, "");
+      if (!url.pathname.endsWith("/pay")) {
+        response = Response.json(
+          { error: "NOT_FOUND", message: `No route ${url.pathname}` },
+          { status: 404 },
+        );
+      } else {
+        response = Response.json(await markInvoicePaid(id));
+      }
+    } else if (url.pathname === "/api/v1/ledger" && request.method === "GET") {
+      response = Response.json(await buildFloviaOverview());
+    } else if (url.pathname === "/api/v1/limits" && request.method === "GET") {
+      response = Response.json({ limits: await refreshLimitUsage() });
+    } else if (url.pathname === "/api/v1/agents" && request.method === "GET") {
       const ledger = await getLedger();
-      return Response.json({ agents: ledger.agents });
+      response = Response.json({ agents: ledger.agents });
+    } else if (url.pathname === "/api/v1/waitlist" && request.method === "POST") {
+      const body = await readJson<{ email?: string; source?: string }>(request);
+      if (!body.email) {
+        throw new MeterLiveError("MISSING_EMAIL", "email required", 400);
+      }
+      const ua = request.headers.get("user-agent");
+      const result = await joinWaitlist({
+        email: body.email,
+        source: body.source ?? "landing",
+        ...(ua ? { userAgent: ua } : {}),
+      });
+      response = Response.json(
+        { ...result, total: await waitlistCount() },
+        { status: result.duplicate ? 200 : 201 },
+      );
+    } else if (url.pathname === "/api/v1/openapi.json" && request.method === "GET") {
+      response = Response.json(openApiDocument(url.origin));
+    } else if (url.pathname === "/api/v1/mcp/skills" && request.method === "GET") {
+      response = Response.json(mcpSkillCatalog(url.origin));
+    } else if (url.pathname === "/api/v1/receipts" && request.method === "GET") {
+      const ledger = await getLedger();
+      response = Response.json({ receipts: ledger.receipts.slice(0, 100) });
+    } else if (url.pathname.startsWith("/api/v1/receipts/") && request.method === "GET") {
+      const id = url.pathname.replace("/api/v1/receipts/", "");
+      const receipt = await getReceipt(id);
+      if (!receipt) {
+        throw new MeterLiveError("RECEIPT_NOT_FOUND", `Unknown receipt ${id}`, 404);
+      }
+      response = Response.json(receipt);
+    } else if (url.pathname === "/api/v1/llm/ping" && request.method === "POST") {
+      requireOperator(request);
+      const content = await agentRouterChat(
+        [{ role: "user", content: "Reply with exactly: METER_OK" }],
+        { maxTokens: 16 },
+      );
+      response = Response.json({ ok: content.includes("METER_OK"), content });
+    } else if (
+      url.pathname === "/api/v1/providers/tinyfish/wallet" &&
+      request.method === "GET"
+    ) {
+      requireOperator(request);
+      response = Response.json({ wallet: await tinyfishWallet() });
+    } else {
+      response = Response.json(
+        { error: "NOT_FOUND", message: `No route ${url.pathname}` },
+        { status: 404 },
+      );
     }
 
-    if (url.pathname === "/api/v1/llm/ping" && request.method === "POST") {
-      const content = await agentRouterChat([
-        { role: "user", content: "Reply with exactly: METER_OK" },
-      ], { maxTokens: 16 });
-      return Response.json({ ok: content.includes("METER_OK"), content });
+    if (idem && request.method === "POST" && response.status < 500) {
+      response = await storeIdempotent(idem, response);
     }
-
-    if (url.pathname === "/api/v1/providers/tinyfish/wallet" && request.method === "GET") {
-      const wallet = await tinyfishWallet();
-      return Response.json({ wallet });
-    }
-
-    return Response.json({ error: "NOT_FOUND", message: `No route ${url.pathname}` }, { status: 404 });
+    return withCors(request, response);
   } catch (err) {
-    return jsonError(err);
+    return withCors(request, jsonError(err));
   }
 }

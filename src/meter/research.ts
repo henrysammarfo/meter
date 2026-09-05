@@ -1,16 +1,15 @@
 /**
- * Paid /research skill — live Tavily + TinyFish only. No hallucinated answers.
+ * Paid /research skill — live Tavily + TinyFish Search + TinyFish Fetch.
+ * Both search providers must return hits. Top URLs are fetched live. No mocks.
  */
 
 import { getEnv, MeterLiveError } from "./env";
 import { tavilySearch } from "./clients/tavily";
-import { tinyfishSearch } from "./clients/tinyfish";
+import { tinyfishFetch, tinyfishSearch } from "./clients/tinyfish";
 import { authorizeFromRequest, recordPaidCall } from "./paystream";
+import { assertAgentRateLimit } from "./security";
 import type { ResearchResult } from "./types";
-import {
-  buildPaymentRequired,
-  paymentRequiredResponse,
-} from "./x402";
+import { buildPaymentRequired, paymentRequiredResponse } from "./x402";
 
 export async function handleResearch(request: Request): Promise<Response> {
   const env = getEnv();
@@ -54,20 +53,22 @@ export async function handleResearch(request: Request): Promise<Response> {
     );
   }
 
-  // Live providers — if either hard-fails auth, surface it. Soft-enrichment: TinyFish optional? 
-  // Doctrine: no fallbacks. Both must succeed for full research package.
-  const tavily = await tavilySearch(query, { maxResults: 6 });
-  const tiny = await tinyfishSearch(
-    query,
-    "Enrich METER agent research with ranked web sources for fact-checking",
-  );
+  assertAgentRateLimit(auth.agentId);
 
-  if (!tavily.results.length && !tiny.results.length) {
-    throw new MeterLiveError(
-      "RESEARCH_EMPTY",
-      "Live providers returned zero sources for this query",
-      502,
-    );
+  // Doctrine: no fallbacks. Both search providers must succeed with ≥1 hit.
+  const [tavily, tiny] = await Promise.all([
+    tavilySearch(query, { maxResults: 6 }),
+    tinyfishSearch(
+      query,
+      "Enrich METER agent research with ranked web sources for fact-checking",
+    ),
+  ]);
+
+  if (!tavily.results.length) {
+    throw new MeterLiveError("TAVILY_EMPTY", "Tavily returned zero live results", 502);
+  }
+  if (!tiny.results.length) {
+    throw new MeterLiveError("TINYFISH_EMPTY", "TinyFish Search returned zero live results", 502);
   }
 
   const sources = [
@@ -89,30 +90,85 @@ export async function handleResearch(request: Request): Promise<Response> {
     }),
   ];
 
-  // Deduplicate by URL
   const seen = new Set<string>();
   const deduped = sources.filter((s) => {
-    if (seen.has(s.url)) return false;
+    if (!s.url || seen.has(s.url)) return false;
     seen.add(s.url);
     return true;
   });
 
-  const answer =
+  // Live page fetch of top URLs — required, not optional enrichment.
+  const fetchUrls = deduped.slice(0, 3).map((s) => s.url);
+  const fetched = await tinyfishFetch(
+    fetchUrls,
+    `Extract factual excerpts relevant to: ${query.slice(0, 400)}`,
+  );
+  if (!fetched.results.length) {
+    throw new MeterLiveError(
+      "TINYFISH_FETCH_EMPTY",
+      "TinyFish Fetch returned zero pages for top research URLs",
+      502,
+      { urls: fetchUrls, errors: fetched.errors },
+    );
+  }
+
+  const pages = fetched.results.map((p) => ({
+    url: p.url,
+    title: p.title ?? null,
+    excerpt: (p.text ?? "").slice(0, 2500),
+  }));
+
+  const providers: string[] = ["tavily", "tinyfish-search", "tinyfish-fetch"];
+  let answer =
     tavily.answer?.trim() ||
-    `Live aggregate of ${deduped.length} sources from Tavily + TinyFish. No model synthesis (AgentRouter unreachable or unused for this path).`;
+    [
+      `Live research package for “${query.trim()}”.`,
+      `Sources: ${deduped.length} (Tavily + TinyFish Search).`,
+      `Fetched pages: ${pages.length}.`,
+      "Answer is composed only from live provider payloads — no model synthesis on this path.",
+    ].join(" ");
+
+  // Optional live LLM synthesis — explicit opt-in + configured provider only.
+  const synthesize =
+    url.searchParams.get("synthesize") === "1" ||
+    url.searchParams.get("synthesize") === "true";
+  if (synthesize) {
+    const { meterChat } = await import("./llm");
+    const context = [
+      `Query: ${query}`,
+      "Sources:",
+      ...deduped.slice(0, 8).map((s, i) => `${i + 1}. ${s.title} — ${s.url}\n${s.snippet ?? ""}`),
+      "Fetched excerpts:",
+      ...pages.map((p) => `${p.url}\n${p.excerpt.slice(0, 1200)}`),
+    ].join("\n\n");
+    const { content, provider } = await meterChat(
+      [
+        {
+          role: "system",
+          content:
+            "You synthesize factual briefs only from the supplied live sources. Cite URLs. If sources conflict, say so. Never invent facts.",
+        },
+        { role: "user", content: context },
+      ],
+      { maxTokens: 700 },
+    );
+    answer = content;
+    providers.push(provider);
+  }
 
   const receipt = await recordPaidCall({
     auth,
     endpoint: "/research",
     query,
-    provider: "tavily+tinyfish",
+    provider: providers.join("+"),
   });
 
   const body: ResearchResult = {
     query,
     answer,
     sources: deduped.slice(0, 12),
-    providers: ["tavily", "tinyfish-search"],
+    pages,
+    providers,
     receiptId: receipt.id,
     amount: price,
   };

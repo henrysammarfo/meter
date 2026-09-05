@@ -13,3 +13,13 @@
 - Added `scripts/smoke-meter.mjs`, `grounds_lib/llm.py`, memory docs.
 - Owner guidance honored: no unhackable claims; no mocks/fallbacks; enterprise wiring; keys rotated after hack (reminded).
 - **SMOKE OK:** health, fund, 402, paid live research (Tavily+TinyFish), invoice, ledger, stress×5 parallel — all green on vite dev.
+
+## 2026-09-05 — Keep building: production hardening (no mocks)
+
+- Fixed health shallow mode honesty (`reachable=null` until probed).
+- Production operator lock (`METER_PRODUCTION` / `NODE_ENV=production`).
+- Explicit Venice LLM provider (no silent AgentRouter fallback).
+- Binance facilitator client fail-closed until keys present.
+- Receipt GET routes, catalog/waitlist/security wired through `/api/v1`.
+- Smoke cleanup hardened (process-group kill + exit).
+- Typecheck clean. Live smoke re-run next.

@@ -95,6 +95,8 @@ export interface ResearchResult {
   query: string;
   answer: string;
   sources: Array<{ title: string; url: string; snippet?: string }>;
+  /** Live TinyFish Fetch excerpts for top source URLs. */
+  pages: Array<{ url: string; title: string | null; excerpt: string }>;
   providers: string[];
   receiptId: string;
   amount: number;

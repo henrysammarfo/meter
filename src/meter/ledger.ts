@@ -229,6 +229,26 @@ export async function appendReceipt(receipt: Receipt): Promise<void> {
   });
 }
 
+export async function getReceipt(id: string): Promise<Receipt | null> {
+  const ledger = await getLedger();
+  return ledger.receipts.find((r) => r.id === id) ?? null;
+}
+
+export async function setAgentStatus(
+  agentId: string,
+  status: AgentAccount["status"],
+): Promise<AgentAccount> {
+  let updated: AgentAccount | undefined;
+  await mutateLedger((ledger) => {
+    const agent = ledger.agents.find((a) => a.id === agentId);
+    if (!agent) throw new Error(`Unknown agent ${agentId}`);
+    agent.status = status;
+    updated = agent;
+  });
+  if (!updated) throw new Error(`Unknown agent ${agentId}`);
+  return updated;
+}
+
 export async function appendInvoice(invoice: Invoice): Promise<void> {
   await mutateLedger((ledger) => {
     ledger.invoices.unshift(invoice);

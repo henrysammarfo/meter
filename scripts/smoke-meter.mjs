@@ -40,6 +40,7 @@ async function main() {
       cwd: process.cwd(),
       env: { ...process.env },
       stdio: ["ignore", "pipe", "pipe"],
+      detached: true,
     });
     base = "http://127.0.0.1:4179";
     child.stdout.on("data", (d) => process.stdout.write(`[dev] ${d}`));
@@ -69,12 +70,33 @@ async function main() {
 
   try {
     await step("health", async () => {
-      const res = await fetch(`${base}/api/v1/health`);
+      const res = await fetch(`${base}/api/v1/health?deep=1`);
       const body = await res.json();
       if (!res.ok || !body.ok) throw new Error(JSON.stringify(body));
-      if (!body.live.tavily || !body.live.tinyfish) {
+      if (!body.live?.tavily?.configured || !body.live?.tinyfish?.configured) {
         throw new Error("Tavily/TinyFish keys not visible to server");
       }
+      if (!body.live.tavily.reachable || !body.live.tinyfish.reachable) {
+        throw new Error(`Deep health probes failed: ${JSON.stringify(body.live)}`);
+      }
+    });
+
+    await step("waitlist", async () => {
+      const res = await fetch(`${base}/api/v1/waitlist`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: `smoke+${Date.now()}@meter.dev`, source: "smoke" }),
+      });
+      const body = await res.json();
+      if (res.status !== 201 && res.status !== 200) throw new Error(JSON.stringify(body));
+    });
+
+    await step("openapi+mcp", async () => {
+      const oa = await fetch(`${base}/api/v1/openapi.json`);
+      const mcp = await fetch(`${base}/api/v1/mcp/skills`);
+      if (!oa.ok || !mcp.ok) throw new Error("catalog endpoints failed");
+      const skills = await mcp.json();
+      if (!skills.skills?.length) throw new Error("empty MCP skill catalog");
     });
 
     await step("fund", async () => {
@@ -103,7 +125,9 @@ async function main() {
       const body = await res.json();
       if (!res.ok) throw new Error(JSON.stringify(body));
       if (!body.sources?.length) throw new Error("no live sources");
+      if (!body.pages?.length) throw new Error("no live TinyFish fetched pages");
       if (!body.receiptId) throw new Error("no receipt");
+      if (!body.providers?.includes("tinyfish-fetch")) throw new Error("missing tinyfish-fetch provider");
     });
 
     await step("invoice", async () => {
@@ -146,12 +170,22 @@ async function main() {
     });
 
     console.log("\nSMOKE OK", steps);
+    process.exitCode = 0;
   } finally {
-    if (child) child.kill("SIGTERM");
+    if (child && child.pid) {
+      try { process.kill(-child.pid, "SIGTERM"); } catch {}
+      setTimeout(() => {
+        try { process.kill(-child.pid, "SIGKILL"); } catch {}
+      }, 1500).unref?.();
+    }
   }
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+main()
+  .then(() => {
+    setTimeout(() => process.exit(process.exitCode ?? 0), 2000);
+  })
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });

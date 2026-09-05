@@ -3,6 +3,7 @@
  * Protocol headers per https://docs.x402.org (PAYMENT-REQUIRED / PAYMENT-SIGNATURE / PAYMENT-RESPONSE).
  */
 
+import { binanceConfigured, binanceFacilitatorSettle } from "./clients/binance";
 import { getEnv, MeterLiveError } from "./env";
 
 export interface PaymentAccept {
@@ -65,6 +66,10 @@ export function buildPaymentRequired(input: {
       payTo: env.METER_PAY_TO,
       maxTimeoutSeconds: 60,
       asset: env.METER_USDC_ASSET,
+      extra: {
+        facilitator: env.BINANCE_X402_FACILITATOR_URL ?? env.METER_FACILITATOR_URL,
+        binanceAgentOs: binanceConfigured(),
+      },
     });
   }
 
@@ -103,7 +108,13 @@ export async function facilitatorSettle(paymentPayload: unknown): Promise<{
       501,
     );
   }
-  const base = env.BINANCE_X402_FACILITATOR_URL ?? env.METER_FACILITATOR_URL;
+
+  // Prefer Binance Agent OS facilitator when fully keyed — never invent a tx.
+  if (binanceConfigured()) {
+    return binanceFacilitatorSettle(paymentPayload);
+  }
+
+  const base = env.METER_FACILITATOR_URL;
   const verifyRes = await fetch(`${base.replace(/\/$/, "")}/verify`, {
     method: "POST",
     headers: { "content-type": "application/json" },

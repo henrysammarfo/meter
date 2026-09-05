@@ -48,6 +48,12 @@ const EnvSchema = z.object({
   ),
   VENICE_API_KEY: optionalNonEmpty,
   VENICE_BASE_URL: z.preprocess(emptyToUndef, z.string().url().optional()),
+  VENICE_MODEL: z.preprocess(emptyToUndef, z.string().optional()),
+  /** Explicit LLM vendor — never auto-swaps. */
+  METER_LLM_PROVIDER: z.preprocess(
+    emptyToUndef,
+    z.enum(["agentrouter", "venice"]).optional(),
+  ),
   METER_TAKE_RATE: z.coerce.number().min(0).max(0.2).default(0.009),
   METER_DAILY_CAP_USDC: z.coerce.number().positive().default(20),
   METER_RESEARCH_PRICE_USDC: z.coerce.number().positive().default(0.02),
@@ -67,6 +73,20 @@ const EnvSchema = z.object({
   METER_USDC_ASSET: optionalNonEmpty,
   BINANCE_AGENT_OS_API_KEY: optionalNonEmpty,
   BINANCE_X402_FACILITATOR_URL: optionalNonEmpty,
+  /** When set, mutating operator routes require X-Meter-Operator-Key. */
+  METER_OPERATOR_KEY: optionalNonEmpty,
+  /**
+   * Production lock: require operator key for fund/invoice mutations.
+   * Also inferred when NODE_ENV=production.
+   */
+  METER_PRODUCTION: z.preprocess((v) => {
+    if (v === undefined || v === null || v === "") return undefined;
+    if (typeof v === "boolean") return v;
+    const s = String(v).toLowerCase();
+    if (["1", "true", "yes", "on"].includes(s)) return true;
+    if (["0", "false", "no", "off"].includes(s)) return false;
+    return v;
+  }, z.boolean().optional()),
 });
 
 export type MeterEnv = z.infer<typeof EnvSchema>;
@@ -83,6 +103,13 @@ export function getEnv(): MeterEnv {
   }
   cached = parsed.data;
   return cached;
+}
+
+export function isProductionMode(): boolean {
+  const env = getEnv();
+  if (env.METER_PRODUCTION === true) return true;
+  if (env.METER_PRODUCTION === false) return false;
+  return process.env["NODE_ENV"] === "production";
 }
 
 /** Require a named secret. Throws — never substitutes a demo key. */
