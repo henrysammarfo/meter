@@ -36,8 +36,10 @@
 
 | Step | Status | What |
 |---|---|---|
-| 1 | **WAITING OWNER** | Open B402 apply docs + form; choose **Sandbox first**; do not submit yet |
-| 2+ | Pending | RSA keypair → form submit → Sandbox `clientId`/`accessToken` → wire `.env` → Production apply → `METER_PAY_TO` / USDC → operator lock |
+| 1 | **BLOCKED — Google Form** | Owner cannot open `forms.gle`; official apply is Google-only (docs + marketing CTA = same form) |
+| 1b | **WAITING OWNER** | Try long Google Form URL OR marketing page CTA OR Binance logged-in support feedback |
+| 2 | Pending | Generate RSA-1024 keypair (public for apply; private never leaves owner machine / secrets) |
+| 3+ | Pending | Sandbox submit → `clientId`/`accessToken`/base URL → rewrite B402 client (RSA + `/papi/v2/b402/*`) → Production |
 
 Official apply: [developers.binance.com …/6.apply-developer-account](https://developers.binance.com/docs/products/onchainpay-x402/basics/6.apply-developer-account) · Form: https://forms.gle/aUQvxUETfGMzyTky5
 
@@ -49,3 +51,7 @@ Official apply: [developers.binance.com …/6.apply-developer-account](https://d
 4. `METER_PAY_TO` + `METER_USDC_ASSET` (B402 Production = BSC mainnet per Binance docs — not Base Sepolia)
 5. Confirm `METER_OPERATOR_KEY` before production lock
 6. Demo video + X quote (owner)
+
+## Known integration gap (docs-verified)
+
+`src/meter/clients/binance.ts` still uses Bearer `/verify` `/settle`. Official B402 V2 requires RSA-SHA256 + `X-Tesla-*` headers on `/papi/v2/b402/{supported,verify,settle}`. Rewrite after Sandbox credentials — fail-closed until then. Study notes: `memory/research-raw/binance-b402/NOTES.md`.

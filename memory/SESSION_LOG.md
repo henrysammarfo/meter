@@ -78,3 +78,12 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - Verified B402 apply docs via `developers.binance.com/en/docs/products/onchainpay-x402/*.md` (not hallucinated HTML).
 - Step 1 issued: open apply doc + Google Form; choose **Sandbox**; do not submit until RSA public key (Step 2).
 - Fact: B402 Production settle is **BSC mainnet (56)**; Sandbox **BSC testnet (97)**; base URL comes with onboarding.
+
+
+## 2026-09-05 — API keys Step 1 blocked (Google Form); B402 docs studied
+
+- Owner cannot access `forms.gle` apply link. Verified marketing CTA uses a second short link that resolves to the **same** Google Form — no second product path.
+- Long form URL recorded for owner: `https://docs.google.com/forms/d/e/1FAIpQLScUfaXvaKB4uE0smsl7HpOt4dqbDWLvmC5xthevQnyT7nBYqA/viewform`
+- Deep-read + saved markdown under `memory/research-raw/binance-b402/` + `NOTES.md`.
+- Critical learning: B402 V2 signing is RSA + `X-Tesla-*` on `/papi/v2/b402/*` — current METER Binance client Bearer shape is a gap to fix after credentials.
+- Revised Step 1b for owner (long URL / marketing page / Binance support). Waiting confirm before Step 2 (RSA generate).

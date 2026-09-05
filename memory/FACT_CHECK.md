@@ -97,3 +97,19 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 | Public Bazaar discovery (Production) | **VERIFIED** | `https://www.binance.com/bapi/ramp/v1/public/ramp/b402` |
 | Default METER `METER_FACILITATOR_URL=https://x402.org/facilitator` = Binance Production | **FALSE** | x402.org facilitator is testnet-oriented (docs.x402.org); Binance Production needs onboarded B402 base URL |
 | JS HTML pages on developers.binance.com from this host | **PARTIAL** | HTML WAF/JS gate; markdown under `/en/docs/.../*.md` fetchable |
+
+
+## 2026-09-05 — B402 apply path + auth (deep read)
+
+| Claim | Status | Evidence |
+|---|---|---|
+| Docs apply link `forms.gle/aUQvxUETfGMzyTky5` | **VERIFIED** | `basics/6.apply-developer-account.md` |
+| Marketing "Apply for API Key" uses `forms.gle/xdkrQt1WTnQtK73R6` | **VERIFIED** | `page-7c60.*.js` `window.open(...)` |
+| Both short links = same Google Form | **VERIFIED** | Both redirect to `1FAIpQLScUfaXvaKB4uE0smsl7HpOt4dqbDWLvmC5xthevQnyT7nBYqA` |
+| Public non-Google apply email in docs | **FALSE / NOT FOUND** | Apply doc only links Google Form |
+| Auth = Bearer token to `/verify` | **FALSE for B402 V2** | Headers are `X-Tesla-ClientId`, `X-Tesla-SignAccessToken`, `X-Tesla-Timestamp`, `X-Tesla-Signature` |
+| Sign payload = `jsonBody + timestamp`, RSA-SHA256, 1024-bit | **VERIFIED** | `basics/3.request-signing.md` |
+| Authenticated base URL public in docs | **FALSE** | "Please contact us for access" — handed at onboarding |
+| Production chain BSC 56 / Sandbox BSC 97 | **VERIFIED** | `basics/4.base-urls.md` + payment methods |
+| Bazaar production public base | **VERIFIED LIVE** | `https://www.binance.com/bapi/ramp/v1/public/ramp/b402` — 25 resources on 2026-09-05 |
+| Owner cannot open Google Form | **OWNER REPORT** | Step 1 blocked; use long URL / support alternate |
