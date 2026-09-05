@@ -113,3 +113,22 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 | Production chain BSC 56 / Sandbox BSC 97 | **VERIFIED** | `basics/4.base-urls.md` + payment methods |
 | Bazaar production public base | **VERIFIED LIVE** | `https://www.binance.com/bapi/ramp/v1/public/ramp/b402` — 25 resources on 2026-09-05 |
 | Owner cannot open Google Form | **OWNER REPORT** | Step 1 blocked; use long URL / support alternate |
+
+
+## 2026-09-05 — Agent OS landing + Mini Hackathon (owner paste + cross-check)
+
+| Claim | Status | Evidence |
+|---|---|---|
+| Hub URL `https://www.binance.com/en/agent-os` | **OWNER + PUBLIC** | Owner paste; binance.com WAF blocks headless fetch (HTTP 202 / JS challenge from this host) |
+| Total prize **60,000 USDC** | **VERIFIED** | Owner paste; @Binance X via Tavily; blockchain.news flash + article 2026-09-04 |
+| Track A pool **20,000 USDC** (build agent with Agent OS) | **VERIFIED** | Same cluster |
+| Track A payout tiers: 1st $2,000 · 2nd $1,500 · 3rd $1,000 · next 50 × $300 | **OWNER-SUPPLIED** | Owner paste of official Mini Hackathon article; secondary press often only says “$20k track” without tiers — treat tiers as owner-verified from Binance article text |
+| Track B pool **40,000 USDC** = first **10,000** eligible MCP+trade × **$4** | **OWNER-SUPPLIED + PARTIAL PRESS** | Owner paste; press confirms Track B $40k / MCP connect; exact $4×10k math matches 40k |
+| Deadline **2026-09-08 23:59 UTC** | **VERIFIED** | Owner paste; X; blockchain.news |
+| Enter: follow @Binance, repost, reply/quote (Track A: video/demo + GitHub), survey | **VERIFIED** | Owner paste; X announcement excerpt via Tavily; blockchain.news |
+| Geo: US, UK, EEA, HK, SG + prohibited list blocked | **VERIFIED** | Owner paste; blockchain.news article |
+| Agent OS toolkit: MCP · Skills Hub · x402/Pay · Exchange APIs · AI Pro · Agentic Wallet · Web3 APIs | **OWNER + DOCS** | Owner landing paste; developers.binance.com Agent Native + Skills Hub markdown |
+| MCP endpoint `https://agent.binance.com/mcp/agentic` | **VERIFIED** | `developers.binance.com/en/docs/agent-native/mcp-server/agentic.md` |
+| MCP auth = Binance.com OAuth; **no local API keys** on device; Agentic virtual sub-account; **no withdrawal scope** | **VERIFIED** | Same MCP agentic doc |
+| B402 Google Form still required for merchant `/papi/v2/b402` settle credentials | **VERIFIED** | OnChainPay x402 apply docs (separate surface from MCP OAuth) |
+| Blog IDs owner listed (ecosystem/tech) | **PARTIAL** | URLs recorded; headless fetch WAF’d — content taken from owner paste until browser confirm |

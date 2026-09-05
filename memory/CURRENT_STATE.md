@@ -27,19 +27,31 @@
 | Binance Agent OS | **Missing key** | Required for production Binance settle |
 | On-chain x402 | **Unconfigured** | Needs `METER_PAY_TO` + `METER_USDC_ASSET` |
 
-## Contest (Track A)
+## Contest (Agent OS Mini Hackathon)
 
-- Prize: $20,000 USDC · Deadline: **2026-09-08 23:59 UTC**
+- **Hub:** https://www.binance.com/en/agent-os
+- **Total pool:** $60,000 USDC · Deadline: **2026-09-08 23:59 UTC**
+- **Track A (METER target):** $20,000 USDC — tiers per owner paste: $2k / $1.5k / $1k / next 50 × $300
+- **Track B (optional parallel):** $40,000 USDC — first 10k eligible MCP+trade × $4 (not our primary win thesis)
+- **Submit:** Follow @Binance · repost · quote/reply (demo video + GitHub) · survey
 - Residual risk documented — never claim unhackable
 
-## API keys — slow path (owner confirms each step)
+## API keys / Agent OS access — slow path (owner confirms each step)
+
+Two different surfaces (do not mix):
+
+| Surface | How you get in | Needed for METER |
+|---|---|---|
+| **Binance MCP** (`https://agent.binance.com/mcp/agentic`) | Login Binance.com → OAuth in Claude/Cursor/Codex — **no API key file** | Track A demo “Agent OS connected” + optional Track B $4 |
+| **B402 / x402 merchant** (`/papi/v2/b402/*`) | Partner apply (Google Form / support) + RSA + IP allowlist | Real pay/settle / Bazaar listing |
 
 | Step | Status | What |
 |---|---|---|
-| 1 | **BLOCKED — Google Form** | Owner cannot open `forms.gle`; official apply is Google-only (docs + marketing CTA = same form) |
-| 1b | **WAITING OWNER** | Try long Google Form URL OR marketing page CTA OR Binance logged-in support feedback |
-| 2 | Pending | Generate RSA-1024 keypair (public for apply; private never leaves owner machine / secrets) |
-| 3+ | Pending | Sandbox submit → `clientId`/`accessToken`/base URL → rewrite B402 client (RSA + `/papi/v2/b402/*`) → Production |
+| 1a | **WAITING OWNER** | Open https://www.binance.com/en/agent-os — confirm page loads (hub) |
+| 1b | **BLOCKED / ALT** | B402 apply form (`forms.gle`) blocked → long Google URL or Binance support for Sandbox merchant |
+| 1c | Pending (after 1a) | Connect MCP in Cursor/Claude to `https://agent.binance.com/mcp/agentic` (OAuth) — separate from B402 |
+| 2 | Pending | RSA-1024 for B402 merchant (only after apply path open) |
+| 3+ | Pending | Sandbox `clientId`/`accessToken`/base URL → rewrite B402 client → Production pay-to |
 
 Official apply: [developers.binance.com …/6.apply-developer-account](https://developers.binance.com/docs/products/onchainpay-x402/basics/6.apply-developer-account) · Form: https://forms.gle/aUQvxUETfGMzyTky5
 

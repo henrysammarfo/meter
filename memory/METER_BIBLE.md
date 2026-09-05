@@ -26,11 +26,14 @@ Make **agent↔agent pay + API metering + shared receipts** load-bearing on Bina
 
 | Item | Value |
 |---|---|
-| Track A prize | **$20,000 USDC** |
-| Track B | Ignore unless later markets interest |
-| Submit | Follow @Binance · repost · quote (demo + GitHub) · survey |
+| Total pool | **$60,000 USDC** (Mini Hackathon) |
+| Track A prize | **$20,000 USDC** pool — tiers: $2,000 / $1,500 / $1,000 / next 50 × $300 (owner paste) |
+| Track B | Optional: first 10k MCP+trade × $4 from $40k — not product thesis |
+| Hub | https://www.binance.com/en/agent-os |
+| Submit | Follow @Binance · repost · quote/reply (demo + GitHub) · survey |
 | Ghana | Likely OK · US/UK/EEA/HK/SG blocked |
 | Constraint | x402 ~**$20/day** default — batch / session tabs |
+| MCP | `https://agent.binance.com/mcp/agentic` (OAuth; Agentic sub; no withdraw) |
 
 ---
 

@@ -87,3 +87,12 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - Deep-read + saved markdown under `memory/research-raw/binance-b402/` + `NOTES.md`.
 - Critical learning: B402 V2 signing is RSA + `X-Tesla-*` on `/papi/v2/b402/*` — current METER Binance client Bearer shape is a gap to fix after credentials.
 - Revised Step 1b for owner (long URL / marketing page / Binance support). Waiting confirm before Step 2 (RSA generate).
+
+
+## 2026-09-05 — Owner delivered full Agent OS + Mini Hackathon brief
+
+- Ingested https://www.binance.com/en/agent-os + Mini Hackathon article paste + 4 blog URLs.
+- Cross-checked prize pool/deadline/tracks via Tavily (@Binance X) + blockchain.news; headless binance.com WAF’d.
+- Verified MCP connect docs: endpoint `https://agent.binance.com/mcp/agentic`, OAuth, Agentic virtual sub, no withdrawal.
+- Clarified dual path: MCP OAuth ≠ B402 RSA merchant keys. METER Track A needs both narrative (Agent OS) + settle (x402/B402).
+- Saved raw: `memory/research-raw/agent-os/`. Updated FACT_CHECK + CURRENT_STATE + WIN map. Still waiting Step 1a confirm.
