@@ -17,10 +17,11 @@ function loadEnvFile(file) {
 }
 
 loadEnvFile(path.resolve(process.cwd(), ".env"));
+loadEnvFile(path.resolve(process.cwd(), ".env.local"));
 loadEnvFile(path.resolve(process.cwd(), "grounds/.env"));
 
 const modPath = path.resolve(process.cwd(), "src/meter/clients/agent-router.ts");
-const { liveChat, smokeSummary, getAgentRouterKey } = await import(
+const { liveChat, smokeSummary, getAgentRouterKey, getAgentRouterProxy } = await import(
   pathToFileURL(modPath).href
 );
 
@@ -33,7 +34,7 @@ if (!keyRes.ok) {
 
 const result = await liveChat({
   user: "Reply with exactly: PONG",
-  maxTokens: 16,
+  maxTokens: 64,
   provider: "auto",
 });
 
@@ -43,7 +44,10 @@ console.log(JSON.stringify({ ...summary, ok: pass && summary.ok }));
 if (!pass) {
   if (result.error) {
     // Safe diagnostic — no key material
-    console.error(result.error.slice(0, 300));
+    console.error(result.error.slice(0, 400));
+  }
+  if (!getAgentRouterProxy()) {
+    console.error("Hint: this cloud egress is Aliyun-WAF blocked; set AGENT_ROUTER_HTTP_PROXY");
   }
   process.exit(1);
 }

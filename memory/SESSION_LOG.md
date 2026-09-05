@@ -43,3 +43,31 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - `npm run typecheck` clean after `body["system"]` index-signature fix.
 - `npm run smoke:agentrouter` → `{ok:false, model:"", status:403}` (WAF HTML on `agentrouter.org` from this cloud IP; headers verified `claude-cli/2.1.158 (external, sdk-cli)`).
 - Fail closed; no native Anthropic/OpenAI keys invented.
+
+## 2026-09-05 — Attempted key refresh + alternate egress
+
+- Synced `.env` / `grounds/.env` to Cursor process `AGENTROUTER_API_KEY` (differed from on-disk key).
+- Both keys → `co.agentrouter.org` **401 Invalid API Key** (real JSON; key dead).
+- `agentrouter.org` → Aliyun WAF HTML from **this cloud IP and Vercel Edge (iad1)** even with AFTERCUT headers.
+- Cannot mint a new AgentRouter token without console access. Owner must put a fresh `sk-…` in `.env` / Cursor secrets (not chat), then re-run `npm run smoke:agentrouter`.
+
+## 2026-09-05 — Owner key re-sync + co validate (STOP)
+
+- Wrote owner-supplied AgentRouter key into `.env` / `.env.local` / `grounds/.env` (shape ok: `sk-`, len 51).
+- Non-WAF probe `POST https://co.agentrouter.org/v1/chat/completions` → **401 Invalid API Key** (JSON, not captcha).
+- Per AFTERCUT rules: **STOP**. Do not invent Anthropic/OpenAI keys. Do not claim PONG healthy.
+- Report: `{ok:false, model:"", status:401}`. Mint a **new** console token into `.env.local` + host secrets only (do not paste in chat).
+
+## 2026-09-05 — New AgentRouter key attempt #2 (STOP 401)
+
+- Synced new owner key into `.env` / `.env.local` / `grounds/.env` (shape ok: `sk-`, len 51).
+- `co.agentrouter.org` chat/completions + messages → **401 Invalid API Key** (JSON).
+- `agentrouter.org` → Aliyun WAF HTML (egress).
+- Report `{ok:false, model:"", status:401}`. Need a console token that validates on co JSON before PONG can pass.
+
+## 2026-09-05 — AgentRouter PONG green (egress was the bug, not the key)
+
+- Root cause: this Cloud Agent egress is AWS us-east (`34.235.x`) → Aliyun captcha HTML on `agentrouter.org` even with AFTERCUT headers. `co.agentrouter.org` 401 was a **false “dead key” signal** (wrong host / client path), not proof the console token is bad.
+- Fix: honor `AGENT_ROUTER_HTTP_PROXY` via undici `ProxyAgent` in `src/meter/clients/agent-router.ts`; smoke uses `maxTokens: 64`.
+- Live smoke: `npm run smoke:agentrouter` → `{"ok":true,"model":"gpt-5.6-sol","status":200}` (PONG).
+- Do not invent native Anthropic/OpenAI keys. Prefer WAF-clear egress/proxy/bridge for datacenter IPs.

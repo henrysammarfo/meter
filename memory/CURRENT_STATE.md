@@ -22,7 +22,7 @@
 | Tavily | **OK** | Required for research |
 | TinyFish Search/Fetch | **OK** | Required for research |
 | TinyFish Agent | **Blocked** | 0 credits |
-| AgentRouter | **AFTERCUT client wired; smoke FAIL on this egress** | Base `agentrouter.org` + Claude Code headers; Aliyun WAF HTML from cloud IP. Refresh key after rotate; re-smoke from non-captcha egress |
+| AgentRouter | **PONG OK via proxy egress** | AFTERCUT client + `AGENT_ROUTER_HTTP_PROXY`; AWS us-east direct = Aliyun WAF |
 | Venice | **Missing key** | Set `METER_LLM_PROVIDER=venice` + `VENICE_API_KEY` |
 | Binance Agent OS | **Missing key** | Required for production Binance settle |
 | On-chain x402 | **Unconfigured** | Needs `METER_PAY_TO` + `METER_USDC_ASSET` |

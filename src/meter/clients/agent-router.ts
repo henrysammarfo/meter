@@ -2,7 +2,11 @@
  * AFTERCUT-proven AgentRouter client.
  * Only gateway: https://agentrouter.org — never api.anthropic.com / api.openai.com.
  * WAF bypass: Claude Code wire-image headers on every request.
+ * Some cloud egress IPs (e.g. AWS us-east) get Aliyun captcha HTML even with
+ * correct headers — set AGENT_ROUTER_HTTP_PROXY to a WAF-clear egress.
  */
+
+import { ProxyAgent, fetch as undiciFetch } from "undici"
 
 export type AgentRouterChatInput = {
   user: string
@@ -25,6 +29,57 @@ export type AgentRouterChatResult = {
 function envStr(name: string): string {
   const v = process.env[name]
   return typeof v === "string" ? v.trim() : ""
+}
+
+/** Optional HTTP(S) proxy for AgentRouter (WAF-clear egress). */
+export function getAgentRouterProxy(): string | null {
+  const raw =
+    envStr("AGENT_ROUTER_HTTP_PROXY") ||
+    envStr("AGENTROUTER_HTTP_PROXY") ||
+    envStr("HTTPS_PROXY") ||
+    envStr("HTTP_PROXY")
+  return raw || null
+}
+
+let cachedProxyAgent: ProxyAgent | null | undefined
+
+function proxyAgent(): ProxyAgent | undefined {
+  const proxy = getAgentRouterProxy()
+  if (!proxy) {
+    cachedProxyAgent = null
+    return undefined
+  }
+  if (cachedProxyAgent === undefined || cachedProxyAgent === null) {
+    cachedProxyAgent = new ProxyAgent(proxy)
+  }
+  return cachedProxyAgent
+}
+
+/** fetch that honors AGENT_ROUTER_HTTP_PROXY when set. */
+async function arFetch(url: string, init: RequestInit): Promise<Response> {
+  const agent = proxyAgent()
+  if (!agent) {
+    return fetch(url, init)
+  }
+  const headers: Record<string, string> = {}
+  if (init.headers) {
+    const h = new Headers(init.headers as HeadersInit)
+    h.forEach((v, k) => {
+      headers[k] = v
+    })
+  }
+  const res = await undiciFetch(url, {
+    method: init.method ?? "GET",
+    headers,
+    ...(typeof init.body === "string" ? { body: init.body } : {}),
+    dispatcher: agent,
+  })
+  // Adapt undici Response to web Response for callers using res.ok / res.text()
+  return new Response(Buffer.from(await res.arrayBuffer()), {
+    status: res.status,
+    statusText: res.statusText,
+    headers: res.headers as unknown as HeadersInit,
+  })
 }
 
 /** Base host without trailing slash. Never remap to co.* — AFTERCUT uses agentrouter.org. */
@@ -150,13 +205,17 @@ async function readBody(res: Response): Promise<{ json: unknown | null; text: st
 
 function summarizeHttpError(status: number, bodyText: string, json: unknown | null): string {
   if (isWafHtml(bodyText)) {
-    return `HTTP ${status}: WAF/blocked (Aliyun HTML challenge). Ensure Claude Code wire headers (UA claude-cli/2.1.158, anthropic-beta, x-app=cli, stainless). Datacenter egress may still be challenged even with correct headers.`
+    const via = getAgentRouterProxy() ? "proxy still challenged" : "set AGENT_ROUTER_HTTP_PROXY to a WAF-clear egress"
+    return `HTTP ${status}: Aliyun WAF HTML on this egress (${via}). Headers alone cannot clear captcha from blocked datacenter IPs.`
   }
-  if (status === 401 || /无效的令牌|invalid.?api.?key|unauthorized/i.test(bodyText)) {
-    return `HTTP ${status}: key rejected (无效的令牌 / Invalid API Key). Refresh key in .env / host secrets.`
+  if (status === 402 || /budget|余额|quota|no channel|没有可用/i.test(bodyText)) {
+    return `HTTP ${status}: model pool/budget exhausted — try another model (gpt-5.6-sol / deepseek-v4-flash). Key reached origin.`
+  }
+  if (status === 401 || /无效的令牌|invalid.?api.?key|unauthorized client/i.test(bodyText)) {
+    return `HTTP ${status}: unauthorized/invalid at this host (often client fingerprint or wrong host — not proof the AgentRouter console key is dead). Prefer agentrouter.org via WAF-clear egress.`
   }
   if (status === 403 || /waf|blocked|forbidden|unauthorized client/i.test(bodyText)) {
-    return `HTTP ${status}: WAF/blocked — Claude Code wire headers missing or wrong UA.`
+    return `HTTP ${status}: WAF/blocked — Claude Code wire headers missing/wrong, or egress captcha.`
   }
   if (json && typeof json === "object" && "error" in json) {
     const err = (json as { error: unknown }).error
@@ -191,7 +250,7 @@ export async function chatAnthropic(input: {
 
   let res: Response
   try {
-    res = await fetch(url, {
+    res = await arFetch(url, {
       method: "POST",
       headers: claudeCodeHeaders(keyRes.key),
       body: JSON.stringify(body),
@@ -252,7 +311,7 @@ export async function chatOpenAI(input: {
 
   let res: Response
   try {
-    res = await fetch(url, {
+    res = await arFetch(url, {
       method: "POST",
       headers: claudeCodeHeaders(keyRes.key),
       body: JSON.stringify({
