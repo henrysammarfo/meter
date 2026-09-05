@@ -69,3 +69,15 @@ Verified via `npm run smoke` (exit 0):
 - Stress: 5 parallel paid research calls all 200
 
 Still unverified until keys arrive: Binance Agent OS settle, on-chain x402, Venice/AgentRouter LLM synthesis.
+
+## 2026-09-05 — AgentRouter WAF vs API host (verified live)
+
+| Claim | Result | Evidence |
+|---|---|---|
+| `https://agentrouter.org/v1/chat/completions` from this cloud egress | **WAF HTML** (Aliyun captcha), not JSON | curl/fetch status 200 text/html `aliyun_waf_*` |
+| `https://co.agentrouter.org/v1/chat/completions` from this egress | **Real JSON API** (no WAF) | status 401 `Invalid API Key!` with application/json |
+| Official OpenAI-compatible base URL | **`https://co.agentrouter.org/v1`** | https://co.agentrouter.org/portal/guide |
+| Anthropic-compatible base (no /v1) | `https://co.agentrouter.org` | same portal guide |
+| Key pasted in chat against co host | **Invalid API Key** | live 401 — regenerate at console; do not paste keys in chat |
+
+Fix shipped: default + `.env` `AGENTROUTER_BASE_URL=https://co.agentrouter.org/v1`; env loader force-overrides stale process env; normalize away WAF host. No mocks / no silent Venice swap.

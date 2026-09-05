@@ -1,5 +1,7 @@
 /**
  * AgentRouter OpenAI-compatible client.
+ * Official server base (avoids Aliyun WAF on agentrouter.org): https://co.agentrouter.org/v1
+ * Docs: https://co.agentrouter.org/portal/guide
  * No OpenAI key. No silent model swap. Fail closed on WAF / auth errors.
  */
 
@@ -8,6 +10,15 @@ import { getEnv, MeterLiveError, requireSecret } from "../env";
 export interface ChatMessage {
   role: "system" | "user" | "assistant";
   content: string;
+}
+
+function isWafHtml(text: string): boolean {
+  return (
+    text.includes("aliyun_waf") ||
+    text.includes("aliyunCaptcha") ||
+    text.includes("aliyun_waf_aa") ||
+    (text.includes("<!doctype html>") && text.includes("waf"))
+  );
 }
 
 export async function agentRouterChat(
@@ -42,19 +53,37 @@ export async function agentRouterChat(
   });
 
   const text = await res.text();
-  if (text.includes("aliyun_waf") || text.includes("aliyunCaptcha")) {
+
+  if (isWafHtml(text)) {
     throw new MeterLiveError(
       "AGENTROUTER_WAF",
-      "AgentRouter blocked this host with an Aliyun WAF captcha. Use a non-datacenter egress, or supply VENICE_API_KEY. No LLM fallback is enabled.",
+      "AgentRouter returned Aliyun WAF HTML. Set AGENTROUTER_BASE_URL=https://co.agentrouter.org/v1 (official API host — not agentrouter.org). No LLM fallback is enabled.",
       503,
-      text.slice(0, 200),
+      { base, hint: "https://co.agentrouter.org/portal/guide" },
     );
   }
+
+  if (res.status === 401) {
+    let msg = "AgentRouter rejected the API key (HTTP 401 Invalid API Key).";
+    try {
+      const parsed = JSON.parse(text) as { msg?: string; message?: string };
+      if (parsed.msg || parsed.message) msg = `AgentRouter 401: ${parsed.msg ?? parsed.message}`;
+    } catch {
+      /* keep default */
+    }
+    throw new MeterLiveError(
+      "AGENTROUTER_UNAUTHORIZED",
+      `${msg} Regenerate the key at https://agentrouter.org/console/token (or co.agentrouter.org console), put it only in gitignored .env as AGENTROUTER_API_KEY, and rotate the one pasted in chat. No LLM fallback.`,
+      401,
+      { base, body: text.slice(0, 400) },
+    );
+  }
+
   if (!res.ok) {
     throw new MeterLiveError(
       "AGENTROUTER_HTTP",
       `AgentRouter HTTP ${res.status}`,
-      res.status === 401 ? 401 : 502,
+      res.status >= 500 ? 502 : res.status,
       text.slice(0, 800),
     );
   }
@@ -65,7 +94,12 @@ export async function agentRouterChat(
   try {
     data = JSON.parse(text) as typeof data;
   } catch {
-    throw new MeterLiveError("AGENTROUTER_PARSE", "Non-JSON from AgentRouter", 502, text.slice(0, 400));
+    throw new MeterLiveError(
+      "AGENTROUTER_PARSE",
+      "Non-JSON from AgentRouter",
+      502,
+      text.slice(0, 400),
+    );
   }
   const content = data.choices?.[0]?.message?.content;
   if (!content) {

@@ -22,7 +22,7 @@
 | Tavily | **OK** | Required for research |
 | TinyFish Search/Fetch | **OK** | Required for research |
 | TinyFish Agent | **Blocked** | 0 credits |
-| AgentRouter | **Blocked** | Aliyun WAF from this egress |
+| AgentRouter | **Host fixed → co.agentrouter.org** | WAF avoided; current key returns 401 Invalid API Key — regenerate |
 | Venice | **Missing key** | Set `METER_LLM_PROVIDER=venice` + `VENICE_API_KEY` |
 | Binance Agent OS | **Missing key** | Required for production Binance settle |
 | On-chain x402 | **Unconfigured** | Needs `METER_PAY_TO` + `METER_USDC_ASSET` |

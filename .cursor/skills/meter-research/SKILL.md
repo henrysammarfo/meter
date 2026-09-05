@@ -23,7 +23,7 @@ description: Live fact-checking for METER using Tavily and TinyFish. Use when ve
 
 ## AgentRouter
 
-- Base `https://agentrouter.org/v1` + Bearer key
+- Base `https://co.agentrouter.org/v1` + Bearer key (official; `agentrouter.org` is Aliyun-WAF gated from many cloud IPs)
 - If Aliyun WAF captcha HTML returns: record as blocked, do **not** fake LLM output
 - Optional backup: `VENICE_API_KEY` when provided
 

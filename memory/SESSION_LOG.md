@@ -29,3 +29,10 @@
 `npm run smoke` green: health, waitlist, openapi+mcp, fund, 402, paid research (Tavily+TinyFish Fetch), invoice, ledger, stress×5.
 Pushed `b1c3669` on `cursor/meter-bible-live-architecture-b2de`. PR #1 updated.
 Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
+
+## 2026-09-05 — AgentRouter WAF fixed (host), key still invalid
+
+- Root cause of “WAF blocked”: calling `agentrouter.org` from datacenter IP → Aliyun WAF HTML.
+- Official API host is `co.agentrouter.org/v1` (portal guide). Live probe: JSON, no WAF.
+- Owner key against co host → HTTP 401 Invalid API Key (fail closed, no fake LLM).
+- Wired env override + client errors; `METER_LLM_PROVIDER=agentrouter` ready once a valid key is in `.env` only.

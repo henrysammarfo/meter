@@ -3,28 +3,71 @@
  * Secrets never leave process.env. Missing live keys fail closed (no mocks).
  */
 
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 
-/** Load gitignored .env once (Node 20.12+ loadEnvFile). Never logs secret values. */
+/**
+ * Load gitignored .env once. Never logs secret values.
+ * Force-overrides AgentRouter host/key from file so a stale process env cannot
+ * pin AGENTROUTER_BASE_URL to Aliyun-WAF-gated agentrouter.org.
+ */
 function loadDotEnv(): void {
   const candidates = [
     path.resolve(process.cwd(), ".env"),
     path.resolve(process.cwd(), "grounds/.env"),
   ];
+  const forceOverride = new Set([
+    "AGENTROUTER_API_KEY",
+    "AGENTROUTER_BASE_URL",
+    "AGENTROUTER_MODEL",
+    "METER_LLM_PROVIDER",
+  ]);
+
   for (const file of candidates) {
     if (!existsSync(file)) continue;
     try {
-      const load = (process as NodeJS.Process & { loadEnvFile?: (path: string) => void }).loadEnvFile;
+      const load = (process as NodeJS.Process & { loadEnvFile?: (path: string) => void })
+        .loadEnvFile;
       load?.(file);
     } catch {
       /* already loaded or unsupported */
+    }
+    try {
+      for (const line of readFileSync(file, "utf8").split("\n")) {
+        if (!line || line.startsWith("#") || !line.includes("=")) continue;
+        const i = line.indexOf("=");
+        const key = line.slice(0, i).trim();
+        const value = line.slice(i + 1).trim();
+        if (!forceOverride.has(key)) continue;
+        if (value) process.env[key] = value;
+      }
+    } catch {
+      /* ignore */
     }
   }
 }
 
 loadDotEnv();
+
+/** Official OpenAI-compatible host per https://co.agentrouter.org/portal/guide */
+const OFFICIAL_AGENTROUTER_BASE = "https://co.agentrouter.org/v1";
+
+function normalizeAgentRouterBase(url: string): string {
+  try {
+    const u = new URL(url);
+    // agentrouter.org (and www) are Aliyun-WAF gated from many datacenter IPs.
+    // co.agentrouter.org is the documented API host — not a vendor fallback.
+    if (u.hostname === "agentrouter.org" || u.hostname === "www.agentrouter.org") {
+      return OFFICIAL_AGENTROUTER_BASE;
+    }
+  } catch {
+    return OFFICIAL_AGENTROUTER_BASE;
+  }
+  return url.replace(/\/$/, "") === "https://co.agentrouter.org"
+    ? OFFICIAL_AGENTROUTER_BASE
+    : url;
+}
 
 function emptyToUndef(v: unknown): unknown {
   if (v === undefined || v === null) return undefined;
@@ -38,9 +81,13 @@ const EnvSchema = z.object({
   TAVILY_API_KEY: optionalNonEmpty,
   TINYFISH_API_KEY: optionalNonEmpty,
   AGENTROUTER_API_KEY: optionalNonEmpty,
+  /**
+   * Official OpenAI-compatible API host is co.agentrouter.org (portal guide).
+   * Plain agentrouter.org is Aliyun-WAF gated from many datacenter egresses.
+   */
   AGENTROUTER_BASE_URL: z.preprocess(
     emptyToUndef,
-    z.string().url().default("https://agentrouter.org/v1"),
+    z.string().url().default("https://co.agentrouter.org/v1"),
   ),
   AGENTROUTER_MODEL: z.preprocess(
     emptyToUndef,
@@ -101,7 +148,10 @@ export function getEnv(): MeterEnv {
       `Invalid METER environment: ${parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`,
     );
   }
-  cached = parsed.data;
+  cached = {
+    ...parsed.data,
+    AGENTROUTER_BASE_URL: normalizeAgentRouterBase(parsed.data.AGENTROUTER_BASE_URL),
+  };
   return cached;
 }
 

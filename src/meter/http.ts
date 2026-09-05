@@ -8,7 +8,7 @@ import { buildFloviaOverview } from "./flovia";
 import { fundAgent, getLedger, getReceipt, refreshLimitUsage } from "./ledger";
 import { issueInvoiceForAgent, markInvoicePaid } from "./invoice";
 import { handleResearch } from "./research";
-import { agentRouterChat } from "./clients/llm";
+import { meterChat } from "./llm";
 import { tinyfishWallet } from "./clients/tinyfish";
 import { probeLiveProviders } from "./health";
 import { mcpSkillCatalog, openApiDocument } from "./catalog";
@@ -197,11 +197,15 @@ export async function handleMeterApi(request: Request): Promise<Response | null>
       response = Response.json(receipt);
     } else if (url.pathname === "/api/v1/llm/ping" && request.method === "POST") {
       requireOperator(request);
-      const content = await agentRouterChat(
+      const { content, provider } = await meterChat(
         [{ role: "user", content: "Reply with exactly: METER_OK" }],
         { maxTokens: 16 },
       );
-      response = Response.json({ ok: content.includes("METER_OK"), content });
+      response = Response.json({
+        ok: content.includes("METER_OK"),
+        content,
+        provider,
+      });
     } else if (
       url.pathname === "/api/v1/providers/tinyfish/wallet" &&
       request.method === "GET"
