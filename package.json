@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "smoke": "node --env-file=.env scripts/smoke-meter.mjs",
+    "smoke:agentrouter": "node --experimental-strip-types --env-file=.env scripts/smoke-agentrouter.mjs",
     "typecheck": "tsc --noEmit"
   },
   "overrides": {

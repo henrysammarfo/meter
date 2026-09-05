@@ -1,10 +1,12 @@
 /**
  * Explicit LLM provider selection. No silent fallback between vendors.
  * METER_LLM_PROVIDER=agentrouter | venice
+ * AgentRouter path uses AFTERCUT liveChat (Claude Code wire headers).
  */
 
 import { getEnv, MeterLiveError } from "./env";
 import { agentRouterChat, type ChatMessage } from "./clients/llm";
+import { getAgentRouterKey } from "./clients/agent-router";
 import { veniceChat } from "./clients/venice";
 
 export type { ChatMessage };
@@ -28,10 +30,11 @@ export async function meterChat(
   }
 
   if (provider === "agentrouter") {
-    if (!env.AGENTROUTER_API_KEY) {
+    const keyRes = getAgentRouterKey();
+    if (!keyRes.ok) {
       throw new MeterLiveError(
         "AGENTROUTER_UNCONFIGURED",
-        "METER_LLM_PROVIDER=agentrouter but AGENTROUTER_API_KEY is missing",
+        `METER_LLM_PROVIDER=agentrouter but ${keyRes.error}`,
         503,
       );
     }

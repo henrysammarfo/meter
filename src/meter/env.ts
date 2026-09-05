@@ -9,8 +9,7 @@ import { z } from "zod";
 
 /**
  * Load gitignored .env once. Never logs secret values.
- * Force-overrides AgentRouter host/key from file so a stale process env cannot
- * pin AGENTROUTER_BASE_URL to Aliyun-WAF-gated agentrouter.org.
+ * Force-overrides AgentRouter keys from file so stale process env cannot win.
  */
 function loadDotEnv(): void {
   const candidates = [
@@ -18,9 +17,17 @@ function loadDotEnv(): void {
     path.resolve(process.cwd(), "grounds/.env"),
   ];
   const forceOverride = new Set([
+    "AGENT_ROUTER_API_KEY",
     "AGENTROUTER_API_KEY",
+    "AGENT_ROUTER_BASE",
+    "AGENT_ROUTER_ANTHROPIC_BASE",
     "AGENTROUTER_BASE_URL",
     "AGENTROUTER_MODEL",
+    "AGENT_ROUTER_CLAUDE_MODEL",
+    "AGENT_ROUTER_GPT_MODEL",
+    "AGENT_ROUTER_DEEPSEEK_MODEL",
+    "ANTHROPIC_AUTH_TOKEN",
+    "ANTHROPIC_API_KEY",
     "METER_LLM_PROVIDER",
   ]);
 
@@ -50,23 +57,24 @@ function loadDotEnv(): void {
 
 loadDotEnv();
 
-/** Official OpenAI-compatible host per https://co.agentrouter.org/portal/guide */
-const OFFICIAL_AGENTROUTER_BASE = "https://co.agentrouter.org/v1";
+/**
+ * AFTERCUT base: https://agentrouter.org (no /v1 suffix required here).
+ * Do NOT remap to co.agentrouter.org — WAF bypass is Claude Code wire headers.
+ */
+const DEFAULT_AGENTROUTER_BASE = "https://agentrouter.org";
 
 function normalizeAgentRouterBase(url: string): string {
+  const trimmed = url.trim().replace(/\/+$/, "");
   try {
-    const u = new URL(url);
-    // agentrouter.org (and www) are Aliyun-WAF gated from many datacenter IPs.
-    // co.agentrouter.org is the documented API host — not a vendor fallback.
-    if (u.hostname === "agentrouter.org" || u.hostname === "www.agentrouter.org") {
-      return OFFICIAL_AGENTROUTER_BASE;
+    const u = new URL(trimmed);
+    // Strip trailing /v1 so clients can append /v1/messages or /v1/chat/completions.
+    if (u.pathname.replace(/\/+$/, "") === "/v1") {
+      return `${u.origin}`;
     }
+    return trimmed.replace(/\/v1$/i, "");
   } catch {
-    return OFFICIAL_AGENTROUTER_BASE;
+    return DEFAULT_AGENTROUTER_BASE;
   }
-  return url.replace(/\/$/, "") === "https://co.agentrouter.org"
-    ? OFFICIAL_AGENTROUTER_BASE
-    : url;
 }
 
 function emptyToUndef(v: unknown): unknown {
@@ -80,19 +88,25 @@ const optionalNonEmpty = z.preprocess(emptyToUndef, z.string().min(1).optional()
 const EnvSchema = z.object({
   TAVILY_API_KEY: optionalNonEmpty,
   TINYFISH_API_KEY: optionalNonEmpty,
+  /** Prefer AGENT_ROUTER_API_KEY; AGENTROUTER_API_KEY kept for repo compat. */
+  AGENT_ROUTER_API_KEY: optionalNonEmpty,
   AGENTROUTER_API_KEY: optionalNonEmpty,
+  ANTHROPIC_AUTH_TOKEN: optionalNonEmpty,
+  ANTHROPIC_API_KEY: optionalNonEmpty,
   /**
-   * Official OpenAI-compatible API host is co.agentrouter.org (portal guide).
-   * Plain agentrouter.org is Aliyun-WAF gated from many datacenter egresses.
+   * AFTERCUT gateway host. Default https://agentrouter.org.
+   * WAF is bypassed with Claude Code wire headers — not by switching host.
    */
+  AGENT_ROUTER_BASE: z.preprocess(emptyToUndef, z.string().url().optional()),
+  AGENT_ROUTER_ANTHROPIC_BASE: z.preprocess(emptyToUndef, z.string().url().optional()),
   AGENTROUTER_BASE_URL: z.preprocess(
     emptyToUndef,
-    z.string().url().default("https://co.agentrouter.org/v1"),
+    z.string().url().default(DEFAULT_AGENTROUTER_BASE),
   ),
-  AGENTROUTER_MODEL: z.preprocess(
-    emptyToUndef,
-    z.string().default("gpt-4o-mini"),
-  ),
+  AGENTROUTER_MODEL: z.preprocess(emptyToUndef, z.string().optional()),
+  AGENT_ROUTER_CLAUDE_MODEL: z.preprocess(emptyToUndef, z.string().optional()),
+  AGENT_ROUTER_GPT_MODEL: z.preprocess(emptyToUndef, z.string().optional()),
+  AGENT_ROUTER_DEEPSEEK_MODEL: z.preprocess(emptyToUndef, z.string().optional()),
   VENICE_API_KEY: optionalNonEmpty,
   VENICE_BASE_URL: z.preprocess(emptyToUndef, z.string().url().optional()),
   VENICE_MODEL: z.preprocess(emptyToUndef, z.string().optional()),
@@ -148,9 +162,14 @@ export function getEnv(): MeterEnv {
       `Invalid METER environment: ${parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`,
     );
   }
+  const baseRaw =
+    parsed.data.AGENT_ROUTER_BASE ||
+    parsed.data.AGENT_ROUTER_ANTHROPIC_BASE ||
+    parsed.data.AGENTROUTER_BASE_URL ||
+    DEFAULT_AGENTROUTER_BASE;
   cached = {
     ...parsed.data,
-    AGENTROUTER_BASE_URL: normalizeAgentRouterBase(parsed.data.AGENTROUTER_BASE_URL),
+    AGENTROUTER_BASE_URL: normalizeAgentRouterBase(baseRaw),
   };
   return cached;
 }

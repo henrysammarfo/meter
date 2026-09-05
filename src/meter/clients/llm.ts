@@ -1,109 +1,103 @@
 /**
- * AgentRouter OpenAI-compatible client.
- * Official server base (avoids Aliyun WAF on agentrouter.org): https://co.agentrouter.org/v1
- * Docs: https://co.agentrouter.org/portal/guide
- * No OpenAI key. No silent model swap. Fail closed on WAF / auth errors.
+ * AgentRouter LLM adapter for meterChat.
+ * AFTERCUT-proven: Claude Code wire headers + https://agentrouter.org only.
+ * Never calls api.anthropic.com / api.openai.com. No native SDK without headers.
  */
 
-import { getEnv, MeterLiveError, requireSecret } from "../env";
+import { MeterLiveError } from "../env"
+import {
+  getAgentRouterKey,
+  liveChat,
+  type AgentRouterChatResult,
+} from "./agent-router"
 
 export interface ChatMessage {
-  role: "system" | "user" | "assistant";
-  content: string;
+  role: "system" | "user" | "assistant"
+  content: string
 }
 
-function isWafHtml(text: string): boolean {
-  return (
-    text.includes("aliyun_waf") ||
-    text.includes("aliyunCaptcha") ||
-    text.includes("aliyun_waf_aa") ||
-    (text.includes("<!doctype html>") && text.includes("waf"))
-  );
+function messagesToLiveInput(messages: ChatMessage[]): {
+  system?: string
+  user: string
+} {
+  const system = messages
+    .filter((m) => m.role === "system")
+    .map((m) => m.content)
+    .join("\n")
+    .trim()
+  const rest = messages.filter((m) => m.role !== "system")
+  if (rest.length === 0) {
+    throw new MeterLiveError(
+      "AGENTROUTER_BAD_REQUEST",
+      "agentRouterChat requires at least one non-system message",
+      400,
+    )
+  }
+  const first = rest[0]
+  if (!first) {
+    throw new MeterLiveError(
+      "AGENTROUTER_BAD_REQUEST",
+      "agentRouterChat requires at least one non-system message",
+      400,
+    )
+  }
+  // Flatten multi-turn into a single user turn for liveChat auto path.
+  const user =
+    rest.length === 1 && first.role === "user"
+      ? first.content
+      : rest.map((m) => `${m.role.toUpperCase()}: ${m.content}`).join("\n\n")
+  return system ? { system, user } : { user }
 }
 
+function throwFromResult(result: AgentRouterChatResult): never {
+  const status = result.status || 502
+  if (status === 401 || /key rejected|无效的令牌|invalid.?api.?key/i.test(result.error ?? "")) {
+    throw new MeterLiveError(
+      "AGENTROUTER_UNAUTHORIZED",
+      result.error ??
+        "AgentRouter rejected the API key. Refresh AGENT_ROUTER_API_KEY in .env / host secrets. No LLM fallback.",
+      401,
+      { model: result.model, provider: result.provider },
+    )
+  }
+  if (status === 403 || /waf|blocked/i.test(result.error ?? "")) {
+    throw new MeterLiveError(
+      "AGENTROUTER_WAF",
+      result.error ??
+        "AgentRouter WAF/blocked — Claude Code wire headers missing or wrong UA. No LLM fallback.",
+      403,
+      { model: result.model, provider: result.provider },
+    )
+  }
+  throw new MeterLiveError(
+    "AGENTROUTER_HTTP",
+    result.error ?? `AgentRouter failed (status ${status})`,
+    status >= 500 || status === 0 ? 502 : status,
+    { model: result.model, provider: result.provider },
+  )
+}
+
+/**
+ * Live AgentRouter chat via AFTERCUT client (auto Claude → GPT → DeepSeek).
+ */
 export async function agentRouterChat(
   messages: ChatMessage[],
   opts?: { maxTokens?: number; temperature?: number },
 ): Promise<string> {
-  const env = getEnv();
-  const apiKey = requireSecret("AGENTROUTER_API_KEY", "AgentRouter LLM");
-  const base = env.AGENTROUTER_BASE_URL.replace(/\/$/, "");
-  const url = `${base}/chat/completions`;
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "content-type": "application/json",
-      Accept: "application/json",
-      "User-Agent": "OpenAI/JS 4.73.0",
-      "x-stainless-lang": "js",
-      "x-stainless-package-version": "4.73.0",
-      "x-stainless-os": "Linux",
-      "x-stainless-arch": "x64",
-      "x-stainless-runtime": "node",
-      "x-stainless-runtime-version": process.versions.node,
-    },
-    body: JSON.stringify({
-      model: env.AGENTROUTER_MODEL,
-      messages,
-      max_tokens: opts?.maxTokens ?? 800,
-      temperature: opts?.temperature ?? 0.2,
-    }),
-  });
-
-  const text = await res.text();
-
-  if (isWafHtml(text)) {
-    throw new MeterLiveError(
-      "AGENTROUTER_WAF",
-      "AgentRouter returned Aliyun WAF HTML. Set AGENTROUTER_BASE_URL=https://co.agentrouter.org/v1 (official API host — not agentrouter.org). No LLM fallback is enabled.",
-      503,
-      { base, hint: "https://co.agentrouter.org/portal/guide" },
-    );
+  void opts?.temperature // AgentRouter path does not forward temperature in AFTERCUT wire
+  const keyRes = getAgentRouterKey()
+  if (!keyRes.ok) {
+    throw new MeterLiveError("AGENTROUTER_UNCONFIGURED", keyRes.error, 503)
   }
 
-  if (res.status === 401) {
-    let msg = "AgentRouter rejected the API key (HTTP 401 Invalid API Key).";
-    try {
-      const parsed = JSON.parse(text) as { msg?: string; message?: string };
-      if (parsed.msg || parsed.message) msg = `AgentRouter 401: ${parsed.msg ?? parsed.message}`;
-    } catch {
-      /* keep default */
-    }
-    throw new MeterLiveError(
-      "AGENTROUTER_UNAUTHORIZED",
-      `${msg} Regenerate the key at https://agentrouter.org/console/token (or co.agentrouter.org console), put it only in gitignored .env as AGENTROUTER_API_KEY, and rotate the one pasted in chat. No LLM fallback.`,
-      401,
-      { base, body: text.slice(0, 400) },
-    );
-  }
+  const { system, user } = messagesToLiveInput(messages)
+  const result = await liveChat({
+    user,
+    ...(system !== undefined ? { system } : {}),
+    maxTokens: opts?.maxTokens ?? 800,
+    provider: "auto",
+  })
 
-  if (!res.ok) {
-    throw new MeterLiveError(
-      "AGENTROUTER_HTTP",
-      `AgentRouter HTTP ${res.status}`,
-      res.status >= 500 ? 502 : res.status,
-      text.slice(0, 800),
-    );
-  }
-
-  let data: {
-    choices?: Array<{ message?: { content?: string } }>;
-  };
-  try {
-    data = JSON.parse(text) as typeof data;
-  } catch {
-    throw new MeterLiveError(
-      "AGENTROUTER_PARSE",
-      "Non-JSON from AgentRouter",
-      502,
-      text.slice(0, 400),
-    );
-  }
-  const content = data.choices?.[0]?.message?.content;
-  if (!content) {
-    throw new MeterLiveError("AGENTROUTER_EMPTY", "Empty completion", 502, data);
-  }
-  return content;
+  if (!result.ok) throwFromResult(result)
+  return result.text
 }

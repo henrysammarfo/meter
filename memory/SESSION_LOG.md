@@ -30,9 +30,16 @@
 Pushed `b1c3669` on `cursor/meter-bible-live-architecture-b2de`. PR #1 updated.
 Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 
-## 2026-09-05 — AgentRouter WAF fixed (host), key still invalid
+## 2026-09-05 — AgentRouter AFTERCUT client (co remap reverted)
 
-- Root cause of “WAF blocked”: calling `agentrouter.org` from datacenter IP → Aliyun WAF HTML.
-- Official API host is `co.agentrouter.org/v1` (portal guide). Live probe: JSON, no WAF.
-- Owner key against co host → HTTP 401 Invalid API Key (fail closed, no fake LLM).
-- Wired env override + client errors; `METER_LLM_PROVIDER=agentrouter` ready once a valid key is in `.env` only.
+- Implemented AFTERCUT pattern: `src/meter/clients/agent-router.ts` — base `https://agentrouter.org`, Claude Code wire headers on every request, auto Claude→GPT→DeepSeek.
+- Removed `co.agentrouter.org` forced remap from `env.ts` (wrong “fix” vs AFTERCUT).
+- Wired `meterChat` / health / llm ping through `liveChat`.
+- Smoke `npm run smoke:agentrouter` → **FAIL** `{ok:false, model:"", status:403}` — Aliyun WAF HTML from this datacenter egress even with correct headers. Key not exercised past WAF here.
+- Do not invent native Anthropic/OpenAI keys. Owner: refresh AgentRouter key in `.env` and re-smoke from an egress that clears Aliyun.
+
+## 2026-09-05 — AFTERCUT PONG smoke (typecheck clean)
+
+- `npm run typecheck` clean after `body["system"]` index-signature fix.
+- `npm run smoke:agentrouter` → `{ok:false, model:"", status:403}` (WAF HTML on `agentrouter.org` from this cloud IP; headers verified `claude-cli/2.1.158 (external, sdk-cli)`).
+- Fail closed; no native Anthropic/OpenAI keys invented.

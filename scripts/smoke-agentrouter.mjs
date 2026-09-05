@@ -1,6 +1,5 @@
 /**
- * AFTERCUT AgentRouter probe — Claude Code wire headers on agentrouter.org.
- * Prints only {ok, model, status, waf?} — never the key.
+ * AFTERCUT PONG smoke — prints only {ok, model, status}. Never the key.
  */
 import { readFileSync, existsSync } from "node:fs";
 import { pathToFileURL } from "node:url";
@@ -20,26 +19,31 @@ function loadEnvFile(file) {
 loadEnvFile(path.resolve(process.cwd(), ".env"));
 loadEnvFile(path.resolve(process.cwd(), "grounds/.env"));
 
-const { liveChat, smokeSummary, getAgentRouterBase, getAgentRouterKey } = await import(
-  pathToFileURL(path.resolve(process.cwd(), "src/meter/clients/agent-router.ts")).href
+const modPath = path.resolve(process.cwd(), "src/meter/clients/agent-router.ts");
+const { liveChat, smokeSummary, getAgentRouterKey } = await import(
+  pathToFileURL(modPath).href
 );
 
 const keyRes = getAgentRouterKey();
 if (!keyRes.ok) {
-  console.log(JSON.stringify({ ok: false, model: "", status: 0, base: getAgentRouterBase() }));
+  console.log(JSON.stringify({ ok: false, model: "", status: 0 }));
+  console.error(keyRes.error);
   process.exit(1);
 }
 
 const result = await liveChat({
   user: "Reply with exactly: PONG",
   maxTokens: 16,
+  provider: "auto",
 });
-console.log(
-  JSON.stringify({
-    ...smokeSummary(result),
-    ok: result.ok && /PONG/i.test(result.text),
-    base: getAgentRouterBase(),
-    provider: result.provider,
-  }),
-);
-process.exit(result.ok && /PONG/i.test(result.text) ? 0 : 1);
+
+const summary = smokeSummary(result);
+const pass = result.ok && /PONG/i.test(result.text);
+console.log(JSON.stringify({ ...summary, ok: pass && summary.ok }));
+if (!pass) {
+  if (result.error) {
+    // Safe diagnostic — no key material
+    console.error(result.error.slice(0, 300));
+  }
+  process.exit(1);
+}

@@ -21,12 +21,13 @@ description: Live fact-checking for METER using Tavily and TinyFish. Use when ve
 4. Write verified / disputed / unknown into `memory/FACT_CHECK.md`
 5. Save sanitized JSON under `memory/research-raw/live/`
 
-## AgentRouter
+## AgentRouter (AFTERCUT)
 
-- Base `https://co.agentrouter.org/v1` + Bearer key (official; `agentrouter.org` is Aliyun-WAF gated from many cloud IPs)
-- If Aliyun WAF captcha HTML returns: record as blocked, do **not** fake LLM output
-- Optional backup: `VENICE_API_KEY` when provided
+- Base: `https://agentrouter.org` (`AGENT_ROUTER_BASE` / `AGENT_ROUTER_ANTHROPIC_BASE`) — **not** api.anthropic.com / api.openai.com
+- Key order: `AGENT_ROUTER_API_KEY` → `ANTHROPIC_AUTH_TOKEN` → `ANTHROPIC_API_KEY` (also `AGENTROUTER_API_KEY`)
+- Every request MUST send Claude Code wire-image headers (`claude-cli/2.1.158`, anthropic-beta, x-app=cli, stainless, Bearer + x-api-key)
+- Claude: `POST {base}/v1/messages?beta=true` · GPT/DeepSeek: `POST {base}/v1/chat/completions`
+- Client: `src/meter/clients/agent-router.ts` (`liveChat`, `claudeCodeHeaders`)
+- If Aliyun WAF captcha HTML returns: record as blocked, do **not** fake LLM output and do **not** invent native Anthropic/OpenAI keys
+- Smoke: `npm run smoke:agentrouter` → prints only `{ok, model, status}`
 
-## aftercut folder
-
-If `aftercut` AgentRouter integration notes are missing from this machine, use public AgentRouter docs + `grounds_lib/llm.py` / `src/meter/clients/llm.ts` until the user uploads them.

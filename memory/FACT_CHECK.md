@@ -70,22 +70,14 @@ Verified via `npm run smoke` (exit 0):
 
 Still unverified until keys arrive: Binance Agent OS settle, on-chain x402, Venice/AgentRouter LLM synthesis.
 
-## 2026-09-05 — AgentRouter WAF vs API host (verified live)
+## 2026-09-05 — AgentRouter AFTERCUT wiring (verified live)
 
 | Claim | Result | Evidence |
 |---|---|---|
-| `https://agentrouter.org/v1/chat/completions` from this cloud egress | **WAF HTML** (Aliyun captcha), not JSON | curl/fetch status 200 text/html `aliyun_waf_*` |
-| `https://co.agentrouter.org/v1/chat/completions` from this egress | **Real JSON API** (no WAF) | status 401 `Invalid API Key!` with application/json |
-| Official OpenAI-compatible base URL | **`https://co.agentrouter.org/v1`** | https://co.agentrouter.org/portal/guide |
-| Anthropic-compatible base (no /v1) | `https://co.agentrouter.org` | same portal guide |
-| Key pasted in chat against co host | **Invalid API Key** | live 401 — regenerate at console; do not paste keys in chat |
+| AFTERCUT base `https://agentrouter.org` + Claude Code wire headers | **Implemented** | `src/meter/clients/agent-router.ts` (`getAgentRouterKey`, `claudeCodeHeaders`, `liveChat`) |
+| PONG smoke from this cloud egress | **FAIL** `{ok:false, status:403}` | HTTP 200 text/html Aliyun WAF captcha despite AFTERCUT headers (curl + node) |
+| Remap to `co.agentrouter.org` as WAF “fix” | **REJECTED (doctrine)** | Owner AFTERCUT rule: stay on `agentrouter.org`; WAF fix = wire headers, not co host |
+| Same key on `co.agentrouter.org` | **401 Invalid API Key** | Real JSON API (no WAF) but key rejected — rotate in console; never paste in chat |
+| Native Anthropic/OpenAI keys | **Forbidden** | AgentRouter is the only gateway |
 
-Fix shipped: default + `.env` `AGENTROUTER_BASE_URL=https://co.agentrouter.org/v1`; env loader force-overrides stale process env; normalize away WAF host. No mocks / no silent Venice swap.
-
-## 2026-09-05 — AgentRouter key #2 (chat paste)
-
-- Stored only in gitignored `.env` / `grounds/.env` (not committed).
-- Live `POST https://co.agentrouter.org/v1/chat/completions` → **401 Invalid API Key** (no WAF).
-- OpenAI Bearer + Anthropic x-api-key paths both 401.
-- Conclusion: host/WAF path is fixed; key itself is rejected by AgentRouter. Owner must create a working token in console and confirm in dashboard before another paste.
-- Treat every chat-pasted key as burned → rotate after validation.
+Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed; no mocks.

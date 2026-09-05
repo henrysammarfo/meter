@@ -22,7 +22,7 @@
 | Tavily | **OK** | Required for research |
 | TinyFish Search/Fetch | **OK** | Required for research |
 | TinyFish Agent | **Blocked** | 0 credits |
-| AgentRouter | **Host fixed → co.agentrouter.org** | WAF avoided; current key returns 401 Invalid API Key — regenerate |
+| AgentRouter | **AFTERCUT client wired; smoke FAIL on this egress** | Base `agentrouter.org` + Claude Code headers; Aliyun WAF HTML from cloud IP. Refresh key after rotate; re-smoke from non-captcha egress |
 | Venice | **Missing key** | Set `METER_LLM_PROVIDER=venice` + `VENICE_API_KEY` |
 | Binance Agent OS | **Missing key** | Required for production Binance settle |
 | On-chain x402 | **Unconfigured** | Needs `METER_PAY_TO` + `METER_USDC_ASSET` |
@@ -35,7 +35,8 @@
 ## Next (needs owner keys)
 
 1. `BINANCE_AGENT_OS_API_KEY` + `BINANCE_X402_FACILITATOR_URL`
-2. Optional `VENICE_API_KEY` if AgentRouter stays WAF-blocked
-3. `METER_PAY_TO` + `METER_USDC_ASSET` for on-chain settle
-4. `METER_OPERATOR_KEY` before production lock
-5. Demo video + X quote (owner)
+2. Refresh AgentRouter key in `.env` and re-run `npm run smoke:agentrouter` from an egress that clears Aliyun (AFTERCUT headers already wired)
+3. Optional `VENICE_API_KEY` only if owner chooses Venice explicitly (`METER_LLM_PROVIDER=venice`) — never as silent AgentRouter substitute
+4. `METER_PAY_TO` + `METER_USDC_ASSET` for on-chain settle
+5. `METER_OPERATOR_KEY` before production lock
+6. Demo video + X quote (owner)

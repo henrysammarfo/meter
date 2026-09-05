@@ -8,6 +8,7 @@ import { getEnv, isProductionMode } from "./env";
 import { tavilySearch } from "./clients/tavily";
 import { tinyfishSearch } from "./clients/tinyfish";
 import { meterChat } from "./llm";
+import { getAgentRouterKey } from "./clients/agent-router";
 import { binanceConfigured } from "./clients/binance";
 
 export type ProbeStatus = {
@@ -48,7 +49,7 @@ export async function probeLiveProviders(deep = false): Promise<{
     llmProvider === "venice"
       ? Boolean(env.VENICE_API_KEY)
       : llmProvider === "agentrouter"
-        ? Boolean(env.AGENTROUTER_API_KEY)
+        ? getAgentRouterKey().ok
         : false;
 
   const out = {
