@@ -71,3 +71,10 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - Fix: honor `AGENT_ROUTER_HTTP_PROXY` via undici `ProxyAgent` in `src/meter/clients/agent-router.ts`; smoke uses `maxTokens: 64`.
 - Live smoke: `npm run smoke:agentrouter` → `{"ok":true,"model":"gpt-5.6-sol","status":200}` (PONG).
 - Do not invent native Anthropic/OpenAI keys. Prefer WAF-clear egress/proxy/bridge for datacenter IPs.
+
+## 2026-09-05 — API keys Step 1 (slow path)
+
+- Owner requested step-by-step API key onboarding; wait for confirm before Step 2.
+- Verified B402 apply docs via `developers.binance.com/en/docs/products/onchainpay-x402/*.md` (not hallucinated HTML).
+- Step 1 issued: open apply doc + Google Form; choose **Sandbox**; do not submit until RSA public key (Step 2).
+- Fact: B402 Production settle is **BSC mainnet (56)**; Sandbox **BSC testnet (97)**; base URL comes with onboarding.

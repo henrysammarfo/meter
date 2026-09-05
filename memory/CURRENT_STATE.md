@@ -2,7 +2,7 @@
 
 **Updated:** 2026-09-05  
 **Branch:** `cursor/meter-bible-live-architecture-b2de`  
-**Phase:** LIVE HARDENING (prepaid research path green; Binance/Venice keys still outstanding)
+**Phase:** API KEYS — owner step-by-step (Step 1: B402 Sandbox apply). Prepaid research green; AgentRouter PONG via proxy.
 
 ## What exists
 
@@ -32,11 +32,20 @@
 - Prize: $20,000 USDC · Deadline: **2026-09-08 23:59 UTC**
 - Residual risk documented — never claim unhackable
 
+## API keys — slow path (owner confirms each step)
+
+| Step | Status | What |
+|---|---|---|
+| 1 | **WAITING OWNER** | Open B402 apply docs + form; choose **Sandbox first**; do not submit yet |
+| 2+ | Pending | RSA keypair → form submit → Sandbox `clientId`/`accessToken` → wire `.env` → Production apply → `METER_PAY_TO` / USDC → operator lock |
+
+Official apply: [developers.binance.com …/6.apply-developer-account](https://developers.binance.com/docs/products/onchainpay-x402/basics/6.apply-developer-account) · Form: https://forms.gle/aUQvxUETfGMzyTky5
+
 ## Next (needs owner keys)
 
-1. `BINANCE_AGENT_OS_API_KEY` + `BINANCE_X402_FACILITATOR_URL`
-2. Refresh AgentRouter key in `.env` and re-run `npm run smoke:agentrouter` from an egress that clears Aliyun (AFTERCUT headers already wired)
-3. Optional `VENICE_API_KEY` only if owner chooses Venice explicitly (`METER_LLM_PROVIDER=venice`) — never as silent AgentRouter substitute
-4. `METER_PAY_TO` + `METER_USDC_ASSET` for on-chain settle
-5. `METER_OPERATOR_KEY` before production lock
+1. Binance B402 partner credentials (Sandbox then Production) → map to `BINANCE_AGENT_OS_API_KEY` + `BINANCE_X402_FACILITATOR_URL` (base URL from onboarding)
+2. AgentRouter already PONG-green via proxy; keep `AGENT_ROUTER_HTTP_PROXY` healthy
+3. Optional `VENICE_API_KEY` only if owner chooses Venice explicitly
+4. `METER_PAY_TO` + `METER_USDC_ASSET` (B402 Production = BSC mainnet per Binance docs — not Base Sepolia)
+5. Confirm `METER_OPERATOR_KEY` before production lock
 6. Demo video + X quote (owner)

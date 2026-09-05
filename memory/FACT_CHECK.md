@@ -81,3 +81,19 @@ Still unverified until keys arrive: Binance Agent OS settle, on-chain x402, Veni
 | Native Anthropic/OpenAI keys | **Forbidden** | AgentRouter is the only gateway |
 
 Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed; no mocks.
+
+## 2026-09-05 — Binance OnChainPay / B402 credentials (docs verified)
+
+| Claim | Status | Evidence |
+|---|---|---|
+| Partner apply form for B402 Open API | **VERIFIED** | https://forms.gle/aUQvxUETfGMzyTky5 linked from quick-start + `basics/6.apply-developer-account.md` |
+| Sandbox vs Production = separate accounts/credentials | **VERIFIED** | Same apply doc: credentials not shared across envs |
+| Apply materials: business name, email, EVM wallet, RSA public key, IP whitelist, optional webhook | **VERIFIED** | `6.apply-developer-account.md` |
+| Issued: `clientId`, `accessToken`, webhook verify public key | **VERIFIED** | Same doc |
+| Authenticated APIs: `/papi/v2/b402/{supported,verify,settle}` + RSA-SHA256 | **VERIFIED** | `basics/4.base-urls.md`, quick-start signed `/supported` example |
+| Production chain for B402 authenticated APIs | **VERIFIED** | BSC Mainnet chain id **56** (`4.base-urls.md`) |
+| Sandbox chain | **VERIFIED** | BSC Testnet chain id **97** |
+| Authenticated base URLs public in docs | **FALSE / CONTACT** | Docs say “Please contact us for access” — URL handed with onboarding |
+| Public Bazaar discovery (Production) | **VERIFIED** | `https://www.binance.com/bapi/ramp/v1/public/ramp/b402` |
+| Default METER `METER_FACILITATOR_URL=https://x402.org/facilitator` = Binance Production | **FALSE** | x402.org facilitator is testnet-oriented (docs.x402.org); Binance Production needs onboarded B402 base URL |
+| JS HTML pages on developers.binance.com from this host | **PARTIAL** | HTML WAF/JS gate; markdown under `/en/docs/.../*.md` fetchable |
