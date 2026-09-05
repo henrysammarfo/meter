@@ -81,3 +81,11 @@ Still unverified until keys arrive: Binance Agent OS settle, on-chain x402, Veni
 | Key pasted in chat against co host | **Invalid API Key** | live 401 — regenerate at console; do not paste keys in chat |
 
 Fix shipped: default + `.env` `AGENTROUTER_BASE_URL=https://co.agentrouter.org/v1`; env loader force-overrides stale process env; normalize away WAF host. No mocks / no silent Venice swap.
+
+## 2026-09-05 — AgentRouter key #2 (chat paste)
+
+- Stored only in gitignored `.env` / `grounds/.env` (not committed).
+- Live `POST https://co.agentrouter.org/v1/chat/completions` → **401 Invalid API Key** (no WAF).
+- OpenAI Bearer + Anthropic x-api-key paths both 401.
+- Conclusion: host/WAF path is fixed; key itself is rejected by AgentRouter. Owner must create a working token in console and confirm in dashboard before another paste.
+- Treat every chat-pasted key as burned → rotate after validation.
