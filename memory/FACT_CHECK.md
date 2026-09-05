@@ -53,4 +53,19 @@ Rules: every claim is **VERIFIED**, **PARTIAL**, **DISPUTED**, **UNKNOWN**, or *
 2. Treat **$20/day** as hard product law; show batching / session tabs in pitch.  
 3. Do not claim BSC settle until Binance/on-chain credentials are live.  
 4. Prefer live prepaid + live research in the demo video (already wired).  
-5. Upload stage Bible + Binance keys ASAP — settle path is the contest wow.  
+5. Upload stage Bible + Binance keys ASAP — settle path is the contest wow.
+
+## 2026-09-05 — Live smoke (this host)
+
+Verified via `npm run smoke` (exit 0):
+- Deep health probes: Tavily + TinyFish reachable
+- Waitlist durable write
+- OpenAPI + MCP skills catalog non-empty
+- Subaccount fund
+- Unpaid research → HTTP 402 + PAYMENT-REQUIRED
+- Paid research → live sources + TinyFish fetched pages + receipt (`tinyfish-fetch` in providers)
+- Invoice issuance from unbilled receipts
+- Ledger `calls24h` ≥ 1
+- Stress: 5 parallel paid research calls all 200
+
+Still unverified until keys arrive: Binance Agent OS settle, on-chain x402, Venice/AgentRouter LLM synthesis.

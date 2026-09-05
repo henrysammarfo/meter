@@ -23,3 +23,9 @@
 - Receipt GET routes, catalog/waitlist/security wired through `/api/v1`.
 - Smoke cleanup hardened (process-group kill + exit).
 - Typecheck clean. Live smoke re-run next.
+
+## 2026-09-05 — SMOKE OK (live)
+
+`npm run smoke` green: health, waitlist, openapi+mcp, fund, 402, paid research (Tavily+TinyFish Fetch), invoice, ledger, stress×5.
+Pushed `b1c3669` on `cursor/meter-bible-live-architecture-b2de`. PR #1 updated.
+Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
