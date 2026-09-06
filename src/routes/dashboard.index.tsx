@@ -23,6 +23,7 @@ import {
   type LedgerOverview,
   usd,
 } from "@/lib/meter-data";
+import { useWorkspaceRevision } from "@/components/site/WaitlistForm";
 
 export const Route = createFileRoute("/dashboard/")({
   head: () => ({
@@ -40,11 +41,13 @@ export const Route = createFileRoute("/dashboard/")({
 const PIE = ["var(--color-primary)", "var(--color-accent)", "var(--color-muted-foreground)", "var(--color-secondary)"];
 
 function Overview() {
+  const rev = useWorkspaceRevision();
   const [data, setData] = useState<LedgerOverview | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    setData(null);
     fetchLedgerOverview()
       .then((d) => {
         if (!cancelled) setData(d);
@@ -55,7 +58,7 @@ function Overview() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [rev]);
 
   if (error) {
     return (

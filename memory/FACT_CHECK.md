@@ -224,3 +224,16 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 | Daily cap TOCTOU under parallel calls | **FIXED** | Limits checked inside mutateLedger lock |
 | B402 merchant keys required to ship Track A | **FALSE** | Prepaid primary; B402 deferred |
 | Unhackable | **NEVER CLAIM** | Residual: single-host file ledger, demo seed rate limits |
+
+## UI live wiring (2026-09-06)
+
+| Claim | Status | Evidence |
+|---|---|---|
+| All primary pages return HTTP 200 | **VERIFIED** | curl `/` `/product` `/pricing` `/docs` `/demo` `/merch` `/brand` + all `/dashboard*` |
+| Health JSON shape matches Settings probes | **VERIFIED** | `GET /api/v1/health` keys `live.tavily/tinyfish/llm/settleRails/...` |
+| Demo seed + paid research live | **VERIFIED** | seed → 402 → prepaid 200 with Tavily+TinyFish providers |
+| Demo invoice + mark paid | **VERIFIED** | `POST /demo/invoice` 201; `POST /invoices/:id/pay` → status paid |
+| Waitlist mutations live | **VERIFIED** | `POST /api/v1/waitlist` returns total count |
+| Multi-tenant | **PARTIAL** | Client workspace filter over shared ledger; no per-tenant server partition yet |
+| Browser GUI click-through | **UNKNOWN** | computerUse agent unavailable (spend limit); API+HTML source verified instead |
+

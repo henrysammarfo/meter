@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Waves,
@@ -13,6 +13,13 @@ import {
 } from "lucide-react";
 import { MeterMark } from "@/components/brand/MeterMark";
 import { SETTLE_ASSET, SETTLE_CHAIN } from "@/lib/meter-data";
+import { fetchHealth, probeLabel, type MeterHealth } from "@/lib/meter-api";
+import {
+  getActiveWorkspace,
+  listWorkspaces,
+  setActiveWorkspace,
+} from "@/lib/meter-workspace";
+import { useWorkspaceRevision } from "@/components/site/WaitlistForm";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -38,6 +45,28 @@ const NAV = [
 
 function DashboardLayout() {
   const [open, setOpen] = useState(false);
+  const [health, setHealth] = useState<MeterHealth | null>(null);
+  const rev = useWorkspaceRevision();
+  const workspace = getActiveWorkspace();
+  const workspaces = listWorkspaces();
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchHealth(false)
+      .then(({ data }) => {
+        if (!cancelled) setHealth(data);
+      })
+      .catch(() => {
+        if (!cancelled) setHealth(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [rev]);
+
+  const ledgerLive = health?.ok === true;
+  const tavily = health ? probeLabel(health.live.tavily) : "…";
+  const isDemoWs = workspace.id === "ws_public_demo";
 
   return (
     <div className="grid-ink min-h-screen lg:grid lg:grid-cols-[248px_1fr]">
@@ -57,7 +86,22 @@ function DashboardLayout() {
             </button>
           </div>
 
-          <nav className="mt-8 space-y-1">
+          <label className="mt-6 block text-[0.65rem] tracking-widest text-muted-foreground uppercase">
+            Workspace
+          </label>
+          <select
+            className="mt-1.5 w-full rounded-lg border border-border bg-background px-2.5 py-2 text-sm"
+            value={workspace.id}
+            onChange={(e) => setActiveWorkspace(e.target.value)}
+          >
+            {workspaces.map((w) => (
+              <option key={w.id} value={w.id}>
+                {w.name}
+              </option>
+            ))}
+          </select>
+
+          <nav className="mt-6 space-y-1">
             {NAV.map((n) => {
               const Icon = n.icon;
               return (
@@ -83,9 +127,15 @@ function DashboardLayout() {
             <p className="mt-1">
               {SETTLE_ASSET} · {SETTLE_CHAIN}
             </p>
-            <span className="mt-2 inline-flex items-center gap-1.5 text-primary">
-              <span className="size-1.5 rounded-full bg-primary" /> ledger live
+            <span
+              className={`mt-2 inline-flex items-center gap-1.5 ${ledgerLive ? "text-primary" : "text-warning"}`}
+            >
+              <span
+                className={`size-1.5 rounded-full ${ledgerLive ? "bg-primary" : "bg-warning"}`}
+              />
+              {health ? (ledgerLive ? "ledger live" : "ledger degraded") : "checking…"}
             </span>
+            <p className="mt-1 text-[0.65rem]">Tavily {tavily}</p>
           </div>
           <Link to="/demo" className="inline-flex items-center gap-1 hover:text-foreground">
             Replay the demo <ArrowUpRight className="size-3.5" />
@@ -103,6 +153,16 @@ function DashboardLayout() {
             <Menu className="size-5" />
           </button>
         </div>
+        {isDemoWs && (
+          <div className="border-b border-border/70 bg-secondary/40 px-4 py-2.5 text-xs text-muted-foreground sm:px-8">
+            Viewing the <span className="text-foreground">public demo</span> workspace (
+            agent_demo_7c1). Switch workspace or open{" "}
+            <Link to="/dashboard/settings" className="text-primary hover:underline">
+              Settings
+            </Link>{" "}
+            to fund your own agents with an operator key.
+          </div>
+        )}
         <main className="px-4 pb-16 sm:px-8 lg:py-10">
           <Outlet />
         </main>

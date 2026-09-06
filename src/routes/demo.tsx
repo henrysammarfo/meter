@@ -79,12 +79,14 @@ function DemoPage() {
         const res = await fetch("/api/v1/demo/seed", { method: "POST" });
         const body = await res.json();
         if (!res.ok) throw new Error(body.message ?? JSON.stringify(body));
-        setBalance(body.balance);
+        setBalance(body.balance ?? body.agent?.balance ?? DEMO_FUND_AMOUNT);
         if (!body.agentToken) throw new Error("demo seed missing agentToken");
         setAgentToken(body.agentToken);
+        const bal = body.balance ?? body.agent?.balance;
+        const cap = body.cap_24h ?? body.dailyCapUsdc ?? DEMO_DAILY_CAP;
         push([
           { kind: "chain", text: `funded ${usd(DEMO_FUND_AMOUNT)} ${SETTLE_ASSET} · withdrawalsRestricted=true` },
-          { kind: "res", text: `${res.status} { balance: ${body.balance}, cap_24h: ${body.cap_24h} }` },
+          { kind: "res", text: `${res.status} { balance: ${bal}, dailyCap: ${cap}, agentToken: (once) }` },
         ]);
         setStep(1);
       } else if (step === 1) {
@@ -109,7 +111,7 @@ function DemoPage() {
         push([
           {
             kind: "req",
-            text: `GET /api/v1/research  X-Meter-Agent-Id: ${DEMO_AGENT}  X-Meter-Payment: prepaid`,
+            text: `GET /api/v1/research  X-Meter-Agent-Id: ${DEMO_AGENT}  X-Meter-Agent-Token: ***  X-Meter-Payment: prepaid`,
           },
         ]);
         const res = await fetch(
@@ -134,7 +136,7 @@ function DemoPage() {
         ]);
         setStep(3);
       } else if (step === 3) {
-        push([{ kind: "req", text: `POST /api/v1/invoices { agentId: "${DEMO_AGENT}" }` }]);
+        push([{ kind: "req", text: `POST /api/v1/demo/invoice  (public demo issuer for ${DEMO_AGENT})` }]);
         const res = await fetch("/api/v1/demo/invoice", { method: "POST" });
         const body = await res.json();
         if (!res.ok) throw new Error(body.message ?? JSON.stringify(body));
@@ -142,7 +144,7 @@ function DemoPage() {
         push([
           {
             kind: "res",
-            text: `${body.id} · ${usd(body.amount)} across ${body.calls} calls · fee ${usd(body.takeFee)} (${(TAKE_RATE * 100).toFixed(1)}%)`,
+            text: `${body.id} · ${usd(body.amount)} across ${body.calls} calls · fee ${usd(body.takeFee ?? body.amount * TAKE_RATE)} · status=${body.status ?? "open"}`,
           },
         ]);
         setStep(4);

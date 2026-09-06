@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { Badge, Kpi, PageHead, Panel, Table, Td } from "@/components/dashboard/ui";
 import { fetchLedgerOverview, num, SETTLE_ASSET, type LedgerOverview, usd } from "@/lib/meter-data";
+import { useWorkspaceRevision } from "@/components/site/WaitlistForm";
 
 export const Route = createFileRoute("/dashboard/paystream")({
   head: () => ({
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/dashboard/paystream")({
 });
 
 function Paystream() {
+  const rev = useWorkspaceRevision();
   const [filter, setFilter] = useState<"all" | "live" | "paused">("all");
   const [data, setData] = useState<LedgerOverview | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +36,7 @@ function Paystream() {
     fetchLedgerOverview()
       .then(setData)
       .catch((e: Error) => setError(e.message));
-  }, []);
+  }, [rev]);
 
   const rows = useMemo(() => {
     const list = data?.endpoints ?? [];

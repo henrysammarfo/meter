@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { Badge, Kpi, PageHead, Panel, Table, Td } from "@/components/dashboard/ui";
 import { BATCH_FEE, BATCH_SIZE, fetchLedgerOverview, num, type LedgerOverview, usd } from "@/lib/meter-data";
+import { useWorkspaceRevision } from "@/components/site/WaitlistForm";
 
 export const Route = createFileRoute("/dashboard/receipts")({
   head: () => ({
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/dashboard/receipts")({
 });
 
 function Receipts() {
+  const rev = useWorkspaceRevision();
   const [q, setQ] = useState("");
   const [data, setData] = useState<LedgerOverview | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +28,7 @@ function Receipts() {
     fetchLedgerOverview()
       .then(setData)
       .catch((e: Error) => setError(e.message));
-  }, []);
+  }, [rev]);
 
   const receipts = data?.receipts ?? [];
   const rows = useMemo(

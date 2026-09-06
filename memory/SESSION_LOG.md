@@ -183,3 +183,13 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 ## 2026-09-06 16:16 UTC — smoke green after ship hardening
 - `npm run smoke` SMOKE OK: health deep, fund+agentToken, 402, paid research, invoice, ledger, stress×5.
 - PR: https://github.com/henrysammarfo/meter/pull/2
+
+## 2026-09-06 — UI/UX live + multi-tenant lite
+
+- Built browser vault (`meter-workspace`) + shared `meter-api` client (operator/agent headers).
+- Fixed Settings health (probe objects + settle rails), dashboard status binding, workspace switcher + demo banner.
+- Pricing/merch CTAs → live waitlist / mailto / demo (no fake dashboard CTAs).
+- Docs: real HTTP + OpenAPI; demo log paths match live `/demo/seed` + `/demo/invoice`.
+- Invoices: Issue + Mark paid against live operator routes.
+- Verified: `tsc --noEmit` clean; `npm run smoke` SMOKE OK; all marketing+dashboard routes HTTP 200; demo seed→402→paid research→invoice→limits live; mark-paid with operator key OK.
+

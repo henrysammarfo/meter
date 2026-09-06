@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ShieldCheck, TriangleAlert } from "lucide-react";
 import { Badge, Kpi, PageHead, Panel, Table, Td } from "@/components/dashboard/ui";
 import { fetchLedgerOverview, type LedgerOverview, usd } from "@/lib/meter-data";
+import { useWorkspaceRevision } from "@/components/site/WaitlistForm";
 
 export const Route = createFileRoute("/dashboard/limits")({
   head: () => ({
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/dashboard/limits")({
 });
 
 function Limits() {
+  const rev = useWorkspaceRevision();
   const [data, setData] = useState<LedgerOverview | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,7 +27,7 @@ function Limits() {
     fetchLedgerOverview()
       .then(setData)
       .catch((e: Error) => setError(e.message));
-  }, []);
+  }, [rev]);
 
   if (error) return <p className="text-sm text-destructive">{error}</p>;
   if (!data) return <PageHead title="Limits" sub="Loading…" />;

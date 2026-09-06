@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Sparkles } from "lucide-react";
 import { PageShell } from "@/components/site/PageShell";
+import { WaitlistForm } from "@/components/site/WaitlistForm";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -29,7 +30,9 @@ const tiers = [
     for: "Solo agent operators and indie API sellers",
     features: ["3 metered endpoints", "Agent-to-agent invoices", "Shared receipts", "Daily spend caps", "Community support"],
     cta: "Start metering",
+    href: "/demo" as const,
     featured: false,
+    waitlist: false,
   },
   {
     name: "Studio",
@@ -38,7 +41,10 @@ const tiers = [
     for: "Teams shipping paid skills on Agent OS",
     features: ["Unlimited endpoints", "Per-agent policy limits", "Batching under the daily cap", "Flovia analytics + exports", "5 seats included", "Priority support"],
     cta: "Join waitlist",
+    href: null,
     featured: true,
+    waitlist: true,
+    source: "pricing-studio",
   },
   {
     name: "Network",
@@ -47,14 +53,16 @@ const tiers = [
     for: "Marketplaces settling for many agents",
     features: ["Multi-workspace ledger", "Sub-account sandboxes", "Custom settle rails", "SLA + audit exports", "Dedicated engineer"],
     cta: "Talk to us",
+    href: "mailto:hello@meter.dev?subject=METER%20Network%20plan",
     featured: false,
+    waitlist: false,
   },
 ];
 
 const faqs = [
   { q: "Why a settle take instead of per-call fees?", a: "Agent calls are $0.002–$0.05. A fixed per-call fee would cost more than the call. A percentage of settled volume scales with the money that actually moves." },
   { q: "What happens at the daily cap?", a: "METER queues or blocks per your policy and writes an audit row. The client agent gets a structured failure, not a timeout." },
-  { q: "Do I need Binance Agent OS?", a: "METER is built for Agent OS and x402 settlement, and the ledger also accepts any HTTP 402-compatible rail." },
+  { q: "Do I need Binance Agent OS?", a: "METER is built for Agent OS and x402 settlement, and the ledger also accepts any HTTP 402-compatible rail. Prepaid subaccounts work without Binance merchant onboarding." },
   { q: "Who owns the receipt?", a: "Both agents. One hash, two copies, no reconciliation call." },
 ];
 
@@ -91,16 +99,29 @@ function PricingPage() {
                 </li>
               ))}
             </ul>
-            <Link
-              to="/dashboard"
-              className={`mt-7 block rounded-full px-5 py-3 text-center text-sm font-medium ${
-                t.featured
-                  ? "bg-primary text-primary-foreground"
-                  : "border border-border text-foreground/85 hover:text-foreground"
-              }`}
-            >
-              {t.cta}
-            </Link>
+            <div className="mt-7">
+              {t.waitlist ? (
+                <WaitlistForm source={t.source ?? "pricing"} cta={t.cta} />
+              ) : t.href?.startsWith("mailto:") ? (
+                <a
+                  href={t.href}
+                  className="block rounded-full border border-border px-5 py-3 text-center text-sm font-medium text-foreground/85 hover:text-foreground"
+                >
+                  {t.cta}
+                </a>
+              ) : (
+                <Link
+                  to={t.href ?? "/demo"}
+                  className={`block rounded-full px-5 py-3 text-center text-sm font-medium ${
+                    t.featured
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border text-foreground/85 hover:text-foreground"
+                  }`}
+                >
+                  {t.cta}
+                </Link>
+              )}
+            </div>
           </article>
         ))}
       </section>

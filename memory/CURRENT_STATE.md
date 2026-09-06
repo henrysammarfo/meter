@@ -1,10 +1,12 @@
 # METER — Current State
 
-**Updated:** 2026-09-05  
-**Branch:** `cursor/meter-bible-live-architecture-b2de`  
-**Phase:** SHIP HARDENING — B402 merchant keys deferred. Prepaid + agent tokens + atomic debit/refund live.
+**Updated:** 2026-09-06
+**Branch:** `cursor/meter-ui-live-tenant-b2de`
+**Phase:** UI/UX LIVE + MULTI-TENANT LITE — auth vault, workspace filter, all routes 200 against live `/api/v1`.
 
 ## What exists
+
+- **UI live path (2026-09-06):** shared `meter-api` + `meter-workspace` vault; Settings health parses real probe objects; pricing/merch waitlist CTAs hit `POST /api/v1/waitlist`; docs = real HTTP/OpenAPI; demo beats match `/demo/seed` + `/demo/invoice`; invoices Issue/Mark paid; dashboard workspace switcher filters ledger client-side (multi-tenant lite over shared ledger).
 
 - Marketing + brand + dashboard (Lovable / TanStack Start)
 - Live `/api/v1/*` in `src/meter/*` via `src/server.ts`
