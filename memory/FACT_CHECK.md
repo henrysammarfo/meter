@@ -183,3 +183,13 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 | Public non-Google apply email in Binance B402 docs | **NOT FOUND** | apply doc only links forms.gle |
 | Workaround: Binance Support / Live Chat with full materials | **PRACTICAL / UNVERIFIED OUTCOME** | Docs say base URL is “contact us”; Live Chat is logged-in channel |
 | Public Bazaar discovery works without merchant creds | **PARTIAL** | Public bazaar endpoint exists in docs; probe logged |
+
+
+## 2026-09-06 10:26 UTC — Competition + facilitator probes
+| Claim | Status | Evidence |
+|---|---|---|
+| Track A peers mostly MCP trading/risk agents | **VERIFIED** | GitHub search ~15 Track A repos |
+| Tollgate = pay-for-evidence peer without B402 keys | **VERIFIED** | README: UNPAID_DEMO; never invents txHash |
+| x402.org `/facilitator/supported` live | **VERIFIED** | HTTP 200 kinds incl. eip155:84532 |
+| Vistara facilitator.b402.ai reachable here | **FAIL** | curl exit/000 from this egress |
+| Public Binance B402 apply without Google Form | **NOT FOUND** | docs + support only |

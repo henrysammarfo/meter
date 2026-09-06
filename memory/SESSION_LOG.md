@@ -137,3 +137,11 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - Official B402 apply remains Google Form only in docs — owner has no access.
 - Workaround path: Binance logged-in Live Chat / Submit a Request using `memory/research-raw/b402-apply/SUPPORT_TICKET_TEMPLATE.md`.
 - Parallel: MCP+prepaid demo continues; public Bazaar needs no merchant creds.
+
+
+## 2026-09-06 10:26 UTC — B402 form blocked → open settle strategy
+
+- Researched Track A peers: mostly MCP trade/risk bots; **Tollgate** mirrors pay-for-evidence and also lacks B402 partner keys (uses UNPAID_DEMO).
+- Decision: **do not self-build facilitator** as primary; keep **prepaid live**; optional **x402.org facilitator** for Base Sepolia; Binance B402 remains upgrade-when-onboarded.
+- Health now exposes `settleRails` + deep probe of open facilitator `/supported`.
+- Docs: `memory/SETTLE_RAILS.md`, `memory/research-raw/competition/TRACK_A_LANDSCAPE_2026-09-06.md`.

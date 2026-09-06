@@ -27,6 +27,16 @@ npm run smoke          # live health → 402 → paid research → invoice → s
 
 Architecture + fact-check: `memory/ARCHITECTURE.md`, `memory/FACT_CHECK.md`.
 
+## Settle rails
+
+| Rail | Status | Needs |
+|---|---|---|
+| Prepaid ledger | **Live** | Operator fund subaccount |
+| Open x402 (`x402.org/facilitator`) | Optional | `METER_PAY_TO` + `METER_USDC_ASSET` |
+| Binance B402 merchant | Blocked without partner form | Support ticket / form when available |
+
+Details: `memory/SETTLE_RAILS.md`. Competition notes: `memory/research-raw/competition/`.
+
 ## Doctrine
 
 No mocks. No silent fallbacks. Not “unhackable” — residual risk documented in memory.

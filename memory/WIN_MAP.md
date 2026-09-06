@@ -51,3 +51,11 @@ Not unhackable. File ledger single-host; WAF on some egress; B402 base URL gated
 - [ ] Agentic sub confirmed (Step 1d)
 - [ ] B402 merchant credentials (settle)
 - [ ] Demo video + X + survey
+
+
+## 2026-09-06 10:26 UTC pivot (form blocked)
+1. Stop blocking on Google Form.
+2. Ship demo: MCP + prepaid research + invoice + shared receipt + $20/day cap.
+3. Optional: wire owner `METER_PAY_TO` → x402.org Base Sepolia.
+4. Vs Tollgate: real prepaid ledger (not unpaidDemo); dual-agent receipts; live Tavily/TinyFish.
+5. Still submit: video + GitHub + X quote + survey before 2026-09-08 23:59 UTC.

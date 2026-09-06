@@ -33,6 +33,12 @@ async function timeProbe(fn: () => Promise<void>): Promise<Omit<ProbeStatus, "co
   }
 }
 
+export type SettleRailStatus = {
+  id: "prepaid" | "x402-open-facilitator" | "binance-b402";
+  live: boolean;
+  note: string;
+};
+
 export async function probeLiveProviders(deep = false): Promise<{
   probedAt: string;
   deep: boolean;
@@ -42,6 +48,9 @@ export async function probeLiveProviders(deep = false): Promise<{
   onchainX402: { configured: boolean };
   binanceAgentOs: { configured: boolean };
   operatorAuth: { configured: boolean; required: boolean };
+  /** Honest settle rails — prepaid is primary when Binance B402 form is blocked. */
+  settleRails: SettleRailStatus[];
+  openFacilitator: ProbeStatus & { url: string };
 }> {
   const env = getEnv();
   const llmProvider = env.METER_LLM_PROVIDER ?? null;
@@ -51,6 +60,29 @@ export async function probeLiveProviders(deep = false): Promise<{
       : llmProvider === "agentrouter"
         ? getAgentRouterKey().ok
         : false;
+
+  const onchainConfigured = Boolean(env.METER_PAY_TO && env.METER_USDC_ASSET);
+  const settleRails: SettleRailStatus[] = [
+    {
+      id: "prepaid",
+      live: true,
+      note: "METER subaccount debit — live without Binance merchant form",
+    },
+    {
+      id: "x402-open-facilitator",
+      live: onchainConfigured && !binanceConfigured(),
+      note: onchainConfigured
+        ? `Uses METER_FACILITATOR_URL=${env.METER_FACILITATOR_URL} (default x402.org) + METER_PAY_TO`
+        : "Set METER_PAY_TO + METER_USDC_ASSET to enable open facilitator settle",
+    },
+    {
+      id: "binance-b402",
+      live: binanceConfigured(),
+      note: binanceConfigured()
+        ? "Binance partner clientId/accessToken configured"
+        : "Blocked without partner form / support onboarding — do not fake",
+    },
+  ];
 
   const out = {
     probedAt: new Date().toISOString(),
@@ -76,11 +108,19 @@ export async function probeLiveProviders(deep = false): Promise<{
         ? null
         : ("METER_LLM_PROVIDER unset — research path does not require LLM" as string | null),
     },
-    onchainX402: { configured: Boolean(env.METER_PAY_TO && env.METER_USDC_ASSET) },
+    onchainX402: { configured: onchainConfigured },
     binanceAgentOs: { configured: binanceConfigured() },
     operatorAuth: {
       configured: Boolean(env.METER_OPERATOR_KEY),
       required: isProductionMode(),
+    },
+    settleRails,
+    openFacilitator: {
+      url: env.METER_FACILITATOR_URL,
+      configured: true,
+      reachable: null as boolean | null,
+      latencyMs: null as number | null,
+      error: null as string | null,
     },
   };
 
@@ -129,6 +169,22 @@ export async function probeLiveProviders(deep = false): Promise<{
     out.llm.reachable = false;
     out.llm.error = `METER_LLM_PROVIDER=${llmProvider} but API key missing`;
   }
+
+  Object.assign(
+    out.openFacilitator,
+    await timeProbe(async () => {
+      const url = `${env.METER_FACILITATOR_URL.replace(/\/$/, "")}/supported`;
+      const res = await fetch(url, {
+        headers: { Accept: "application/json" },
+        signal: AbortSignal.timeout(12_000),
+      });
+      if (!res.ok) throw new Error(`Facilitator /supported HTTP ${res.status}`);
+      const body = (await res.json()) as { kinds?: unknown[] };
+      if (!Array.isArray(body.kinds) || body.kinds.length === 0) {
+        throw new Error("Facilitator /supported missing kinds[]");
+      }
+    }),
+  );
 
   return out;
 }

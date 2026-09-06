@@ -78,3 +78,11 @@ Official apply: [developers.binance.com …/6.apply-developer-account](https://d
 - Step 2 RSA: **DONE** (agent-generated, gitignored)
 - B402 Form: **BLOCKED** for owner → use Live Chat template
 - Next Step 2b: owner sends support ticket + provides testnet `0x` wallet + email
+
+
+## 2026-09-06 10:26 UTC — Settle strategy lock
+- MCP: DONE (VS Code)
+- Prepaid settle: LIVE (primary demo)
+- Binance B402 merchant form: BLOCKED → not required for Track A demo
+- Optional next: owner `METER_PAY_TO` for x402.org Base Sepolia
+- Self-build facilitator: deferred (risk/time); not needed to differentiate vs Tollgate
