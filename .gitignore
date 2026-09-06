@@ -45,3 +45,7 @@ data/
 meter-b402-keys/
 *.pem
 *.base64
+
+meter-wallet/
+*.key
+*private*

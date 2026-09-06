@@ -91,3 +91,11 @@ Official apply: [developers.binance.com …/6.apply-developer-account](https://d
 ## 2026-09-06 10:35 UTC
 - On-chain open rail target: **Base mainnet** via PayAI facilitator.
 - Awaiting owner `METER_PAY_TO` (Base mainnet 0x).
+
+
+## 2026-09-06 15:07 UTC — Base mainnet pay-to configured
+- `METER_PAY_TO=0x4e1b80aC476220d7c26F99F50a22d9c2d518d5AD` set in gitignored `.env`
+- `METER_USDC_ASSET` = Circle USDC Base mainnet
+- `METER_SETTLE_NETWORK=eip155:8453`
+- `METER_FACILITATOR_URL=https://facilitator.payai.network`
+- **SECURITY:** Owner pasted a private key in chat — treat as **compromised**. Do not store key in repo. Rotate wallet before any meaningful balance. App only needs the address for receive.

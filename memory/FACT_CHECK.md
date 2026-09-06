@@ -201,3 +201,11 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 | x402.org facilitator supports Base mainnet 8453 | **FALSE** | `/supported` has 84532 only |
 | PayAI `facilitator.payai.network` supports `eip155:8453` | **VERIFIED** | `/supported` lists `base` + `eip155:8453` |
 | Circle USDC on Base mainnet | **VERIFIED** | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` (Circle docs / canonical) |
+
+
+## 2026-09-06 15:07 UTC — Base mainnet pay-to configured
+- `METER_PAY_TO=0x4e1b80aC476220d7c26F99F50a22d9c2d518d5AD` set in gitignored `.env`
+- `METER_USDC_ASSET` = Circle USDC Base mainnet
+- `METER_SETTLE_NETWORK=eip155:8453`
+- `METER_FACILITATOR_URL=https://facilitator.payai.network`
+- **SECURITY:** Owner pasted a private key in chat — treat as **compromised**. Do not store key in repo. Rotate wallet before any meaningful balance. App only needs the address for receive.
