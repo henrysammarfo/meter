@@ -104,3 +104,9 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - Verified endpoint still `https://agent.binance.com/mcp/agentic`; withdraw never; confirm-before-trade; Agentic virtual sub.
 - Doc rule: never paste endpoint into AI chat / never open in browser for install.
 - Advanced to Step 1c only: Cursor MCP OAuth connect.
+
+
+## 2026-09-06 — Step 1c blocked: Cursor DCR vs Binance CIMD
+
+- Owner mcp.json URL-only connect failed: no DCR on Binance; Cursor attempted DCR.
+- Next: static `auth.CLIENT_ID` (Cursor docs) **or** officially supported client (VS Code / Claude Desktop) until Binance issues Cursor client id.

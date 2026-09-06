@@ -142,3 +142,14 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 | Endpoint `https://agent.binance.com/mcp/agentic` | **VERIFIED** | Owner-pasted official doc + our saved markdown mirror |
 | No API keys on device; withdraw never; confirm-before-execute | **VERIFIED** | Same doc |
 | Do not paste endpoint into chat / open in browser to install | **VERIFIED** | Callout in official doc |
+
+
+## 2026-09-06 — Cursor ↔ Binance MCP OAuth failure
+
+| Claim | Status | Evidence |
+|---|---|---|
+| Error `Incompatible auth server: does not support dynamic client registration` | **VERIFIED** | Owner Cursor MCP logs 2026-09-06 |
+| Binance auth metadata has **no** DCR `registration_endpoint` | **VERIFIED** | `GET https://agent.binance.com/.well-known/oauth-authorization-server` → `client_id_metadata_document_supported: true` only |
+| Cursor can use static OAuth via `auth.CLIENT_ID` in `mcp.json` | **VERIFIED** | https://cursor.com/docs/mcp (Static OAuth for remote servers) |
+| Official Binance MCP docs list static client ids `codex` / `grok` | **VERIFIED** | agentic MCP doc tabs |
+| Official Binance MCP docs list **Cursor** as supported client | **FALSE / NOT FOUND** | Tabs: Claude Code, Claude Desktop, Codex, ChatGPT, VS Code, Grok, Other — no Cursor |
