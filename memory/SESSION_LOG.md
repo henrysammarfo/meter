@@ -179,3 +179,7 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - P1: CORS allowlist, sanitized errors, atomic invoices, x402 amount/resource bind, demo seed routes.
 - UX: docs/README/demo/dashboard/pricing polish; no fake SDK/trial claims.
 - Typecheck green. Smoke updated for agentToken.
+
+## 2026-09-06 16:16 UTC — smoke green after ship hardening
+- `npm run smoke` SMOKE OK: health deep, fund+agentToken, 402, paid research, invoice, ledger, stress×5.
+- PR: https://github.com/henrysammarfo/meter/pull/2
