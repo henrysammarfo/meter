@@ -1,33 +1,26 @@
-# METER settle rails (no fake Binance B402)
+# METER settle rails
 
-Binance partner Google Form is **blocked** for the owner. Official docs expose **no** alternate public apply email. Tollgate (peer Track A) has the same gap.
+Binance partner Google Form is **blocked** for the owner. Official docs expose **no** alternate public apply email.
 
-## Rails (priority order)
+## Rails (priority)
 
-### 1) Prepaid — LIVE (demo primary)
+### 1) Prepaid — LIVE (demo always-on)
 - Headers: `X-Meter-Agent-Id` + `X-Meter-Payment: prepaid`
 - Durable ledger + receipts + invoices
-- No Google Form, no gas, no facilitator key
 
-### 2) Open x402 facilitator — optional on-chain
-- Default URL: `https://x402.org/facilitator` (probed: `/supported` returns kinds including Base Sepolia `eip155:84532`)
-- Requires owner:
-  - `METER_PAY_TO=0x…` receive address
-  - `METER_USDC_ASSET=` testnet USDC (Base Sepolia default in `.env.example`)
-  - `METER_SETTLE_NETWORK=base-sepolia` (or CAIP `eip155:84532` if client expects it)
-- Uses public verify/settle — **no** Binance `clientId`
-- Residual risk: third-party facilitator custody/ops; testnet only for demo
+### 2) Open x402 on **Base mainnet** — optional on-chain
+- Facilitator: `https://facilitator.payai.network` (**VERIFIED** lists `eip155:8453` / `base`)
+- Network default: `eip155:8453` (Base **mainnet**, not Sepolia)
+- USDC (Circle on Base): `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`
+- Needs owner `METER_PAY_TO=0x…` (Base mainnet receive wallet)
+- Residual risk: third-party facilitator ops; real mainnet funds — start with tiny amounts
 
-### 3) Binance B402 merchant — blocked until onboarding
-- Needs RSA + form/support → `clientId` / `accessToken` / base URL
-- RSA keypair already generated under gitignored `meter-b402-keys/`
-- Support ticket template: `memory/research-raw/b402-apply/SUPPORT_TICKET_TEMPLATE.md`
-- Until then: `binanceAgentOs.configured=false` — fail closed, never invent txHash
+**Not used as default:** `https://x402.org/facilitator` — probed **testnet-only** (no `eip155:8453`).
 
-## Explicitly rejected
-- Claiming “Binance settle” without credentials
-- `unpaidDemo` theater as if paid (we prepaid instead)
-- Self-hosting an unaudited facilitator as “production Binance B402”
+### 3) Binance B402 on BSC mainnet — blocked until onboarding
+- Production chain per Binance docs: BSC `eip155:56`
+- RSA ready under gitignored `meter-b402-keys/`
+- Upgrade path when Support/form works — never fake tx hashes
 
 ## Health
-`GET /api/v1/health?deep=1` reports `settleRails[]` + probes open facilitator `/supported`.
+`GET /api/v1/health?deep=1` → `settleRails[]` + open facilitator `/supported` probe.

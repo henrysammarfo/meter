@@ -32,10 +32,10 @@ Architecture + fact-check: `memory/ARCHITECTURE.md`, `memory/FACT_CHECK.md`.
 | Rail | Status | Needs |
 |---|---|---|
 | Prepaid ledger | **Live** | Operator fund subaccount |
-| Open x402 (`x402.org/facilitator`) | Optional | `METER_PAY_TO` + `METER_USDC_ASSET` |
-| Binance B402 merchant | Blocked without partner form | Support ticket / form when available |
+| Open x402 on **Base mainnet** (`facilitator.payai.network`) | Optional | `METER_PAY_TO` + Base USDC `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` |
+| Binance B402 (BSC mainnet) | Blocked without partner form | Support ticket / form when available |
 
-Details: `memory/SETTLE_RAILS.md`. Competition notes: `memory/research-raw/competition/`.
+Defaults: `METER_SETTLE_NETWORK=eip155:8453` (Base **mainnet**, not Sepolia). Details: `memory/SETTLE_RAILS.md`.
 
 ## Doctrine
 

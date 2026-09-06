@@ -86,3 +86,8 @@ Official apply: [developers.binance.com …/6.apply-developer-account](https://d
 - Binance B402 merchant form: BLOCKED → not required for Track A demo
 - Optional next: owner `METER_PAY_TO` for x402.org Base Sepolia
 - Self-build facilitator: deferred (risk/time); not needed to differentiate vs Tollgate
+
+
+## 2026-09-06 10:35 UTC
+- On-chain open rail target: **Base mainnet** via PayAI facilitator.
+- Awaiting owner `METER_PAY_TO` (Base mainnet 0x).

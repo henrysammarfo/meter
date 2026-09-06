@@ -72,8 +72,8 @@ export async function probeLiveProviders(deep = false): Promise<{
       id: "x402-open-facilitator",
       live: onchainConfigured && !binanceConfigured(),
       note: onchainConfigured
-        ? `Uses METER_FACILITATOR_URL=${env.METER_FACILITATOR_URL} (default x402.org) + METER_PAY_TO`
-        : "Set METER_PAY_TO + METER_USDC_ASSET to enable open facilitator settle",
+        ? `Uses METER_FACILITATOR_URL=${env.METER_FACILITATOR_URL} on ${env.METER_SETTLE_NETWORK} + METER_PAY_TO`
+        : "Set METER_PAY_TO + METER_USDC_ASSET (Base mainnet USDC) to enable open facilitator settle",
     },
     {
       id: "binance-b402",

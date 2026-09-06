@@ -193,3 +193,11 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 | x402.org `/facilitator/supported` live | **VERIFIED** | HTTP 200 kinds incl. eip155:84532 |
 | Vistara facilitator.b402.ai reachable here | **FAIL** | curl exit/000 from this egress |
 | Public Binance B402 apply without Google Form | **NOT FOUND** | docs + support only |
+
+
+## 2026-09-06 10:35 UTC — Base mainnet facilitator
+| Claim | Status | Evidence |
+|---|---|---|
+| x402.org facilitator supports Base mainnet 8453 | **FALSE** | `/supported` has 84532 only |
+| PayAI `facilitator.payai.network` supports `eip155:8453` | **VERIFIED** | `/supported` lists `base` + `eip155:8453` |
+| Circle USDC on Base mainnet | **VERIFIED** | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` (Circle docs / canonical) |

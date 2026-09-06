@@ -145,3 +145,11 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - Decision: **do not self-build facilitator** as primary; keep **prepaid live**; optional **x402.org facilitator** for Base Sepolia; Binance B402 remains upgrade-when-onboarded.
 - Health now exposes `settleRails` + deep probe of open facilitator `/supported`.
 - Docs: `memory/SETTLE_RAILS.md`, `memory/research-raw/competition/TRACK_A_LANDSCAPE_2026-09-06.md`.
+
+
+## 2026-09-06 10:35 UTC — Base mainnet settle (not Sepolia)
+- Owner: Base must be mainnet.
+- Switched defaults: `METER_SETTLE_NETWORK=eip155:8453`, facilitator `https://facilitator.payai.network` (lists Base mainnet).
+- x402.org facilitator remains testnet-only — not default.
+- Circle USDC Base: `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`.
+- Still need owner `METER_PAY_TO` on Base mainnet.

@@ -124,15 +124,21 @@ const EnvSchema = z.object({
     emptyToUndef,
     z.string().default("data/ledger.json"),
   ),
+  /**
+   * Open facilitator for on-chain x402 when Binance B402 merchant keys are absent.
+   * Default: PayAI — supports Base mainnet (eip155:8453). x402.org is testnet-only.
+   */
   METER_FACILITATOR_URL: z.preprocess(
     emptyToUndef,
-    z.string().url().default("https://x402.org/facilitator"),
+    z.string().url().default("https://facilitator.payai.network"),
   ),
   METER_PAY_TO: optionalNonEmpty,
+  /** Prefer CAIP-2 `eip155:8453` (Base mainnet). */
   METER_SETTLE_NETWORK: z.preprocess(
     emptyToUndef,
-    z.string().default("base-sepolia"),
+    z.string().default("eip155:8453"),
   ),
+  /** Default unset; .env.example documents Circle USDC on Base mainnet. */
   METER_USDC_ASSET: optionalNonEmpty,
   BINANCE_AGENT_OS_API_KEY: optionalNonEmpty,
   BINANCE_X402_FACILITATOR_URL: optionalNonEmpty,
