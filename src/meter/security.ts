@@ -1,17 +1,39 @@
 /**
- * Operator auth + per-agent rate limits + idempotency for mutating APIs.
- * Fail closed when METER_OPERATOR_KEY is configured.
+ * Operator auth + agent bearer tokens + per-agent rate limits + idempotency + CORS.
+ * Fail closed when METER_OPERATOR_KEY is configured or production mode is on.
  */
 
-import { createHash, randomUUID } from "node:crypto";
+import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { getEnv, isProductionMode, MeterLiveError } from "./env";
 
-const idempotencyCache = new Map<string, { expires: number; status: number; body: string; headers: Record<string, string> }>();
+const idempotencyCache = new Map<
+  string,
+  { expires: number; status: number; body: string; headers: Record<string, string> }
+>();
 const rateBuckets = new Map<string, { count: number; reset: number }>();
+const demoSeedBuckets = new Map<string, { count: number; reset: number }>();
 
 const IDEMPOTENCY_TTL_MS = 15 * 60 * 1000;
 const RATE_WINDOW_MS = 60_000;
 const RATE_MAX_PER_AGENT = 120;
+const DEMO_SEED_WINDOW_MS = 60 * 60 * 1000;
+const DEMO_SEED_MAX = 30;
+
+export function hashAgentToken(token: string): string {
+  return createHash("sha256").update(token, "utf8").digest("hex");
+}
+
+export function mintAgentToken(): { token: string; tokenHash: string } {
+  const token = `mt_${randomBytes(24).toString("base64url")}`;
+  return { token, tokenHash: hashAgentToken(token) };
+}
+
+export function tokensEqual(a: string, b: string): boolean {
+  const ba = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ba.length !== bb.length) return false;
+  return timingSafeEqual(ba, bb);
+}
 
 export function requireOperator(request: Request): void {
   const env = getEnv();
@@ -29,12 +51,21 @@ export function requireOperator(request: Request): void {
   const header =
     request.headers.get("x-meter-operator-key") ??
     request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!header || header !== env.METER_OPERATOR_KEY) {
+  if (!header || !tokensEqual(header, env.METER_OPERATOR_KEY)) {
     throw new MeterLiveError(
       "OPERATOR_UNAUTHORIZED",
       "Operator key required for this mutation. Pass X-Meter-Operator-Key.",
       401,
     );
+  }
+}
+
+export function isOperatorAuthorized(request: Request): boolean {
+  try {
+    requireOperator(request);
+    return true;
+  } catch {
+    return false;
   }
 }
 
@@ -56,6 +87,29 @@ export function assertAgentRateLimit(agentId: string): void {
       `Agent ${agentId} exceeded ${RATE_MAX_PER_AGENT} requests / minute`,
       429,
       { resetAt: new Date(bucket.reset).toISOString() },
+    );
+  }
+}
+
+/** Rate-limit public demo seed / demo invoice by client fingerprint. */
+export function assertDemoSeedRateLimit(request: Request): void {
+  const ip =
+    request.headers.get("cf-connecting-ip") ??
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    request.headers.get("x-real-ip") ??
+    "local";
+  const now = Date.now();
+  const bucket = demoSeedBuckets.get(ip);
+  if (!bucket || bucket.reset <= now) {
+    demoSeedBuckets.set(ip, { count: 1, reset: now + DEMO_SEED_WINDOW_MS });
+    return;
+  }
+  bucket.count += 1;
+  if (bucket.count > DEMO_SEED_MAX) {
+    throw new MeterLiveError(
+      "DEMO_RATE_LIMITED",
+      "Demo seed rate limit exceeded. Wait and retry, or fund via operator API.",
+      429,
     );
   }
 }
@@ -89,7 +143,6 @@ export async function storeIdempotent(key: string, response: Response): Promise<
     body,
     headers,
   });
-  // Cap map size
   if (idempotencyCache.size > 2000) {
     const first = idempotencyCache.keys().next().value;
     if (first) idempotencyCache.delete(first);
@@ -97,21 +150,45 @@ export async function storeIdempotent(key: string, response: Response): Promise<
   return new Response(body, { status: response.status, headers: response.headers });
 }
 
+function corsOriginAllowed(origin: string | null): string | null {
+  if (!origin) return null;
+  const env = getEnv();
+  const raw = env.METER_CORS_ORIGINS?.trim();
+  if (!raw || raw === "*") return origin;
+  const allowed = raw.split(",").map((s) => s.trim()).filter(Boolean);
+  if (allowed.includes("*") || allowed.includes(origin)) return origin;
+  return null;
+}
+
 export function corsHeaders(request: Request): Headers {
-  const origin = request.headers.get("origin") ?? "*";
+  const origin = request.headers.get("origin");
+  const allowed = corsOriginAllowed(origin);
   const headers = new Headers();
-  headers.set("Access-Control-Allow-Origin", origin);
+  if (allowed) {
+    headers.set("Access-Control-Allow-Origin", allowed);
+    headers.set("Vary", "Origin");
+  } else if (!origin) {
+    headers.set("Access-Control-Allow-Origin", "*");
+  }
   headers.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   headers.set(
     "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, X-Meter-Agent-Id, X-Meter-Payment, X-Meter-Operator-Key, PAYMENT-SIGNATURE, Idempotency-Key",
+    "Content-Type, Authorization, X-Meter-Agent-Id, X-Meter-Agent-Token, X-Meter-Payment, X-Meter-Operator-Key, PAYMENT-SIGNATURE, Idempotency-Key, X-Request-Id",
   );
-  headers.set("Access-Control-Expose-Headers", "PAYMENT-REQUIRED, PAYMENT-RESPONSE, X-Meter-Receipt, X-Meter-Amount");
+  headers.set(
+    "Access-Control-Expose-Headers",
+    "PAYMENT-REQUIRED, PAYMENT-RESPONSE, X-Meter-Receipt, X-Meter-Amount",
+  );
   headers.set("Access-Control-Max-Age", "86400");
-  if (origin !== "*") headers.set("Vary", "Origin");
   return headers;
 }
 
 export function hashPayload(parts: unknown[]): string {
   return createHash("sha256").update(JSON.stringify(parts)).digest("hex").slice(0, 24);
+}
+
+/** Strip secrets before returning ledger agents to clients. */
+export function publicAgent<T extends { tokenHash?: string }>(agent: T): Omit<T, "tokenHash"> {
+  const { tokenHash: _omit, ...rest } = agent;
+  return rest;
 }

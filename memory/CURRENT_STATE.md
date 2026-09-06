@@ -2,7 +2,7 @@
 
 **Updated:** 2026-09-05  
 **Branch:** `cursor/meter-bible-live-architecture-b2de`  
-**Phase:** API KEYS — owner step-by-step (Step 1: B402 Sandbox apply). Prepaid research green; AgentRouter PONG via proxy.
+**Phase:** SHIP HARDENING — B402 merchant keys deferred. Prepaid + agent tokens + atomic debit/refund live.
 
 ## What exists
 
@@ -110,3 +110,11 @@ Official apply: [developers.binance.com …/6.apply-developer-account](https://d
 - `npm run smoke` **SMOKE OK** (health+settleRails, waitlist, openapi/mcp, fund w/ operator key, 402, paid research, invoice, ledger, stress×5).
 - Base mainnet pay-to wired; prepaid primary.
 - **Next (owner):** demo video + X quote/repost + survey before 2026-09-08 23:59 UTC.
+
+
+## 2026-09-06 16:13 UTC — ship hardening
+- Prepaid requires `X-Meter-Agent-Token` (minted on fund; hash stored on agent).
+- Debit is atomic under ledger lock; failed research refunds prepaid.
+- Public `/api/v1/demo/seed` + `/demo/invoice` for contest demo without exposing operator key.
+- CORS allowlist via `METER_CORS_ORIGINS`; error details redacted in production.
+- Binance B402 merchant onboarding: **out of scope for ship** (upgrade later).

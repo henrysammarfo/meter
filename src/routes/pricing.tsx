@@ -37,7 +37,7 @@ const tiers = [
     take: "1.5% settle take",
     for: "Teams shipping paid skills on Agent OS",
     features: ["Unlimited endpoints", "Per-agent policy limits", "Batching under the daily cap", "Flovia analytics + exports", "5 seats included", "Priority support"],
-    cta: "Start 14-day trial",
+    cta: "Join waitlist",
     featured: true,
   },
   {

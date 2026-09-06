@@ -215,3 +215,12 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 - `npm run smoke` **SMOKE OK** (health+settleRails, waitlist, openapi/mcp, fund w/ operator key, 402, paid research, invoice, ledger, stress×5).
 - Base mainnet pay-to wired; prepaid primary.
 - **Next (owner):** demo video + X quote/repost + survey before 2026-09-08 23:59 UTC.
+
+## 2026-09-06 16:13 UTC — ship security claims
+| Claim | Status | Notes |
+|---|---|---|
+| Prepaid drain by knowing agent id alone | **FIXED** | Requires X-Meter-Agent-Token |
+| Debit before work burns funds on provider fail | **FIXED** | refundPrepaid on research catch |
+| Daily cap TOCTOU under parallel calls | **FIXED** | Limits checked inside mutateLedger lock |
+| B402 merchant keys required to ship Track A | **FALSE** | Prepaid primary; B402 deferred |
+| Unhackable | **NEVER CLAIM** | Residual: single-host file ledger, demo seed rate limits |

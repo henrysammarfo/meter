@@ -9,12 +9,12 @@ export const Route = createFileRoute("/docs")({
       {
         name: "description",
         content:
-          "Install the METER SDK, price a route in units, answer 402 challenges and settle over x402 with batching under the daily cap.",
+          "Fund a subaccount, answer 402 challenges, settle prepaid or x402, and read shared receipts from the live ledger.",
       },
       { property: "og:title", content: "Docs — Meter an endpoint in 6 lines" },
       {
         property: "og:description",
-        content: "SDK quickstart, 402 challenge shape, invoice payload and limit policy.",
+        content: "HTTP quickstart, 402 challenge shape, invoice payload and limit policy.",
       },
     ],
   }),
@@ -27,14 +27,17 @@ TINYFISH_API_KEY=...
 AGENTROUTER_API_KEY=...   # optional LLM; no OpenAI required
 npm run dev`;
 
-const middleware = `# Fund sandbox subaccount (withdrawals restricted)
+const middleware = `# Fund sandbox subaccount (operator key required when set)
 curl -X POST /api/v1/subaccounts \\
   -H 'content-type: application/json' \\
+  -H 'X-Meter-Operator-Key: $METER_OPERATOR_KEY' \\
   -d '{"id":"agent_b7f2","amount":5}'
+# Response includes agentToken (shown once)
 
 # Paid research (live Tavily + TinyFish)
 curl '/api/v1/research?q=bnb+agent+os' \\
   -H 'X-Meter-Agent-Id: agent_b7f2' \\
+  -H 'X-Meter-Agent-Token: $AGENT_TOKEN' \\
   -H 'X-Meter-Payment: prepaid'`;
 
 const challenge = `HTTP/1.1 402 Payment Required
@@ -74,7 +77,7 @@ function DocsPage() {
     <PageShell
       eyebrow="Docs"
       title="Meter an endpoint in six lines."
-      lede="The SDK prices the route, answers the 402, settles over x402, and posts the invoice. You write the handler."
+      lede="Call /api/v1 over HTTP. Prepaid needs agent id + token; unpaid calls get a 402 Payment Required challenge."
     >
       <div className="grid gap-10 lg:grid-cols-[220px_1fr]">
         <aside className="panel h-max p-5 lg:sticky lg:top-8">

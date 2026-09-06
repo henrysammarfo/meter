@@ -61,6 +61,7 @@ function DemoPage() {
   const [error, setError] = useState<string | null>(null);
   const [receiptId, setReceiptId] = useState<string | null>(null);
   const [invoiceId, setInvoiceId] = useState<string | null>(null);
+  const [agentToken, setAgentToken] = useState<string | null>(null);
 
   const push = useCallback((lines: Omit<LogLine, "id">[]) => {
     setLog((prev) => [...prev, ...lines.map((l, i) => ({ ...l, id: prev.length + i }))]);
@@ -74,20 +75,13 @@ function DemoPage() {
     setError(null);
     try {
       if (step === 0) {
-        push([{ kind: "req", text: `POST /api/v1/subaccounts { agent: "${DEMO_AGENT}", amount: ${DEMO_FUND_AMOUNT} }` }]);
-        const res = await fetch("/api/v1/subaccounts", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            agent: DEMO_AGENT,
-            label: "Demo Scout",
-            owner: "METER Demo",
-            amount: DEMO_FUND_AMOUNT,
-          }),
-        });
+        push([{ kind: "req", text: `POST /api/v1/demo/seed { agent: "${DEMO_AGENT}", amount: ${DEMO_FUND_AMOUNT} }` }]);
+        const res = await fetch("/api/v1/demo/seed", { method: "POST" });
         const body = await res.json();
         if (!res.ok) throw new Error(body.message ?? JSON.stringify(body));
         setBalance(body.balance);
+        if (!body.agentToken) throw new Error("demo seed missing agentToken");
+        setAgentToken(body.agentToken);
         push([
           { kind: "chain", text: `funded ${usd(DEMO_FUND_AMOUNT)} ${SETTLE_ASSET} · withdrawalsRestricted=true` },
           { kind: "res", text: `${res.status} { balance: ${body.balance}, cap_24h: ${body.cap_24h} }` },
@@ -123,6 +117,7 @@ function DemoPage() {
           {
             headers: {
               "X-Meter-Agent-Id": DEMO_AGENT,
+              "X-Meter-Agent-Token": agentToken ?? "",
               "X-Meter-Payment": "prepaid",
             },
           },
@@ -140,11 +135,7 @@ function DemoPage() {
         setStep(3);
       } else if (step === 3) {
         push([{ kind: "req", text: `POST /api/v1/invoices { agentId: "${DEMO_AGENT}" }` }]);
-        const res = await fetch("/api/v1/invoices", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ agentId: DEMO_AGENT }),
-        });
+        const res = await fetch("/api/v1/demo/invoice", { method: "POST" });
         const body = await res.json();
         if (!res.ok) throw new Error(body.message ?? JSON.stringify(body));
         setInvoiceId(body.id);
@@ -191,6 +182,7 @@ function DemoPage() {
     setError(null);
     setReceiptId(null);
     setInvoiceId(null);
+    setAgentToken(null);
   }
 
   const done = step >= 5;

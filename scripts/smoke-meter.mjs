@@ -52,6 +52,7 @@ async function main() {
     }
   }
 
+  let agentToken = "";
   const agent = `agent_smoke_${Date.now().toString(36)}`;
   const operatorKey = process.env.METER_OPERATOR_KEY;
   const operatorHeaders = operatorKey
@@ -117,6 +118,8 @@ async function main() {
       });
       const body = await res.json();
       if (res.status !== 201) throw new Error(JSON.stringify(body));
+      if (!body.agentToken) throw new Error("fund missing agentToken");
+      agentToken = body.agentToken;
     });
 
     await step("402 challenge", async () => {
@@ -129,6 +132,7 @@ async function main() {
       const res = await fetch(`${base}/api/v1/research?q=${encodeURIComponent("Binance Agent OS x402")}`, {
         headers: {
           "X-Meter-Agent-Id": agent,
+          "X-Meter-Agent-Token": agentToken,
           "X-Meter-Payment": "prepaid",
         },
       });
@@ -171,6 +175,7 @@ async function main() {
           fetch(`${base}/api/v1/research?q=${encodeURIComponent(`meter stress ${i}`)}`, {
             headers: {
               "X-Meter-Agent-Id": agent,
+              "X-Meter-Agent-Token": agentToken,
               "X-Meter-Payment": "prepaid",
             },
           }).then(async (r) => ({ status: r.status, body: await r.json() })),

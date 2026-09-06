@@ -172,3 +172,10 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - `npm run smoke` **SMOKE OK** (health+settleRails, waitlist, openapi/mcp, fund w/ operator key, 402, paid research, invoice, ledger, stress×5).
 - Base mainnet pay-to wired; prepaid primary.
 - **Next (owner):** demo video + X quote/repost + survey before 2026-09-08 23:59 UTC.
+
+## 2026-09-06 16:13 UTC — ship hardening (contest + post-win ready)
+- Dropped B402 merchant keys as blocker per owner.
+- P0: agent token auth, atomic caps+debit, refund on research failure, rate-limit before debit.
+- P1: CORS allowlist, sanitized errors, atomic invoices, x402 amount/resource bind, demo seed routes.
+- UX: docs/README/demo/dashboard/pricing polish; no fake SDK/trial claims.
+- Typecheck green. Smoke updated for agentToken.

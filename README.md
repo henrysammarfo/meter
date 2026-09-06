@@ -14,7 +14,7 @@ Agent↔agent pay + API metering + shared receipts for **Binance Agent OS Track 
 | POST | `/api/v1/invoices` | Issue invoice from unbilled receipts |
 | GET | `/api/v1/ledger` | Flovia overview |
 
-Headers for prepaid settle: `X-Meter-Agent-Id`, `X-Meter-Payment: prepaid`.
+Prepaid headers: `X-Meter-Agent-Id`, `X-Meter-Agent-Token` (minted on fund), `X-Meter-Payment: prepaid`.
 
 ## Setup
 
@@ -33,7 +33,6 @@ Architecture + fact-check: `memory/ARCHITECTURE.md`, `memory/FACT_CHECK.md`.
 |---|---|---|
 | Prepaid ledger | **Live** | Operator fund subaccount |
 | Open x402 on **Base mainnet** (`facilitator.payai.network`) | Optional | `METER_PAY_TO` + Base USDC `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` |
-| Binance B402 (BSC mainnet) | Blocked without partner form | Support ticket / form when available |
 
 Defaults: `METER_SETTLE_NETWORK=eip155:8453` (Base **mainnet**, not Sepolia). Details: `memory/SETTLE_RAILS.md`.
 

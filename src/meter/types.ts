@@ -30,7 +30,12 @@ export interface AgentAccount {
   status: AgentStatus;
   createdAt: string;
   withdrawalsRestricted: true;
+  /** SHA-256 hex of agent bearer token. Never returned on public reads. */
+  tokenHash?: string;
 }
+
+/** Public agent shape — secrets stripped. */
+export type PublicAgentAccount = Omit<AgentAccount, "tokenHash">;
 
 export interface Receipt {
   id: string;

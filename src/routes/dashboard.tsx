@@ -84,7 +84,7 @@ function DashboardLayout() {
               {SETTLE_ASSET} · {SETTLE_CHAIN}
             </p>
             <span className="mt-2 inline-flex items-center gap-1.5 text-primary">
-              <span className="size-1.5 rounded-full bg-primary" /> x402 relay healthy
+              <span className="size-1.5 rounded-full bg-primary" /> ledger live
             </span>
           </div>
           <Link to="/demo" className="inline-flex items-center gap-1 hover:text-foreground">

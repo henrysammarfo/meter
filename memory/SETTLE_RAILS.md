@@ -17,7 +17,7 @@ Binance partner Google Form is **blocked** for the owner. Official docs expose *
 
 **Not used as default:** `https://x402.org/facilitator` — probed **testnet-only** (no `eip155:8453`).
 
-### 3) Binance B402 on BSC mainnet — blocked until onboarding
+### 3) Binance B402 on BSC mainnet — deferred (not required to ship)
 - Production chain per Binance docs: BSC `eip155:56`
 - RSA ready under gitignored `meter-b402-keys/`
 - Upgrade path when Support/form works — never fake tx hashes

@@ -1,3 +1,4 @@
+import { publicAgent } from "./security";
 /**
  * FLOVIA — analytics derived only from the live ledger.
  */
@@ -92,7 +93,7 @@ export async function buildFloviaOverview(): Promise<FloviaOverview> {
     failedInvoiceTotal: Number(
       ledger.invoices.filter((i) => i.status === "failed").reduce((s, i) => s + i.amount, 0).toFixed(4),
     ),
-    agents: ledger.agents,
+    agents: ledger.agents.map((a) => publicAgent(a)),
     endpoints,
     receipts: ledger.receipts.slice(0, 100),
     invoices: ledger.invoices.slice(0, 100),

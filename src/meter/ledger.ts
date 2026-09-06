@@ -5,14 +5,8 @@
  */
 
 import { getEnv } from "./env";
-import type {
-  AgentAccount,
-  Invoice,
-  LedgerSnapshot,
-  LimitRule,
-  RateCardEndpoint,
-  Receipt,
-} from "./types";
+import { mintAgentToken, publicAgent } from "./security";
+import type { AgentAccount, Invoice, LedgerSnapshot, LimitRule, PublicAgentAccount, RateCardEndpoint, Receipt } from "./types";
 
 const DEFAULT_ENDPOINTS: RateCardEndpoint[] = [
   {
@@ -181,27 +175,48 @@ export function utcDayKey(d = new Date()): string {
   return d.toISOString().slice(0, 10);
 }
 
+export type FundAgentResult = {
+  agent: PublicAgentAccount;
+  /** Plaintext bearer — shown once. Pass as X-Meter-Agent-Token on prepaid calls. */
+  agentToken: string;
+  tokenRotated: boolean;
+};
+
 export async function fundAgent(input: {
   id: string;
   label: string;
   owner: string;
   amount: number;
-}): Promise<AgentAccount> {
+  /** Mint a fresh agent token. Default: true on create / missing token; false on top-up. */
+  rotateToken?: boolean;
+}): Promise<FundAgentResult> {
   if (!(input.amount > 0)) {
     throw new Error("Fund amount must be positive");
   }
+  const preferRotate = input.rotateToken === true;
   let created: AgentAccount | undefined;
+  let tokenRotated = false;
+  let plaintext = "";
+
   await mutateLedger((ledger) => {
     const existing = ledger.agents.find((a) => a.id === input.id);
     if (existing) {
-      existing.funded += input.amount;
-      existing.balance += input.amount;
+      existing.funded = Number((existing.funded + input.amount).toFixed(6));
+      existing.balance = Number((existing.balance + input.amount).toFixed(6));
       if (existing.status === "suspended" && existing.balance > 0) {
         existing.status = "active";
+      }
+      const needsToken = !existing.tokenHash;
+      if (preferRotate || needsToken) {
+        const minted = mintAgentToken();
+        existing.tokenHash = minted.tokenHash;
+        tokenRotated = true;
+        plaintext = minted.token;
       }
       created = existing;
       return;
     }
+    const minted = mintAgentToken();
     const agent: AgentAccount = {
       id: input.id,
       label: input.label,
@@ -212,12 +227,19 @@ export async function fundAgent(input: {
       status: "active",
       createdAt: new Date().toISOString(),
       withdrawalsRestricted: true,
+      tokenHash: minted.tokenHash,
     };
     ledger.agents.push(agent);
     created = agent;
+    tokenRotated = true;
+    plaintext = minted.token;
   });
   if (!created) throw new Error("Failed to fund agent");
-  return created;
+  return {
+    agent: publicAgent(created),
+    agentToken: plaintext,
+    tokenRotated,
+  };
 }
 
 export async function appendReceipt(receipt: Receipt): Promise<void> {

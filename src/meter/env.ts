@@ -125,7 +125,7 @@ const EnvSchema = z.object({
     z.string().default("data/ledger.json"),
   ),
   /**
-   * Open facilitator for on-chain x402 when Binance B402 merchant keys are absent.
+   * Open facilitator for on-chain x402 (PayAI supports Base mainnet eip155:8453).
    * Default: PayAI — supports Base mainnet (eip155:8453). x402.org is testnet-only.
    */
   METER_FACILITATOR_URL: z.preprocess(
@@ -144,6 +144,23 @@ const EnvSchema = z.object({
   BINANCE_X402_FACILITATOR_URL: optionalNonEmpty,
   /** When set, mutating operator routes require X-Meter-Operator-Key. */
   METER_OPERATOR_KEY: optionalNonEmpty,
+  /**
+   * Comma-separated Origin allowlist for CORS. `*` or unset = reflect request Origin.
+   * Example: https://meter.example,http://localhost:3000
+   */
+  METER_CORS_ORIGINS: optionalNonEmpty,
+  /**
+   * When false, disables public /api/v1/demo/* helpers.
+   * Defaults true outside production.
+   */
+  METER_DEMO_PUBLIC: z.preprocess((v) => {
+    if (v === undefined || v === null || v === "") return undefined;
+    if (typeof v === "boolean") return v;
+    const s = String(v).toLowerCase();
+    if (["1", "true", "yes", "on"].includes(s)) return true;
+    if (["0", "false", "no", "off"].includes(s)) return false;
+    return v;
+  }, z.boolean().optional()),
   /**
    * Production lock: require operator key for fund/invoice mutations.
    * Also inferred when NODE_ENV=production.

@@ -48,7 +48,7 @@ export function buildPaymentRequired(input: {
       asset: "USDC",
       extra: {
         instructions:
-          "Fund a METER subaccount then retry with headers X-Meter-Agent-Id and X-Meter-Payment: prepaid",
+          "Fund a METER subaccount then retry with X-Meter-Agent-Id, X-Meter-Agent-Token, and X-Meter-Payment: prepaid",
         dailyCapUsdc: env.METER_DAILY_CAP_USDC,
         takeRate: env.METER_TAKE_RATE,
       },
@@ -94,7 +94,69 @@ export function decodePaymentSignature(header: string | null): unknown | null {
  * Verify + settle via facilitator when on-chain path is configured.
  * Returns settlement payload or throws. Never fakes a tx hash.
  */
-export async function facilitatorSettle(paymentPayload: unknown): Promise<{
+
+
+export function atomicToUsdc(atomic: string | number): number {
+  const n = typeof atomic === "number" ? atomic : Number(atomic);
+  if (!Number.isFinite(n)) return NaN;
+  return n / 1_000_000;
+}
+
+/** Best-effort extract of paid USDC from a client payment payload. */
+export function extractPaymentAmountUsdc(payload: unknown): number | null {
+  if (!payload || typeof payload !== "object") return null;
+  const p = payload as Record<string, unknown>;
+  const nestedPayload = p["payload"];
+  const nestedAuth = p["authorization"];
+  const candidates: unknown[] = [
+    p["maxAmountRequired"],
+    p["amount"],
+    p["value"],
+  ];
+  if (nestedPayload && typeof nestedPayload === "object") {
+    const np = nestedPayload as Record<string, unknown>;
+    candidates.push(np["maxAmountRequired"], np["amount"]);
+  }
+  if (nestedAuth && typeof nestedAuth === "object") {
+    candidates.push((nestedAuth as Record<string, unknown>)["value"]);
+  }
+  for (const c of candidates) {
+    if (c == null) continue;
+    if (typeof c === "number" && Number.isFinite(c)) {
+      return c >= 1000 ? atomicToUsdc(c) : c;
+    }
+    if (typeof c === "string" && c.trim()) {
+      const n = Number(c);
+      if (!Number.isFinite(n)) continue;
+      return n >= 1000 ? atomicToUsdc(n) : n;
+    }
+  }
+  return null;
+}
+
+export function extractPaymentResource(payload: unknown): string | null {
+  if (!payload || typeof payload !== "object") return null;
+  const p = payload as Record<string, unknown>;
+  const direct = p["resource"];
+  if (typeof direct === "string" && direct.length) return direct;
+  const nestedPayload = p["payload"];
+  if (nestedPayload && typeof nestedPayload === "object") {
+    const r = (nestedPayload as Record<string, unknown>)["resource"];
+    if (typeof r === "string" && r.length) return r;
+  }
+  const accepts = p["accepts"];
+  if (accepts && typeof accepts === "object") {
+    const r = (accepts as Record<string, unknown>)["resource"];
+    if (typeof r === "string" && r.length) return r;
+  }
+  return null;
+}
+
+
+export async function facilitatorSettle(
+  paymentPayload: unknown,
+  bind?: { expectedAmountUsdc: number; expectedResource: string },
+): Promise<{
   success: boolean;
   transaction: string;
   network: string;
@@ -107,6 +169,26 @@ export async function facilitatorSettle(paymentPayload: unknown): Promise<{
       "On-chain x402 settle requires METER_PAY_TO and METER_USDC_ASSET. Prepaid subaccount path remains available.",
       501,
     );
+  }
+
+  if (bind) {
+    const paid = extractPaymentAmountUsdc(paymentPayload);
+    if (paid != null && paid + 1e-9 < bind.expectedAmountUsdc) {
+      throw new MeterLiveError(
+        "X402_AMOUNT_MISMATCH",
+        `Payment amount ${paid} below required ${bind.expectedAmountUsdc}`,
+        402,
+      );
+    }
+    const resource = extractPaymentResource(paymentPayload);
+    if (resource && resource !== bind.expectedResource) {
+      throw new MeterLiveError(
+        "X402_RESOURCE_MISMATCH",
+        "PAYMENT-SIGNATURE resource does not match this endpoint",
+        402,
+        { expected: bind.expectedResource, got: resource },
+      );
+    }
   }
 
   // Prefer Binance Agent OS facilitator when fully keyed — never invent a tx.

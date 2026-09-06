@@ -3,7 +3,7 @@
  * Live providers only. No mocks, no silent fallbacks.
  */
 
-import { MeterConfigError, MeterLiveError, getEnv } from "./env";
+import { MeterConfigError, MeterLiveError, getEnv, isProductionMode } from "./env";
 import { buildFloviaOverview } from "./flovia";
 import { fundAgent, getLedger, getReceipt, refreshLimitUsage } from "./ledger";
 import { issueInvoiceForAgent, markInvoicePaid } from "./invoice";
@@ -13,8 +13,10 @@ import { tinyfishWallet } from "./clients/tinyfish";
 import { probeLiveProviders } from "./health";
 import { mcpSkillCatalog, openApiDocument } from "./catalog";
 import {
+  assertDemoSeedRateLimit,
   corsHeaders,
   idempotencyKey,
+  publicAgent,
   readIdempotent,
   requireOperator,
   storeIdempotent,
@@ -23,8 +25,9 @@ import { joinWaitlist, waitlistCount } from "./waitlist";
 
 function jsonError(err: unknown): Response {
   if (err instanceof MeterLiveError) {
+    const details = isProductionMode() ? null : (err.details ?? null);
     return Response.json(
-      { error: err.code, message: err.message, details: err.details ?? null },
+      { error: err.code, message: err.message, details },
       { status: err.status },
     );
   }
@@ -123,7 +126,7 @@ export async function handleMeterApi(request: Request): Promise<Response | null>
       if (!(amount > 0)) {
         throw new MeterLiveError("INVALID_AMOUNT", "amount must be > 0", 400);
       }
-      const agent = await fundAgent({
+      const funded = await fundAgent({
         id,
         label: body.label ?? id,
         owner: body.owner ?? "operator",
@@ -131,11 +134,13 @@ export async function handleMeterApi(request: Request): Promise<Response | null>
       });
       response = Response.json(
         {
-          balance: agent.balance,
-          funded: agent.funded,
+          balance: funded.agent.balance,
+          funded: funded.agent.funded,
           cap_24h: getEnv().METER_DAILY_CAP_USDC,
           withdrawalsRestricted: true,
-          agent,
+          agent: funded.agent,
+          agentToken: funded.agentToken,
+          tokenRotated: funded.tokenRotated,
         },
         { status: 201 },
       );
@@ -167,7 +172,7 @@ export async function handleMeterApi(request: Request): Promise<Response | null>
       response = Response.json({ limits: await refreshLimitUsage() });
     } else if (url.pathname === "/api/v1/agents" && request.method === "GET") {
       const ledger = await getLedger();
-      response = Response.json({ agents: ledger.agents });
+      response = Response.json({ agents: ledger.agents.map((a) => publicAgent(a)) });
     } else if (url.pathname === "/api/v1/waitlist" && request.method === "POST") {
       const body = await readJson<{ email?: string; source?: string }>(request);
       if (!body.email) {
@@ -214,7 +219,40 @@ export async function handleMeterApi(request: Request): Promise<Response | null>
     ) {
       requireOperator(request);
       response = Response.json({ wallet: await tinyfishWallet() });
-    } else {
+    
+    } else if (url.pathname === "/api/v1/demo/seed" && request.method === "POST") {
+      const env = getEnv();
+      const demoEnabled = env.METER_DEMO_PUBLIC ?? !isProductionMode();
+      if (!demoEnabled) {
+        throw new MeterLiveError("DEMO_DISABLED", "Public demo seed is disabled", 403);
+      }
+      assertDemoSeedRateLimit(request);
+      const DEMO_AGENT = "agent_demo_7c1";
+      const funded = await fundAgent({
+        id: DEMO_AGENT,
+        label: "Demo Scout",
+        owner: "METER Demo",
+        amount: 5,
+        rotateToken: true,
+      });
+      response = Response.json(
+        {
+          balance: funded.agent.balance,
+          agent: funded.agent,
+          agentToken: funded.agentToken,
+          note: "Demo seed only. Store agentToken client-side; it is shown once.",
+        },
+        { status: 201 },
+      );
+    } else if (url.pathname === "/api/v1/demo/invoice" && request.method === "POST") {
+      const env = getEnv();
+      const demoEnabled = env.METER_DEMO_PUBLIC ?? !isProductionMode();
+      if (!demoEnabled) {
+        throw new MeterLiveError("DEMO_DISABLED", "Public demo invoice is disabled", 403);
+      }
+      assertDemoSeedRateLimit(request);
+      response = Response.json(await issueInvoiceForAgent("agent_demo_7c1"), { status: 201 });
+} else {
       response = Response.json(
         { error: "NOT_FOUND", message: `No route ${url.pathname}` },
         { status: 404 },

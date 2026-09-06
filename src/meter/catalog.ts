@@ -105,7 +105,7 @@ export function mcpSkillCatalog(origin: string) {
         payment: {
           schemes: ["meter-prepaid", "exact"],
           headers: {
-            prepaid: ["X-Meter-Agent-Id", "X-Meter-Payment: prepaid"],
+            prepaid: ["X-Meter-Agent-Id", "X-Meter-Agent-Token", "X-Meter-Payment: prepaid"],
             x402: ["PAYMENT-SIGNATURE"],
           },
         },
