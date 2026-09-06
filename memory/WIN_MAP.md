@@ -44,3 +44,10 @@ Peers will ship: chat wrappers, “I traded once” MCP demos, orphan x402 hello
 ## Residual risk (honest)
 
 Not unhackable. File ledger single-host; WAF on some egress; B402 base URL gated; keys pasted in chat must rotate.
+
+
+## Progress 2026-09-06 09:17 UTC
+- [x] Agent OS / MCP connected (VS Code)
+- [ ] Agentic sub confirmed (Step 1d)
+- [ ] B402 merchant credentials (settle)
+- [ ] Demo video + X + survey

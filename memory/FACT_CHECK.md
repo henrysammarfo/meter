@@ -160,3 +160,10 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 |---|---|---|
 | Owner VS Code reaches mcp.binance.com enough to start HTTP MCP | **VERIFIED** | Owner logs show Running + async notification retry against that URL |
 | Cloud agent POST initialize to mcp.binance.com | **BLOCKED/REDIRECT** | HTTP 302 → www.binance.com/en from this egress |
+
+
+## 2026-09-06 09:17 UTC — Binance MCP live (owner VS Code)
+| Claim | Status | Evidence |
+|---|---|---|
+| MCP connect works in VS Code for owner | **VERIFIED** | Owner screenshot: GPT read-only BTCUSDT + 24h change via MCP |
+| No trade/transfer in smoke | **VERIFIED** | Owner assistant note: no trades/transfers |

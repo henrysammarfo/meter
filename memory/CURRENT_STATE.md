@@ -49,7 +49,7 @@ Two different surfaces (do not mix):
 |---|---|---|
 | 1a | **DONE** | Owner opened Agent OS + official MCP docs (`developers.binance.com/.../mcp-server/agentic`) |
 | 1b | **BLOCKED / ALT** | B402 apply form (`forms.gle`) blocked → long Google URL or Binance support for Sandbox merchant |
-| 1c | **BLOCKED (Cursor DCR)** | Binance has no DCR; need static CLIENT_ID or use VS Code/Claude Desktop (docs-supported) |
+| 1c | **DONE (VS Code)** | Owner connected `https://mcp.binance.com/mcp/agentic`; live BTCUSDT smoke OK |
 | 2 | Pending | RSA-1024 for B402 merchant (only after apply path open) |
 | 3+ | Pending | Sandbox `clientId`/`accessToken`/base URL → rewrite B402 client → Production pay-to |
 
