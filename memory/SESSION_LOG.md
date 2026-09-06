@@ -121,3 +121,9 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - VS Code + Copilot: Binance MCP connected.
 - Smoke: BTCUSDT ~$79,779.74, 24h +0.208%. No trades.
 - Next: Step 1d — confirm Agentic virtual sub (read-only balance), then B402 merchant path.
+
+
+## 2026-09-06 10:17 UTC — Step 1d DONE
+- Agentic balances all 0 USDT (Spot/Funding/Margin/Futures/Earn/Copy).
+- Options/Trading Bots inactive. Read-only MCP OK. No fund yet.
+- Next: Step 2 — generate B402 RSA keypair (no submit yet).

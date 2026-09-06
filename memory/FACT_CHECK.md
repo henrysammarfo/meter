@@ -167,3 +167,10 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 |---|---|---|
 | MCP connect works in VS Code for owner | **VERIFIED** | Owner screenshot: GPT read-only BTCUSDT + 24h change via MCP |
 | No trade/transfer in smoke | **VERIFIED** | Owner assistant note: no trades/transfers |
+
+
+## 2026-09-06 10:17 UTC — Agentic account readable via MCP
+| Claim | Status | Evidence |
+|---|---|---|
+| Owner Agentic account exists + MCP account scope works | **VERIFIED** | VS Code Copilot: all wallet balances 0 USDT |
+| Account funded | **FALSE** | All zeros; Options/Trading Bots inactive |

@@ -67,3 +67,8 @@ Official apply: [developers.binance.com …/6.apply-developer-account](https://d
 ## Known integration gap (docs-verified)
 
 `src/meter/clients/binance.ts` still uses Bearer `/verify` `/settle`. Official B402 V2 requires RSA-SHA256 + `X-Tesla-*` headers on `/papi/v2/b402/{supported,verify,settle}`. Rewrite after Sandbox credentials — fail-closed until then. Study notes: `memory/research-raw/binance-b402/NOTES.md`.
+
+
+## 2026-09-06 10:17 UTC
+- Step 1d DONE: Agentic sub readable, all balances 0. No funding yet.
+- Next Step 2: B402 RSA-1024 keypair generation (local; do not paste private key).
