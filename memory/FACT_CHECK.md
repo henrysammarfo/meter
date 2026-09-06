@@ -174,3 +174,12 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 |---|---|---|
 | Owner Agentic account exists + MCP account scope works | **VERIFIED** | VS Code Copilot: all wallet balances 0 USDT |
 | Account funded | **FALSE** | All zeros; Options/Trading Bots inactive |
+
+
+## 2026-09-06 10:19 UTC — B402 apply alternatives
+| Claim | Status | Evidence |
+|---|---|---|
+| RSA-1024 keypair generated for METER | **VERIFIED** | `meter-b402-keys/` gitignored; pub sha256 `3f82dfb34c5bf562bae2fe4adde8e5970936a57569e65660cf73ec36f912d34e` |
+| Public non-Google apply email in Binance B402 docs | **NOT FOUND** | apply doc only links forms.gle |
+| Workaround: Binance Support / Live Chat with full materials | **PRACTICAL / UNVERIFIED OUTCOME** | Docs say base URL is “contact us”; Live Chat is logged-in channel |
+| Public Bazaar discovery works without merchant creds | **PARTIAL** | Public bazaar endpoint exists in docs; probe logged |

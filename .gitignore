@@ -40,3 +40,8 @@ grounds/.env
 # Runtime ledger
 data/
 *.db
+
+# B402 local keys — never commit
+meter-b402-keys/
+*.pem
+*.base64

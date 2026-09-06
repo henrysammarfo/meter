@@ -127,3 +127,13 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - Agentic balances all 0 USDT (Spot/Funding/Margin/Futures/Earn/Copy).
 - Options/Trading Bots inactive. Read-only MCP OK. No fund yet.
 - Next: Step 2 — generate B402 RSA keypair (no submit yet).
+
+
+## 2026-09-06 10:19 UTC — Step 2 keys generated + Form workaround
+
+- Generated RSA-1024 in gitignored `meter-b402-keys/` (private never committed / never chat).
+- Public fingerprint sha256: `3f82dfb34c5bf562bae2fe4adde8e5970936a57569e65660cf73ec36f912d34e`
+- Public b64 head/tail: `MIGfMA0GCSqGSIb3DQEBAQUA` … `F1E6bV4Nfz6iyVy/twIDAQAB`
+- Official B402 apply remains Google Form only in docs — owner has no access.
+- Workaround path: Binance logged-in Live Chat / Submit a Request using `memory/research-raw/b402-apply/SUPPORT_TICKET_TEMPLATE.md`.
+- Parallel: MCP+prepaid demo continues; public Bazaar needs no merchant creds.

@@ -72,3 +72,9 @@ Official apply: [developers.binance.com …/6.apply-developer-account](https://d
 ## 2026-09-06 10:17 UTC
 - Step 1d DONE: Agentic sub readable, all balances 0. No funding yet.
 - Next Step 2: B402 RSA-1024 keypair generation (local; do not paste private key).
+
+
+## 2026-09-06 10:19 UTC API key progress
+- Step 2 RSA: **DONE** (agent-generated, gitignored)
+- B402 Form: **BLOCKED** for owner → use Live Chat template
+- Next Step 2b: owner sends support ticket + provides testnet `0x` wallet + email
