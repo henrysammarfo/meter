@@ -53,6 +53,10 @@ async function main() {
   }
 
   const agent = `agent_smoke_${Date.now().toString(36)}`;
+  const operatorKey = process.env.METER_OPERATOR_KEY;
+  const operatorHeaders = operatorKey
+    ? { "X-Meter-Operator-Key": operatorKey }
+    : {};
   const steps = [];
 
   async function step(name, fn) {
@@ -79,6 +83,11 @@ async function main() {
       if (!body.live.tavily.reachable || !body.live.tinyfish.reachable) {
         throw new Error(`Deep health probes failed: ${JSON.stringify(body.live)}`);
       }
+      if (!body.live?.settleRails?.length) {
+        throw new Error("health missing settleRails");
+      }
+      const prepaid = body.live.settleRails.find((r) => r.id === "prepaid");
+      if (!prepaid?.live) throw new Error("prepaid settle rail not live");
     });
 
     await step("waitlist", async () => {
@@ -100,9 +109,10 @@ async function main() {
     });
 
     await step("fund", async () => {
+      if (!operatorKey) throw new Error("METER_OPERATOR_KEY missing for fund mutation");
       const res = await fetch(`${base}/api/v1/subaccounts`, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", ...operatorHeaders },
         body: JSON.stringify({ id: agent, label: "Smoke", owner: "CI", amount: 1 }),
       });
       const body = await res.json();
@@ -131,9 +141,10 @@ async function main() {
     });
 
     await step("invoice", async () => {
+      if (!operatorKey) throw new Error("METER_OPERATOR_KEY missing for invoice mutation");
       const res = await fetch(`${base}/api/v1/invoices`, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", ...operatorHeaders },
         body: JSON.stringify({ agentId: agent }),
       });
       const body = await res.json();
@@ -152,7 +163,7 @@ async function main() {
       // refill
       await fetch(`${base}/api/v1/subaccounts`, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", ...operatorHeaders },
         body: JSON.stringify({ id: agent, amount: 2 }),
       });
       const results = await Promise.all(

@@ -98,6 +98,8 @@ export async function handleMeterApi(request: Request): Promise<Response | null>
           onchainX402: probes.onchainX402,
           binanceAgentOs: probes.binanceAgentOs,
           operatorAuth: probes.operatorAuth,
+          settleRails: probes.settleRails,
+          openFacilitator: probes.openFacilitator,
         },
         waitlistCount: await waitlistCount(),
       });

@@ -99,3 +99,14 @@ Official apply: [developers.binance.com …/6.apply-developer-account](https://d
 - `METER_SETTLE_NETWORK=eip155:8453`
 - `METER_FACILITATOR_URL=https://facilitator.payai.network`
 - **SECURITY:** Owner pasted a private key in chat — treat as **compromised**. Do not store key in repo. Rotate wallet before any meaningful balance. App only needs the address for receive.
+
+
+## 2026-09-06 15:12 UTC — Owner note on key rotation
+- Owner confirms keys (including chat-pasted wallet) will be **rotated after the hackathon**.
+- Proceed with demo wallet `0x4e1b80aC…d5AD` for contest wiring; no production balances assumed.
+
+
+## 2026-09-06 15:18 UTC — Smoke green; next = contest packaging
+- `npm run smoke` **SMOKE OK** (health+settleRails, waitlist, openapi/mcp, fund w/ operator key, 402, paid research, invoice, ledger, stress×5).
+- Base mainnet pay-to wired; prepaid primary.
+- **Next (owner):** demo video + X quote/repost + survey before 2026-09-08 23:59 UTC.
