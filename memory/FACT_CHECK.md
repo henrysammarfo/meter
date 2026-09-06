@@ -132,3 +132,13 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 | MCP auth = Binance.com OAuth; **no local API keys** on device; Agentic virtual sub-account; **no withdrawal scope** | **VERIFIED** | Same MCP agentic doc |
 | B402 Google Form still required for merchant `/papi/v2/b402` settle credentials | **VERIFIED** | OnChainPay x402 apply docs (separate surface from MCP OAuth) |
 | Blog IDs owner listed (ecosystem/tech) | **PARTIAL** | URLs recorded; headless fetch WAF’d — content taken from owner paste until browser confirm |
+
+
+## 2026-09-06 — MCP docs owner-confirmed in browser
+
+| Claim | Status | Evidence |
+|---|---|---|
+| Owner can open MCP agentic docs | **VERIFIED** | Screenshot `developers.binance.com/.../mcp-server/agentic` |
+| Endpoint `https://agent.binance.com/mcp/agentic` | **VERIFIED** | Owner-pasted official doc + our saved markdown mirror |
+| No API keys on device; withdraw never; confirm-before-execute | **VERIFIED** | Same doc |
+| Do not paste endpoint into chat / open in browser to install | **VERIFIED** | Callout in official doc |

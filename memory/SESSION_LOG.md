@@ -96,3 +96,11 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - Verified MCP connect docs: endpoint `https://agent.binance.com/mcp/agentic`, OAuth, Agentic virtual sub, no withdrawal.
 - Clarified dual path: MCP OAuth ≠ B402 RSA merchant keys. METER Track A needs both narrative (Agent OS) + settle (x402/B402).
 - Saved raw: `memory/research-raw/agent-os/`. Updated FACT_CHECK + CURRENT_STATE + WIN map. Still waiting Step 1a confirm.
+
+
+## 2026-09-06 — Step 1a confirmed (MCP docs)
+
+- Owner screenshot + full markdown of Binance MCP Server docs.
+- Verified endpoint still `https://agent.binance.com/mcp/agentic`; withdraw never; confirm-before-trade; Agentic virtual sub.
+- Doc rule: never paste endpoint into AI chat / never open in browser for install.
+- Advanced to Step 1c only: Cursor MCP OAuth connect.

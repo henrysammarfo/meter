@@ -47,9 +47,9 @@ Two different surfaces (do not mix):
 
 | Step | Status | What |
 |---|---|---|
-| 1a | **WAITING OWNER** | Open https://www.binance.com/en/agent-os — confirm page loads (hub) |
+| 1a | **DONE** | Owner opened Agent OS + official MCP docs (`developers.binance.com/.../mcp-server/agentic`) |
 | 1b | **BLOCKED / ALT** | B402 apply form (`forms.gle`) blocked → long Google URL or Binance support for Sandbox merchant |
-| 1c | Pending (after 1a) | Connect MCP in Cursor/Claude to `https://agent.binance.com/mcp/agentic` (OAuth) — separate from B402 |
+| 1c | **WAITING OWNER** | Connect MCP in Cursor to `https://agent.binance.com/mcp/agentic` (OAuth) — do not paste URL into chat |
 | 2 | Pending | RSA-1024 for B402 merchant (only after apply path open) |
 | 3+ | Pending | Sandbox `clientId`/`accessToken`/base URL → rewrite B402 client → Production pay-to |
 
