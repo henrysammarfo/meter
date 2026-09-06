@@ -110,3 +110,8 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 
 - Owner mcp.json URL-only connect failed: no DCR on Binance; Cursor attempted DCR.
 - Next: static `auth.CLIENT_ID` (Cursor docs) **or** officially supported client (VS Code / Claude Desktop) until Binance issues Cursor client id.
+
+
+## 2026-09-06 06:04 UTC — VS Code MCP initialize hang
+- Owner logs: Running → endless Waiting for initialize → Error connecting to https://mcp.binance.com/mcp/agentic for async notifications.
+- Diagnosis: OAuth/consent likely never completed, or secondary stream blocked; keep Step 1c.

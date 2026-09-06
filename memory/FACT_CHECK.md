@@ -153,3 +153,10 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 | Cursor can use static OAuth via `auth.CLIENT_ID` in `mcp.json` | **VERIFIED** | https://cursor.com/docs/mcp (Static OAuth for remote servers) |
 | Official Binance MCP docs list static client ids `codex` / `grok` | **VERIFIED** | agentic MCP doc tabs |
 | Official Binance MCP docs list **Cursor** as supported client | **FALSE / NOT FOUND** | Tabs: Claude Code, Claude Desktop, Codex, ChatGPT, VS Code, Grok, Other — no Cursor |
+
+
+## 2026-09-06 06:04 UTC — mcp.binance.com reachability note
+| Claim | Status | Evidence |
+|---|---|---|
+| Owner VS Code reaches mcp.binance.com enough to start HTTP MCP | **VERIFIED** | Owner logs show Running + async notification retry against that URL |
+| Cloud agent POST initialize to mcp.binance.com | **BLOCKED/REDIRECT** | HTTP 302 → www.binance.com/en from this egress |
