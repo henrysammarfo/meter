@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Wallet,
   ShieldAlert,
@@ -18,7 +18,6 @@ import {
   DEMO_DAILY_CAP,
   DEMO_FUND_AMOUNT,
   SETTLE_ASSET,
-  SETTLE_CHAIN,
   TAKE_RATE,
   usd,
 } from "@/lib/meter-data";
@@ -30,12 +29,12 @@ export const Route = createFileRoute("/demo")({
       {
         name: "description",
         content:
-          "Run the five-beat METER flow: fund an agent subaccount, hit a 402 paywalled endpoint, settle over x402, watch the invoice appear and the daily limit bite.",
+          "Run the five-beat METER flow against live /api/v1 endpoints: fund, 402, prepaid settle, invoice, daily cap.",
       },
       { property: "og:title", content: "METER live demo — the whole settle path in five beats" },
       {
         property: "og:description",
-        content: "Fund, 402, settle, invoice, limit. Every beat priced off the METER rate card.",
+        content: "Fund, 402, settle, invoice, limit. Hits real Tavily + TinyFish on paid research.",
       },
     ],
   }),
@@ -49,7 +48,7 @@ const BEATS = [
   { key: "challenge", label: "402 challenge", icon: ShieldAlert },
   { key: "settle", label: "Settle + receipt", icon: ReceiptIcon },
   { key: "invoice", label: "Invoice issued", icon: FileText },
-  { key: "limit", label: "Limit hit", icon: Gauge },
+  { key: "limit", label: "Limit policy", icon: Gauge },
 ] as const;
 
 function DemoPage() {
@@ -58,64 +57,122 @@ function DemoPage() {
   const [calls, setCalls] = useState(0);
   const [spent, setSpent] = useState(0);
   const [log, setLog] = useState<LogLine[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [receiptId, setReceiptId] = useState<string | null>(null);
+  const [invoiceId, setInvoiceId] = useState<string | null>(null);
+  const [agentToken, setAgentToken] = useState<string | null>(null);
 
-  const push = (lines: Omit<LogLine, "id">[]) =>
+  const push = useCallback((lines: Omit<LogLine, "id">[]) => {
     setLog((prev) => [...prev, ...lines.map((l, i) => ({ ...l, id: prev.length + i }))]);
+  }, []);
 
   const fee = spent * TAKE_RATE;
 
-  function next() {
-    if (step === 0) {
-      setBalance(DEMO_FUND_AMOUNT);
-      push([
-        { kind: "req", text: `POST /v1/subaccounts { agent: "${DEMO_AGENT}" }` },
-        { kind: "chain", text: `funded ${usd(DEMO_FUND_AMOUNT)} ${SETTLE_ASSET} on ${SETTLE_CHAIN}` },
-        { kind: "res", text: `201 { balance: ${DEMO_FUND_AMOUNT}, cap_24h: ${DEMO_DAILY_CAP} }` },
-      ]);
-    } else if (step === 1) {
-      push([
-        { kind: "req", text: `GET /research?q=bnb+agent+os  (no payment header)` },
-        { kind: "res", text: `402 Payment Required` },
-        {
-          kind: "res",
-          text: `WWW-Authenticate: x402 price=${DEMO_CALL_PRICE} asset=${SETTLE_ASSET} network=bsc`,
-        },
-      ]);
-    } else if (step === 2) {
-      const batch = 4;
-      setCalls(batch);
-      setSpent(batch * DEMO_CALL_PRICE);
-      setBalance(DEMO_FUND_AMOUNT - batch * DEMO_CALL_PRICE);
-      push([
-        { kind: "req", text: `GET /research  X-PAYMENT: <x402 voucher ${usd(DEMO_CALL_PRICE)}>` },
-        { kind: "res", text: `200 OK — 4 paid calls served` },
-        { kind: "chain", text: `receipt rc_90001…90004 · settled ${usd(batch * DEMO_CALL_PRICE)}` },
-      ]);
-    } else if (step === 3) {
-      push([
-        { kind: "req", text: `meter.invoices.issue({ agent: "${DEMO_AGENT}", window: "24h" })` },
-        {
-          kind: "res",
-          text: `INV-DEMO-01 · ${usd(spent)} across ${calls} calls · fee ${usd(fee)} (${(TAKE_RATE * 100).toFixed(1)}%)`,
-        },
-      ]);
-    } else if (step === 4) {
-      const extra = Math.max(0, DEMO_DAILY_CAP - spent);
-      const extraCalls = Math.floor(extra / DEMO_CALL_PRICE);
-      const totalCalls = calls + extraCalls;
-      setCalls(totalCalls);
-      setSpent(totalCalls * DEMO_CALL_PRICE);
-      setBalance(DEMO_FUND_AMOUNT - totalCalls * DEMO_CALL_PRICE);
-      push([
-        { kind: "req", text: `GET /research × ${extraCalls + 1} (burst)` },
-        { kind: "warn", text: `429 limit_exceeded — daily cap ${usd(DEMO_DAILY_CAP)} reached` },
-        {
-          kind: "res",
-          text: `graceful failure: last call queued, agent throttled, balance ${usd(DEMO_FUND_AMOUNT - totalCalls * DEMO_CALL_PRICE)} untouched`,
-        },
-      ]);
+  async function next() {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      if (step === 0) {
+        push([{ kind: "req", text: `POST /api/v1/demo/seed { agent: "${DEMO_AGENT}", amount: ${DEMO_FUND_AMOUNT} }` }]);
+        const res = await fetch("/api/v1/demo/seed", { method: "POST" });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.message ?? JSON.stringify(body));
+        setBalance(body.balance ?? body.agent?.balance ?? DEMO_FUND_AMOUNT);
+        if (!body.agentToken) throw new Error("demo seed missing agentToken");
+        setAgentToken(body.agentToken);
+        const bal = body.balance ?? body.agent?.balance;
+        const cap = body.cap_24h ?? body.dailyCapUsdc ?? DEMO_DAILY_CAP;
+        push([
+          { kind: "chain", text: `funded ${usd(DEMO_FUND_AMOUNT)} ${SETTLE_ASSET} · withdrawalsRestricted=true` },
+          { kind: "res", text: `${res.status} { balance: ${bal}, dailyCap: ${cap}, agentToken: (once) }` },
+        ]);
+        setStep(1);
+      } else if (step === 1) {
+        push([{ kind: "req", text: `GET /api/v1/research?q=bnb+agent+os  (no payment header)` }]);
+        const res = await fetch("/api/v1/research?q=" + encodeURIComponent("Binance Agent OS x402"));
+        const body = await res.json();
+        push([
+          { kind: "res", text: `${res.status} ${res.status === 402 ? "Payment Required" : JSON.stringify(body).slice(0, 120)}` },
+        ]);
+        if (res.status !== 402) {
+          throw new Error("Expected HTTP 402 without payment credentials");
+        }
+        const price = body?.paymentRequired?.accepts?.[0]?.maxAmountRequired;
+        push([
+          {
+            kind: "res",
+            text: `PAYMENT-REQUIRED present · atomic max=${price ?? "n/a"} · schemes=${(body?.paymentRequired?.accepts ?? []).map((a: { scheme: string }) => a.scheme).join(",")}`,
+          },
+        ]);
+        setStep(2);
+      } else if (step === 2) {
+        push([
+          {
+            kind: "req",
+            text: `GET /api/v1/research  X-Meter-Agent-Id: ${DEMO_AGENT}  X-Meter-Agent-Token: ***  X-Meter-Payment: prepaid`,
+          },
+        ]);
+        const res = await fetch(
+          "/api/v1/research?q=" + encodeURIComponent("Binance Agent OS x402 daily limit"),
+          {
+            headers: {
+              "X-Meter-Agent-Id": DEMO_AGENT,
+              "X-Meter-Agent-Token": agentToken ?? "",
+              "X-Meter-Payment": "prepaid",
+            },
+          },
+        );
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.message ?? JSON.stringify(body));
+        setCalls(1);
+        setSpent(DEMO_CALL_PRICE);
+        setBalance((b) => Number((b - DEMO_CALL_PRICE).toFixed(6)));
+        setReceiptId(body.receiptId);
+        push([
+          { kind: "res", text: `200 OK — live providers: ${(body.providers ?? []).join("+")}` },
+          { kind: "chain", text: `receipt ${body.receiptId} · settled ${usd(DEMO_CALL_PRICE)} · sources=${body.sources?.length ?? 0}` },
+        ]);
+        setStep(3);
+      } else if (step === 3) {
+        push([{ kind: "req", text: `POST /api/v1/demo/invoice  (public demo issuer for ${DEMO_AGENT})` }]);
+        const res = await fetch("/api/v1/demo/invoice", { method: "POST" });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.message ?? JSON.stringify(body));
+        setInvoiceId(body.id);
+        push([
+          {
+            kind: "res",
+            text: `${body.id} · ${usd(body.amount)} across ${body.calls} calls · fee ${usd(body.takeFee ?? body.amount * TAKE_RATE)} · status=${body.status ?? "open"}`,
+          },
+        ]);
+        setStep(4);
+      } else if (step === 4) {
+        push([{ kind: "req", text: `GET /api/v1/limits` }]);
+        const res = await fetch("/api/v1/limits");
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.message ?? JSON.stringify(body));
+        const daily = (body.limits ?? []).find((l: { id: string }) => l.id === "lm_daily");
+        push([
+          {
+            kind: "warn",
+            text: `workspace daily cap ${usd(daily?.cap ?? DEMO_DAILY_CAP)} · used ${usd(daily?.used ?? spent)} · action=${daily?.action ?? "block"}`,
+          },
+          {
+            kind: "res",
+            text: "Limit policy live on ledger — further spend blocked at cap (Binance Agentic Wallet x402 default $20/day).",
+          },
+        ]);
+        setStep(5);
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+      push([{ kind: "warn", text: msg }]);
+    } finally {
+      setBusy(false);
     }
-    setStep((s) => Math.min(s + 1, BEATS.length));
   }
 
   function reset() {
@@ -124,50 +181,40 @@ function DemoPage() {
     setCalls(0);
     setSpent(0);
     setLog([]);
+    setError(null);
+    setReceiptId(null);
+    setInvoiceId(null);
+    setAgentToken(null);
   }
+
+  const done = step >= 5;
 
   return (
     <PageShell
       eyebrow="Live demo"
-      title="Five beats from funded agent to auditable ledger."
-      lede="Nothing is faked past the network layer — every number below is priced off the same METER rate card the dashboard reads."
+      title="Five beats. Real ledger. Live search."
+      lede="Every step calls /api/v1. Research settles only after prepaid debit, then hits Tavily + TinyFish. No animated fake receipts."
     >
-      <div className="grid gap-6 lg:grid-cols-[1.15fr_1fr]">
-        <section className="panel rounded-2xl p-5 sm:p-7">
+      <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+        <div>
           <ol className="space-y-3">
-            {BEATS.map((b, i) => {
-              const done = step > i;
-              const active = step === i;
-              const Icon = b.icon;
+            {BEATS.map((beat, i) => {
+              const Icon = beat.icon;
+              const active = i === step;
+              const complete = i < step;
               return (
                 <li
-                  key={b.key}
-                  className={`flex items-center gap-4 rounded-xl border px-4 py-3.5 transition-colors ${
-                    active
-                      ? "border-primary/50 bg-primary/10"
-                      : done
-                        ? "border-border bg-card/60"
-                        : "border-border/60 bg-transparent opacity-60"
-                  }`}
+                  key={beat.key}
+                  className={`panel flex items-center gap-4 p-4 ${active ? "ring-1 ring-primary/60" : ""}`}
                 >
                   <span
-                    className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${
-                      done ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                    }`}
+                    className={`flex h-10 w-10 items-center justify-center rounded-full ${complete ? "bg-primary text-primary-foreground" : "bg-secondary"}`}
                   >
-                    {done ? <Check className="size-4" /> : <Icon className="size-4" />}
+                    {complete ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
                   </span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium">
-                      {i + 1}. {b.label}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {b.key === "fund" && `Deposit ${usd(DEMO_FUND_AMOUNT)} ${SETTLE_ASSET} into ${DEMO_AGENT}.`}
-                      {b.key === "challenge" && "Unpaid call returns an x402 challenge with the price."}
-                      {b.key === "settle" && `Voucher attached, ${usd(DEMO_CALL_PRICE)} per call, receipts written.`}
-                      {b.key === "invoice" && `Rolled into an invoice with the ${(TAKE_RATE * 100).toFixed(1)}% METER fee.`}
-                      {b.key === "limit" && `Daily cap ${usd(DEMO_DAILY_CAP)} trips and the agent throttles cleanly.`}
-                    </p>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{beat.label}</p>
+                    <p className="text-xs text-muted-foreground">Beat {i + 1}</p>
                   </div>
                 </li>
               );
@@ -175,91 +222,79 @@ function DemoPage() {
           </ol>
 
           <div className="mt-6 flex flex-wrap gap-3">
-            {step < BEATS.length ? (
+            {!done ? (
               <button
-                onClick={next}
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                type="button"
+                disabled={busy}
+                onClick={() => void next()}
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground disabled:opacity-50"
               >
-                Run beat {step + 1} <ArrowRight className="size-4" />
+                {busy ? "Running…" : step === 0 ? "Start live flow" : "Next beat"}
+                <ArrowRight className="h-4 w-4" />
               </button>
             ) : (
               <Link
                 to="/dashboard"
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground"
               >
-                <BarChart3 className="size-4" /> See it in the ledger
+                Open ledger <BarChart3 className="h-4 w-4" />
               </Link>
             )}
             <button
+              type="button"
               onClick={reset}
-              className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm transition-colors hover:bg-card"
+              className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-3 text-sm"
             >
-              <RotateCcw className="size-4" /> Reset
+              <RotateCcw className="h-4 w-4" /> Reset
             </button>
           </div>
-        </section>
+          {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
+          {(receiptId || invoiceId) && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              {receiptId && <>Receipt {receiptId}. </>}
+              {invoiceId && <>Invoice {invoiceId}.</>}
+            </p>
+          )}
+        </div>
 
-        <div className="space-y-6">
-          <section className="panel rounded-2xl p-5 sm:p-6">
-            <p className="text-xs tracking-[0.22em] text-muted-foreground uppercase">Agent state</p>
-            <div className="mt-4 grid grid-cols-2 gap-4">
-              <Stat label="Balance" value={usd(balance)} />
-              <Stat label="Paid calls" value={String(calls)} />
-              <Stat label="Spent" value={usd(spent)} />
-              <Stat label="METER fee" value={usd(fee)} />
+        <div className="space-y-4">
+          <div className="panel grid grid-cols-3 gap-3 p-5">
+            <div>
+              <p className="text-xs text-muted-foreground">Balance</p>
+              <p className="font-display text-xl">{usd(balance)}</p>
             </div>
-            <div className="mt-5">
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Daily cap</span>
-                <span className="font-mono">
-                  {usd(spent)} / {usd(DEMO_DAILY_CAP)}
-                </span>
-              </div>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-                <div
-                  className={`h-full rounded-full transition-all ${
-                    spent >= DEMO_DAILY_CAP ? "bg-destructive" : "bg-primary"
-                  }`}
-                  style={{ width: `${Math.min(100, (spent / DEMO_DAILY_CAP) * 100)}%` }}
-                />
-              </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Calls</p>
+              <p className="font-display text-xl">{calls}</p>
             </div>
-          </section>
-
-          <section className="panel rounded-2xl p-5 sm:p-6">
-            <p className="text-xs tracking-[0.22em] text-muted-foreground uppercase">Wire log</p>
-            <div className="mt-4 max-h-80 space-y-1.5 overflow-auto font-mono text-[11.5px] leading-relaxed">
-              {log.length === 0 && <p className="text-muted-foreground">Idle. Run beat 1 to begin.</p>}
-              {log.map((l) => (
-                <p
-                  key={l.id}
-                  className={
-                    l.kind === "warn"
-                      ? "text-destructive"
-                      : l.kind === "chain"
-                        ? "text-primary"
-                        : l.kind === "req"
-                          ? "text-foreground/85"
-                          : "text-muted-foreground"
-                  }
-                >
-                  <span className="opacity-50">{l.kind === "req" ? "→" : l.kind === "warn" ? "!" : "←"}</span>{" "}
-                  {l.text}
-                </p>
-              ))}
+            <div>
+              <p className="text-xs text-muted-foreground">Fee</p>
+              <p className="font-display text-xl">{usd(fee)}</p>
             </div>
-          </section>
+          </div>
+          <div className="panel max-h-[420px] overflow-auto p-4 font-mono text-[11px] leading-relaxed">
+            {log.length === 0 && (
+              <p className="text-muted-foreground">Awaiting first live request…</p>
+            )}
+            {log.map((line) => (
+              <p
+                key={line.id}
+                className={
+                  line.kind === "warn"
+                    ? "text-warning"
+                    : line.kind === "chain"
+                      ? "text-primary"
+                      : line.kind === "req"
+                        ? "text-accent"
+                        : "text-foreground/80"
+                }
+              >
+                {line.text}
+              </p>
+            ))}
+          </div>
         </div>
       </div>
     </PageShell>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="font-display mt-1 text-2xl">{value}</p>
-    </div>
   );
 }

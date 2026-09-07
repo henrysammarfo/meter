@@ -1,0 +1,32 @@
+---
+description: METER API and ledger conventions for server and route work
+globs: src/meter/**/*.ts,src/routes/dashboard*.tsx,src/routes/demo.tsx,src/server.ts,scripts/**/*
+alwaysApply: false
+---
+
+# METER Live Stack
+
+## Layout
+
+- `src/meter/http.ts` — `/api/v1/*` router (wired from `src/server.ts`)
+- `src/meter/paystream.ts` — authorize prepaid or x402 settle
+- `src/meter/research.ts` — paid `/research` via Tavily + TinyFish
+- `src/meter/ledger.ts` — durable JSON ledger (`data/ledger.json`)
+- `src/meter/invoice.ts` / `flovia.ts` — invoices + analytics from ledger only
+
+## Rules
+
+- Dashboard reads `GET /api/v1/ledger` — never reintroduce static demo arrays.
+- Unpaid research must return **HTTP 402** + `PAYMENT-REQUIRED` (base64).
+- Prepaid path headers: `X-Meter-Agent-Id`, `X-Meter-Payment: prepaid`.
+- On-chain x402 requires `METER_PAY_TO` + `METER_USDC_ASSET`; otherwise fail that path with 501 — prepaid remains live.
+- Workspace daily cap default **20 USDC** (Binance Agentic Wallet x402 default per TechCrunch 2026-08-20).
+- Enforce zod/input validation; do not swallow provider errors.
+
+## Example 402
+
+```http
+HTTP/1.1 402 Payment Required
+PAYMENT-REQUIRED: <base64 PaymentRequired>
+X-Meter-Price: 0.02
+```

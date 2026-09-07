@@ -32,12 +32,31 @@ function Landing() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [joined, setJoined] = useState(false);
+  const [waitlistError, setWaitlistError] = useState<string | null>(null);
+  const [waitlistBusy, setWaitlistBusy] = useState(false);
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
-    setJoined(true);
-    setEmail("");
+    if (!email.trim() || waitlistBusy) return;
+    setWaitlistBusy(true);
+    setWaitlistError(null);
+    try {
+      const res = await fetch("/api/v1/waitlist", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), source: "landing" }),
+      });
+      const body = (await res.json()) as { message?: string; error?: string };
+      if (!res.ok) {
+        throw new Error(body.message ?? body.error ?? `Waitlist failed (${res.status})`);
+      }
+      setJoined(true);
+      setEmail("");
+    } catch (err) {
+      setWaitlistError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setWaitlistBusy(false);
+    }
   };
 
   return (
@@ -135,11 +154,15 @@ function Landing() {
               />
               <button
                 type="submit"
-                className="absolute top-1.5 right-1.5 bottom-1.5 rounded-full bg-primary px-3 text-xs font-medium text-primary-foreground sm:px-6 sm:text-sm"
+                disabled={waitlistBusy}
+                className="absolute top-1.5 right-1.5 bottom-1.5 rounded-full bg-primary px-3 text-xs font-medium text-primary-foreground disabled:opacity-60 sm:px-6 sm:text-sm"
               >
-                {joined ? "You're in" : "Get access"}
+                {waitlistBusy ? "Joining…" : joined ? "You're in" : "Get access"}
               </button>
             </form>
+            {waitlistError && (
+              <p className="text-xs text-destructive">{waitlistError}</p>
+            )}
             {joined && (
               <p className="flex items-center gap-1.5 text-xs text-primary">
                 <Check className="h-3.5 w-3.5" /> Added to the METER early-access list.

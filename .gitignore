@@ -30,3 +30,22 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Secrets
+.env
+.env.*
+!.env.example
+grounds/.env
+
+# Runtime ledger
+data/
+*.db
+
+# B402 local keys — never commit
+meter-b402-keys/
+*.pem
+*.base64
+
+meter-wallet/
+*.key
+*private*

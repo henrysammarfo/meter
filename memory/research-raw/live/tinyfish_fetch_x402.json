@@ -1,0 +1,17 @@
+{
+  "results": [
+    {
+      "url": "https://docs.x402.org",
+      "final_url": "https://docs.x402.org/introduction",
+      "title": "Welcome to x402 - x402",
+      "description": "This guide will help you understand x402, the open payment standard, and help you get started building or integrating services with x402.",
+      "language": "en",
+      "text": "x402 is the open payment standard that enables services to charge for access to their APIs and content directly over HTTP. It is built around the HTTP `402 Payment Required` status code and allows clients to programmatically pay for resources without accounts, sessions, or credential management.\nWith x402, any web service can require payment before serving a response, using crypto-native payments for speed, privacy, and efficiency.\n**Want to contribute to our docs?** The documentation source in this repository is open to PRs. Our only ask is that you keep these docs as a neutral resource, with no branded content other than linking out to other resources where appropriate.\n**Note about the docs:** These docs are the credibly neutral source of truth for x402, as x402 is a completely open standard under the Apache-2.0 license.\n\n###  Why Use x402?\n\nx402 offers:\n\n* **No fees and minimal friction** x402 as a standard has 0 fees built in.\n* **Native support for machine-to-machine payments**, enabling seamless use by AI agents\n* **Built-in micropayment support**, making it easy to monetize usage-based services (including **batch settlement** on EVM for high-volume, batched **onchain** redemption)\n\n###  Who is x402 for?\n\n* **Sellers:** Service providers who want to monetize their APIs or content. x402 enables direct, programmatic payments from clients with minimal setup.\n* **Buyers:** Human developers and AI agents seeking to access paid services without accounts or manual payment flows.\n\nBoth sellers and buyers interact directly through HTTP requests, with payment handled transparently through the protocol.\n\n###  What Can You Build?\n\nx402 enables a range of use cases, including:\n\n* API services paid per request\n* AI agents that autonomously pay for API access\n* Paywalls for digital content\n* Microservices and tooling monetized via microtransactions\n* Proxy services that aggregate and resell API capabilities\n\n###  How Does It Work?\n\nAt a high level, the flow is simple:\n\n1. A buyer requests a resource from a server.\n2. If payment is required, the server responds with `402 Payment Required`, including payment instructions.\n3. The buyer prepares and submits a payment payload.\n4. The server verifies and settles the payment independently, or by leveraging an x402 facilitator\u2019s /verify and /settle endpoints.\n5. If payment is valid, the server provides the requested resource.\n\nFor more detail, see:\nThe goal is to make programmatic commerce accessible, permissionless, and developer-friendly.\n\n###  Get Started\n\nReady to build? Start here:\n\n* Quickstart for Sellers\n* Quickstart for Buyers\n* Explore Core Concepts\n* Batch settlement (EVM micropayments / batched redemption)\n* Join our community on Slack\n\n\u2318I",
+      "author": null,
+      "published_date": null,
+      "latency_ms": 1751.5001520005171,
+      "format": "markdown"
+    }
+  ],
+  "errors": []
+}

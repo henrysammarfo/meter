@@ -1,26 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-  Legend,
-} from "recharts";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Badge, Kpi, PageHead, Panel, Table, Td } from "@/components/dashboard/ui";
-import {
-  TAKE_RATE,
-  agentSpendSeries,
-  failedInvoiceTotal,
-  invoices,
-  num,
-  openInvoiceTotal,
-  paidInvoiceTotal,
-  usd,
-} from "@/lib/meter-data";
+import { issueInvoice, markInvoicePaid } from "@/lib/meter-api";
+import { fetchLedgerOverview, num, type LedgerOverview, usd } from "@/lib/meter-data";
+import { getOperatorKey } from "@/lib/meter-workspace";
+import { useWorkspaceRevision } from "@/components/site/WaitlistForm";
 
 export const Route = createFileRoute("/dashboard/invoices")({
   head: () => ({
@@ -28,7 +12,7 @@ export const Route = createFileRoute("/dashboard/invoices")({
       { title: "Invoices — METER ledger" },
       {
         name: "description",
-        content: "Agent-to-agent invoices rolled up from settled calls, with fee, status and counterparty.",
+        content: "Agent-to-agent invoices rolled up from settled calls on the live ledger.",
       },
     ],
   }),
@@ -38,86 +22,153 @@ export const Route = createFileRoute("/dashboard/invoices")({
 type Status = "all" | "paid" | "open" | "failed";
 
 function Invoices() {
-  const [status, setStatus] = useState<Status>("all");
-  const rows = invoices.filter((i) => status === "all" || i.status === status);
-  const totalCalls = invoices.reduce((s, i) => s + i.calls, 0);
+  const rev = useWorkspaceRevision();
+  const [filter, setFilter] = useState<Status>("all");
+  const [data, setData] = useState<LedgerOverview | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [issueAgent, setIssueAgent] = useState("");
+  const [actionMsg, setActionMsg] = useState<string | null>(null);
+
+  const reload = useCallback(() => {
+    fetchLedgerOverview()
+      .then(setData)
+      .catch((e: Error) => setError(e.message));
+  }, []);
+
+  useEffect(() => {
+    reload();
+  }, [reload, rev]);
+
+  const rows = useMemo(() => {
+    const list = data?.invoices ?? [];
+    return filter === "all" ? list : list.filter((i) => i.status === filter);
+  }, [data, filter]);
+
+  async function onMarkPaid(id: string) {
+    setBusyId(id);
+    setActionMsg(null);
+    try {
+      if (!getOperatorKey()) {
+        throw new Error("Save an operator key in Settings first");
+      }
+      await markInvoicePaid(id);
+      setActionMsg(`Marked ${id} paid`);
+      reload();
+    } catch (e) {
+      setActionMsg(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function onIssue() {
+    setActionMsg(null);
+    try {
+      if (!getOperatorKey()) throw new Error("Save an operator key in Settings first");
+      const agentId = issueAgent.trim();
+      if (!agentId) throw new Error("Agent id required");
+      const { data: inv } = await issueInvoice(agentId);
+      setActionMsg(`Issued ${(inv as { id?: string }).id ?? "invoice"} for ${agentId}`);
+      setIssueAgent("");
+      reload();
+    } catch (e) {
+      setActionMsg(e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  if (error) return <p className="text-sm text-destructive">{error}</p>;
+  if (!data) return <PageHead title="Invoices" sub="Loading…" />;
 
   return (
     <div>
       <PageHead
         title="Invoices"
-        sub="Settled calls are rolled into one invoice per counterparty per window. The METER fee is itemised on every line."
-        action={
-          <div className="flex gap-1 rounded-full border border-border p-1 text-xs">
-            {(["all", "paid", "open", "failed"] as const).map((s) => (
-              <button
-                key={s}
-                onClick={() => setStatus(s)}
-                className={`rounded-full px-3 py-1.5 capitalize transition-colors ${
-                  status === s ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        }
+        sub="Issued from unbilled live receipts. Mark paid via POST /api/v1/invoices/:id/pay."
       />
-
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Kpi label="Paid" value={usd(paidInvoiceTotal)} tone="signal" />
-        <Kpi label="Open" value={usd(openInvoiceTotal)} hint="Net 7 terms" />
-        <Kpi label="Failed" value={usd(failedInvoiceTotal)} tone="danger" hint="Retry on next settle window" />
-        <Kpi label="Billed calls" value={num(totalCalls)} />
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Kpi label="Open" value={usd(data.openInvoiceTotal)} />
+        <Kpi label="Paid" value={usd(data.paidInvoiceTotal)} tone="signal" />
+        <Kpi label="Failed" value={usd(data.failedInvoiceTotal)} tone="danger" />
       </div>
 
-      <div className="mt-6 grid gap-6">
-        <Panel title="Spend per counterparty" subtitle="Rolling 7 days, USDC">
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={agentSpendSeries}>
-                <CartesianGrid stroke="var(--color-border)" vertical={false} />
-                <XAxis dataKey="d" stroke="var(--color-muted-foreground)" fontSize={11} tickLine={false} />
-                <YAxis stroke="var(--color-muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
-                <Tooltip
-                  formatter={(v: number) => usd(v)}
-                  contentStyle={{
-                    background: "var(--color-card)",
-                    border: "1px solid var(--color-border)",
-                    borderRadius: 12,
-                    fontSize: 12,
-                  }}
-                />
-                <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Line type="monotone" dataKey="northwind" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="kite" stroke="var(--color-accent)" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="halo" stroke="var(--color-muted-foreground)" strokeWidth={1.5} dot={false} />
-                <Line type="monotone" dataKey="solon" stroke="var(--color-destructive)" strokeWidth={1.5} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </Panel>
+      <Panel className="mt-6" title="Issue invoice" subtitle="Rolls unbilled receipts for an agent">
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <input
+            value={issueAgent}
+            onChange={(e) => setIssueAgent(e.target.value)}
+            placeholder="agent id"
+            className="min-w-0 flex-1 rounded-lg border border-border bg-background px-3 py-2 font-mono text-sm"
+          />
+          <button
+            type="button"
+            onClick={() => void onIssue()}
+            className="rounded-full bg-primary px-5 py-2 text-sm text-primary-foreground"
+          >
+            Issue
+          </button>
+        </div>
+        {actionMsg && <p className="mt-2 text-xs text-muted-foreground">{actionMsg}</p>}
+      </Panel>
 
-        <Panel title="All invoices" subtitle={`METER fee applied at ${(TAKE_RATE * 100).toFixed(1)}% of settled volume`}>
-          <Table head={["Invoice", "Counterparty", "Agent", "Calls", "Amount", "Fee", "Issued", "Due", "Status"]}>
-            {rows.map((i) => (
-              <tr key={i.id}>
-                <Td mono>{i.id}</Td>
-                <Td>{i.counterparty}</Td>
-                <Td mono>{i.agent}</Td>
-                <Td mono>{num(i.calls)}</Td>
-                <Td mono>{usd(i.amount)}</Td>
-                <Td mono>{usd(i.amount * TAKE_RATE)}</Td>
-                <Td>{i.issued}</Td>
-                <Td>{i.due}</Td>
-                <Td>
-                  <Badge value={i.status} />
-                </Td>
-              </tr>
-            ))}
-          </Table>
-        </Panel>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {(["all", "open", "paid", "failed"] as Status[]).map((s) => (
+          <button
+            key={s}
+            type="button"
+            onClick={() => setFilter(s)}
+            className={`rounded-full px-4 py-1.5 text-xs ${filter === s ? "bg-primary text-primary-foreground" : "bg-secondary"}`}
+          >
+            {s}
+          </button>
+        ))}
       </div>
+
+      <Panel
+        className="mt-6"
+        title="Invoice register"
+        subtitle={`${num(rows.length)} rows · take ${(data.takeRate * 100).toFixed(1)}%`}
+      >
+        <Table head={["ID", "Counterparty", "Agent", "Calls", "Amount", "Status", ""]}>
+          {rows.length === 0 && (
+            <tr>
+              <Td>No invoices yet — finish /demo beat 4 or issue above.</Td>
+              <Td>—</Td>
+              <Td>—</Td>
+              <Td>—</Td>
+              <Td>—</Td>
+              <Td>—</Td>
+              <Td>—</Td>
+            </tr>
+          )}
+          {rows.map((inv) => (
+            <tr key={inv.id}>
+              <Td>{inv.id}</Td>
+              <Td>{inv.counterparty}</Td>
+              <Td>{inv.agentId ?? inv.agent}</Td>
+              <Td>{inv.calls}</Td>
+              <Td>{usd(inv.amount)}</Td>
+              <Td>
+                <Badge value={inv.status} />
+              </Td>
+              <Td>
+                {inv.status === "open" ? (
+                  <button
+                    type="button"
+                    disabled={busyId === inv.id}
+                    onClick={() => void onMarkPaid(inv.id)}
+                    className="text-xs text-primary hover:underline disabled:opacity-50"
+                  >
+                    {busyId === inv.id ? "…" : "Mark paid"}
+                  </button>
+                ) : (
+                  "—"
+                )}
+              </Td>
+            </tr>
+          ))}
+        </Table>
+      </Panel>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ShoppingBag, Check } from "lucide-react";
 import { PageShell } from "@/components/site/PageShell";
 import { MeterMark } from "@/components/brand/MeterMark";
+import { WaitlistForm } from "@/components/site/WaitlistForm";
 
 export const Route = createFileRoute("/merch")({
   head: () => ({
@@ -57,7 +58,7 @@ function PrintArt({ item }: { item: Item }) {
         <MeterMark className="mx-auto mb-3 h-10 w-10" />
         /research · 1 query · $0.02
         <br />
-        0x9f4c…21ab · SETTLED
+        receipt · SETTLED
       </div>
     );
   if (item.print === "stack")
@@ -73,6 +74,7 @@ function PrintArt({ item }: { item: Item }) {
 
 function MerchPage() {
   const [bag, setBag] = useState<string[]>([]);
+  const [showWaitlist, setShowWaitlist] = useState(false);
   const toggle = (id: string) =>
     setBag((b) => (b.includes(id) ? b.filter((x) => x !== id) : [...b, id]));
 
@@ -80,11 +82,20 @@ function MerchPage() {
     <PageShell
       eyebrow="Merch"
       title="Ink, signal, cotton."
-      lede="Two colours, one mark, no gradients. Everything here is a direct application of the brand kit — which is why it prints clean and ages well."
+      lede="Two colours, one mark, no gradients. Checkout is not live yet — shortlist pieces and join the drop waitlist."
     >
-      <div className="mb-8 flex items-center gap-2 text-sm text-muted-foreground">
+      <div className="mb-8 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
         <ShoppingBag className="h-4 w-4 text-primary" />
-        {bag.length === 0 ? "Bag is empty" : `${bag.length} item${bag.length > 1 ? "s" : ""} in bag`}
+        {bag.length === 0 ? "Bag is empty" : `${bag.length} item${bag.length > 1 ? "s" : ""} shortlisted`}
+        {bag.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setShowWaitlist(true)}
+            className="rounded-full bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground"
+          >
+            Notify me when shipping
+          </button>
+        )}
       </div>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -103,7 +114,10 @@ function MerchPage() {
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.detail}</p>
                 <button
                   type="button"
-                  onClick={() => toggle(item.id)}
+                  onClick={() => {
+                    toggle(item.id);
+                    if (!inBag) setShowWaitlist(true);
+                  }}
                   className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-medium ${
                     inBag
                       ? "border border-border text-foreground/80"
@@ -112,10 +126,10 @@ function MerchPage() {
                 >
                   {inBag ? (
                     <>
-                      <Check className="h-4 w-4 text-primary" /> In bag
+                      <Check className="h-4 w-4 text-primary" /> Shortlisted
                     </>
                   ) : (
-                    "Add to bag"
+                    "Shortlist"
                   )}
                 </button>
               </div>
@@ -123,6 +137,19 @@ function MerchPage() {
           );
         })}
       </section>
+
+      {(showWaitlist || bag.length > 0) && (
+        <section className="panel mt-10 p-8">
+          <h2 className="font-display text-xl tracking-tight">Merch drop waitlist</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            No fake checkout. We email when the print run ships
+            {bag.length > 0 ? ` · interested in: ${bag.join(", ")}` : ""}.
+          </p>
+          <div className="mt-4 max-w-md">
+            <WaitlistForm source={`merch:${bag.join("+") || "browse"}`} cta="Notify me" />
+          </div>
+        </section>
+      )}
 
       <section className="panel mt-16 p-8">
         <h2 className="font-display text-2xl tracking-tight">Print specs</h2>

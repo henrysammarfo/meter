@@ -1,0 +1,58 @@
+{
+  "query": "Binance Agent OS x402 daily limit $20 USDC Agentic Wallet sandbox",
+  "follow_up_questions": null,
+  "answer": "Binance Agent OS sets a daily limit of $20 for x402 payments. It also has separate daily limits for swaps and DeFi transactions. The system operates within a sandboxed environment.",
+  "images": [],
+  "results": [
+    {
+      "url": "https://bitcoinfoundation.org/news/ai-news/binance-launches-agent-os",
+      "title": "Binance Agent OS: AI Agents Can Now Trade Crypto",
+      "content": "Binance\u2019s Agentic Wallet imposes more explicit limits on some activities. Reported default limits include up to $50,000 per day for regular swaps, $100,000 per day for DeFi transactions, and $20 per day for x402 payments.\n\nThose limits should not be confused with exchange-trading limits inside Agent OS subaccounts.\n\nThe system is therefore less like handing an AI agent a normal Binance login and more like constructing a financial sandbox around it.\n\nHow safe that sandbox is depends partly on how the user configures it.\n\nRelated: Bitcoin Price Surges Past $79,000: Can BTC Still Hit $100K by Year-End?\n\n## Why Binance Agent OS Matters\n\nAI trading itself is nothing new.",
+      "score": 0.8719229,
+      "raw_content": null,
+      "id": "085add-00"
+    },
+    {
+      "url": "https://www.binance.com/en/square/post/361633420507970",
+      "title": "How Binance Agent OS Changes Cryptocurrency Trading",
+      "content": "Unlike trades on a trading platform, Agentic Wallet has separate daily limits. According to Binance\u2019s launch information, the default daily limit for regular conversions is $50,000, the default daily limit for DeFi trading is $100,000, and the daily limit for x402 payments is $20. Because on-chain operations typically involve self-custodycrypto wallets, understanding how these limits and permissions work is an important prerequisite for using this feature safely.\n\nImage 7: \u5e01\u5b89 Agent OS\n\n## Risk and governance [...] ## What else can an Agent do besides trading?\n\nAnother goal of Binance Agent OS is to connect Agents with payments and on-chain activities. Through Binance\u2019s x402 integration, Agents can initiate and settle payments with other Agents. Agentic Wallet also lets them interact with tokens anddecentralized finance (DeFi) protocols. This means an Agent can monitor market dynamics within set boundaries, react to signals, and interact with on-chain applications, among other things.",
+      "score": 0.8703443,
+      "raw_content": null,
+      "id": "c544de-01"
+    },
+    {
+      "url": "https://finance.biggo.com/news/a22ee137-fbbb-4643-9bf4-dd1bbb62ef96",
+      "title": "Binance Launches Agent OS, Letting AI Agents Trade Crypto ...",
+      "content": "Unlike exchange trading, where Binance does not impose a separate cap on agent activity within subaccounts, Agentic Wallet transactions carry Binance-set daily limits. Regular swaps are capped at $50,000 per day, DeFi transactions have a default $100,000 daily limit, and x402 payments are limited to $20 per day, according to the company.\n\nThe Competitive Landscape\n\nBinance is not alone in opening its infrastructure to AI agents. The move follows a wave of similar initiatives from rival exchanges over the past several months. [...] Binance has launched Agent OS, a developer platform that lets AI agents access market data, monitor accounts, and execute crypto trades on the exchange. The platform integrates with AI tools including ChatGPT, Claude Code, Codex, and Cursor, and gives users granular control over permissions and limits. Agents operate within dedicated subaccounts with withdrawals blocked by default, creating a sandbox around their activity. Binance can monitor trades but cannot see an agent's external data sources or decision-making logic. Agent OS also connects to Binance's payment and on-chain services, with daily limits of $50,000 for swaps, $100,000 for DeFi transactions, and $20 for x402 payments. The launch follows similar moves by Coinbase, Kraken, and OKX as exchanges compete to become the [...] Li pointed to the subaccount structure as the primary line of defense in such scenarios. Binance also said its existing security, risk-control, and anti-money-laundering policies for subaccount APIs apply to Agent OS at launch.\n\nBeyond Trading: Payments and On-Chain Activity\n\nAgent OS extends beyond order placement. Through Binance's x402 integration, agents can send and settle payments, while the Agentic Wallet allows them to interact with tokens and decentralized-finance protocols. This positions agents not just as trading bots but as potential on-chain operators capable of managing funds across strategies, executing routine transactions, and coordinating multi-step workflows.",
+      "score": 0.86024034,
+      "raw_content": null,
+      "id": "581709-02"
+    },
+    {
+      "url": "https://www.binance.com/en-AE/square/post/361633420507970",
+      "title": "How Binance Agent OS Changes Cryptocurrency Trading",
+      "content": "the default daily limit for regular conversions is $50,000, the daily limit for x402 payments is $20. an Agentic Wallet, and x402 payments,",
+      "score": 0.8565368,
+      "raw_content": null,
+      "id": "c93cb3-03"
+    },
+    {
+      "url": "https://techcrunch.com/2026/08/20/binance-now-lets-ai-agents-trade-but-keeping-them-in-check-is-largely-up-to-users",
+      "title": "Binance now lets AI agents trade, but keeping them in ... - TechCrunch",
+      "content": "Unlike exchange trading, where Binance does not impose a separate cap on how much an agent can trade or lose within its subaccount, Agentic Wallet transactions carry Binance-set daily limits. Regular swaps are capped at $50,000 a day, DeFi transactions have a default $100,000 daily limit, and x402 payments are limited to $20 a day, according to the company.\n\nLi said Agent OS was Binance\u2019s \u201cfirst step\u201d toward giving developers a platform to build AI-powered applications that can act across crypto and traditional markets.\n\nBinance is not alone in opening its infrastructure to AI agents. Rival crypto exchanges have been moving in the same direction, using MCP and other developer tools to give AI applications direct access to market data and trading systems. [...] Trading is one of the first use cases Binance is targeting. Nonetheless, Li said agents could monitor markets, conduct research and risk analysis, react to signals, and autonomously place orders or execute strategies such as arbitrage.\n\nAgent OS is also designed to connect agents to payments and on-chain activity. Through Binance\u2019s x402 integration, agents can send and settle payments, while its Agentic Wallet allows them to interact with tokens and decentralized-finance protocols.",
+      "score": 0.8497846,
+      "raw_content": null,
+      "id": "3a0ad0-04"
+    },
+    {
+      "url": "https://www.binance.com/en/square/post/359185802888334",
+      "title": "Binance, the largest crypto exchange by trading volume, has launched a platform called Agent OS",
+      "content": "Unlike exchange trading\u2014where Binance does not set a separate limit on the amount an agent can trade within a subaccount\u2014transactions in Agentic Wallet involve set Binance daily limits. Regular swaps are limited to $50,000 per day, DeFi transactions have a standard daily limit of $100,000, and x402 payments are capped at $20 per day. Last week, Binance stopped processing transactions involving 16 crypto platforms that were sanctioned by the European Union and the United States against Russia and Iran. The restrictions affected the crypto services Rapira, Aifory Pro, ABCeX, WhiteBird, NoOnecrypto, Tradex, Monease, BitPapa, Exnode, as well as the HTX and EXMO exchanges.$BNB$BONK [...] decisions because the entire process occurs on the client\u2019s device or within the selected AI application. However, the exchange can monitor the agent\u2019s trading activity. The vice president said that the Agent OS service and subaccounts will be subject to the exchange\u2019s existing security policy, risk controls, and anti\u2013money laundering (AML) rules. Initially, AI agents are planned to be used only for trading. Then they will likely be able to track markets, conduct research and risk analysis, respond to signals, and place orders or implement arbitrage strategies. With Binance\u2019s integration with x402, AI agents can process payments, and an Agentic Wallet will allow them to interact with tokens and decentralized finance (DeFi) protocols. Unlike exchange trading\u2014where Binance does not set a",
+      "score": 0.8377398,
+      "raw_content": null,
+      "id": "ffa5c3-05"
+    }
+  ],
+  "response_time": 3.9,
+  "request_id": "0ea3db8e-86c5-4061-b0c8-913e87505c85"
+}
