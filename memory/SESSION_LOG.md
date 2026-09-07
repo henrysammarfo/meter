@@ -193,3 +193,11 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - Invoices: Issue + Mark paid against live operator routes.
 - Verified: `tsc --noEmit` clean; `npm run smoke` SMOKE OK; all marketing+dashboard routes HTTP 200; demo seed→402→paid research→invoice→limits live; mark-paid with operator key OK.
 
+## 2026-09-07 — Merge to main + production deploy
+
+- Working tree was clean (UI branch already committed/pushed).
+- Merged `cursor/meter-ui-live-tenant-b2de` → `main` (`458e2ae`) and pushed (includes ship-hardening + bible ancestry).
+- PR #3 MERGED; PRs #1/#2 already closed/superseded.
+- Linked Vercel project `meter` (`prj_ZqeNwddRXdHWdGUAw5vgVk9ADisn`) to `henrysammarfo/meter`; production deploy from `main` started (`dpl_38y2WFo2yHcFVEvDoTA7JGTDsB6K`).
+- Lovable sync: push to connected `main` should update Lovable editor.
+

@@ -1,8 +1,8 @@
 # METER — Current State
 
-**Updated:** 2026-09-06
-**Branch:** `cursor/meter-ui-live-tenant-b2de`
-**Phase:** UI/UX LIVE + MULTI-TENANT LITE — auth vault, workspace filter, all routes 200 against live `/api/v1`.
+**Updated:** 2026-09-07
+**Branch:** `main`
+**Phase:** PRODUCTION — merged to `main`; Vercel project `meter` production deploy from main.
 
 ## What exists
 
