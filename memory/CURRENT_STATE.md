@@ -1,8 +1,8 @@
 # METER — Current State
 
 **Updated:** 2026-09-08
-**Branch:** `cursor/meter-readme-netro-b2de` (packaging) · production on `main`
-**Phase:** SHIPPED TO PRODUCTION — https://meter-sooty.vercel.app live; Netro-style README packaging in flight; contest submit = owner video + X + survey.
+**Branch:** `main` (`3ec2ec2` — Netro README packaging merged)
+**Phase:** SHIPPED TO PRODUCTION — https://meter-sooty.vercel.app live; Netro-style README on main; contest submit = owner video + X + survey.
 
 ## What exists
 

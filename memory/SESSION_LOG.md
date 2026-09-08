@@ -215,4 +215,5 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - Badges (Track A / demo / health / OpenAPI / MCP skills), mermaid flow, Agent OS surface map, settle rails, ordered “what we can still add” (owner vs packaging vs post-submit).
 - Wired `og:image` / `twitter:image` in `__root.tsx` → `/og-meter.png`.
 - Highest remaining packaging gap vs NetroBNB: owner 30–60s GIF/MP4 of `/demo`.
+- **Merged to `main`:** `3ec2ec2` (merge commit); pushed for Lovable/GitHub sync. PR #4.
 
