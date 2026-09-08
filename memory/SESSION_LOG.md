@@ -248,3 +248,8 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - Clarified: wallet = UI identity; operator key = non-demo ledger mutations; demo path needs no mainnet deposit.
 - **Merged to `main`:** `2ef2cb3`.
 
+## 2026-09-08 — Packaging discipline + Connect wallet fix
+
+- README/SUBMIT: Afterimage-style “what's real vs deferred” table + timed VO already in SUBMIT.
+- Wallet: EIP-6963 discovery, multi-provider pick, never wipe stored address when ethereum missing, hydration-safe button, Demo session fallback + MetaMask link on error.
+
