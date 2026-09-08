@@ -1,8 +1,8 @@
 # METER — Current State
 
 **Updated:** 2026-09-08
-**Branch:** `cursor/meter-packaging-wallet-fix-b2de`
-**Phase:** Final packaging (what's-real table) + Connect wallet fix; contest video path ready.
+**Branch:** `main` (`e392608` — wallet fix + honesty packaging)
+**Phase:** FINAL FOR SUBMIT — production live; record video from SUBMIT.md script.
 
 ## What exists
 
