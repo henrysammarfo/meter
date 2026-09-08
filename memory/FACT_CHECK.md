@@ -245,3 +245,5 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 | Health ok with Tavily+TinyFish configured | **VERIFIED** | `GET /api/v1/health` → ok:true |
 | Live demo path on production | **VERIFIED** | seed → 402 → prepaid 200 (tavily+tinyfish) → demo invoice 201 → ledger |
 | Contest social/survey complete | **OWNER ACTION** | See SUBMIT.md |
+| OpenAPI + MCP skills live on production | **VERIFIED** | both paths HTTP 200 (2026-09-08) |
+| README packaging includes live screenshots | **VERIFIED** | `public/demo-screenshot.png`, `public/dashboard-screenshot.png` captured from production |

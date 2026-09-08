@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="280" viewBox="0 0 1200 280" role="img" aria-label="METER hero banner">
+  <defs>
+    <linearGradient id="hbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#071018"/>
+      <stop offset="55%" stop-color="#0F1C2A"/>
+      <stop offset="100%" stop-color="#13281C"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="80%" cy="30%" r="50%">
+      <stop offset="0%" stop-color="#C8F542" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#C8F542" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="280" fill="url(#hbg)"/>
+  <rect width="1200" height="280" fill="url(#glow)"/>
+  <g fill="none" stroke="#C8F542" stroke-width="10" stroke-linecap="square">
+    <path d="M70 70 V210"/>
+    <path d="M70 70 H120"/>
+    <path d="M70 210 H120"/>
+    <path d="M210 70 V210"/>
+    <path d="M210 70 H160"/>
+    <path d="M210 210 H160"/>
+  </g>
+  <text x="250" y="118" fill="#C8F542" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" letter-spacing="6">BINANCE AGENT OS · TRACK A</text>
+  <text x="250" y="178" fill="#F4F7FA" font-family="Georgia, 'Times New Roman', serif" font-size="56">METER</text>
+  <text x="250" y="222" fill="#B7C3D1" font-family="ui-sans-serif, system-ui, sans-serif" font-size="22">The ledger for agent money — pay, receipt, invoice, limits.</text>
+</svg>

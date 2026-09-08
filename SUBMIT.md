@@ -49,6 +49,10 @@ GitHub: https://github.com/henrysammarfo/meter
 No mocks. Prepaid live. B402 merchant path deferred until partner form opens.
 ```
 
+## Packaging note (README upgraded 2026-09-08)
+
+GitHub README now has Netro-style badges, architecture SVG, live `/demo` + `/dashboard` screenshots, and OG image. Highest remaining packaging win: drop a **30–60s demo GIF/MP4** of `/demo` into the README (owner video clip — see “What we can still add” in README).
+
 ## What ships / what doesn’t (honest)
 
 - **Ships:** prepaid subaccounts, agent tokens, atomic debit/refund, live research, invoices, ledger, waitlist, multi-workspace UI filter, public demo  
