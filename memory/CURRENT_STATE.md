@@ -1,8 +1,8 @@
 # METER — Current State
 
 **Updated:** 2026-09-08
-**Branch:** `cursor/meter-session-charts-demo-b2de`
-**Phase:** Session + protected dashboard + chart fixes + six-beat demo (insufficient balance) shipping; contest video path needs no mainnet deposit.
+**Branch:** `main` (`2ef2cb3` — sessions/charts/demo balance gate)
+**Phase:** SHIPPED — protected ledger + six-beat demo with INSUFFICIENT_BALANCE; contest video needs no mainnet deposit.
 
 ## What exists
 

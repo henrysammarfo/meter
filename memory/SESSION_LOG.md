@@ -246,4 +246,5 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - `GET /api/v1/research/quote` OKX-style preview; Paystream Quote→Convert UI.
 - Flovia series uses UTC date+hour; workspace filter recomputes charts/KPIs with 24h cutoff; bar empty-states; limits cap=0 safe.
 - Clarified: wallet = UI identity; operator key = non-demo ledger mutations; demo path needs no mainnet deposit.
+- **Merged to `main`:** `2ef2cb3`.
 
