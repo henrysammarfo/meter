@@ -214,7 +214,7 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 ## 2026-09-06 15:18 UTC — Smoke green; next = contest packaging
 - `npm run smoke` **SMOKE OK** (health+settleRails, waitlist, openapi/mcp, fund w/ operator key, 402, paid research, invoice, ledger, stress×5).
 - Base mainnet pay-to wired; prepaid primary.
-- **Next (owner):** demo video + X quote/repost + survey before 2026-09-08 23:59 UTC.
+- **Next (owner):** X quote/repost + survey before 2026-09-08 23:59 UTC (demo video: https://youtu.be/eqBMozL5CgU).
 
 ## 2026-09-06 16:13 UTC — ship security claims
 | Claim | Status | Notes |
@@ -244,7 +244,7 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 | Vercel production URL serves METER | **VERIFIED** | https://meter-sooty.vercel.app home/demo/dashboard 200 |
 | Health ok with Tavily+TinyFish configured | **VERIFIED** | `GET /api/v1/health` → ok:true |
 | Live demo path on production | **VERIFIED** | seed → 402 → prepaid 200 (tavily+tinyfish) → demo invoice 201 → ledger |
-| Contest social/survey complete | **OWNER ACTION** | See SUBMIT.md |
+| Contest social/survey complete | **OWNER ACTION** | Video https://youtu.be/eqBMozL5CgU done; follow/repost/quote + survey still owner |
 | OpenAPI + MCP skills live on production | **VERIFIED** | both paths HTTP 200 (2026-09-08) |
 | README packaging includes live screenshots | **VERIFIED** | `public/demo-screenshot.png`, `public/dashboard-screenshot.png` captured from production |
 | Tab icon is Lovable default | **FIXED** | Replaced with METER mark favicon.svg/ico/apple-touch (2026-09-08) |
@@ -253,3 +253,4 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 | Dashboard protected without session | **FIXED** | Redirect to Settings unless wallet / operator key / demo token |
 | Chart workspace filter mismatch | **FIXED** | Client rebuilds settleSeries + endpoint revenue from filtered 24h receipts |
 | Demo proves INSUFFICIENT_BALANCE | **VERIFIED** | `/api/v1/demo/drain` + prepaid research → 402 `INSUFFICIENT_BALANCE` |
+| Contest demo video published | **VERIFIED** | https://youtu.be/eqBMozL5CgU (owner, 2026-09-08) |

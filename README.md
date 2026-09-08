@@ -6,6 +6,7 @@
 
 <p align="center">
   <a href="https://www.binance.com/en/agent-os"><img src="https://img.shields.io/badge/Binance-Agent_OS_Track_A-F0B90B?style=for-the-badge&logo=binance&logoColor=black" alt="Binance Agent OS Track A" /></a>
+  <a href="https://youtu.be/eqBMozL5CgU"><img src="https://img.shields.io/badge/Demo-Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Demo Video" /></a>
   <a href="https://meter-sooty.vercel.app/demo"><img src="https://img.shields.io/badge/Live-Demo-C8F542?style=for-the-badge&logo=vercel&logoColor=black" alt="Live Demo" /></a>
   <a href="https://meter-sooty.vercel.app/api/v1/health"><img src="https://img.shields.io/badge/Health-ok_live-22C55E?style=for-the-badge" alt="Health live" /></a>
   <a href="./SUBMIT.md"><img src="https://img.shields.io/badge/Contest-Submit_kit-0A0A0A?style=for-the-badge" alt="Submit kit" /></a>
@@ -21,7 +22,7 @@
   <a href="https://meter-sooty.vercel.app/api/v1/mcp/skills"><img src="https://img.shields.io/badge/MCP-skills_catalog-111827?style=flat-square" alt="MCP skills" /></a>
 </p>
 
-**Production:** https://meter-sooty.vercel.app · **Demo:** https://meter-sooty.vercel.app/demo · **GitHub:** https://github.com/henrysammarfo/meter
+**Production:** https://meter-sooty.vercel.app · **Demo:** https://meter-sooty.vercel.app/demo · **Video:** https://youtu.be/eqBMozL5CgU · **GitHub:** https://github.com/henrysammarfo/meter
 
 > When agents pay each other or charge for an API call, **METER** shows the money, writes a shared receipt, and settles it — inside limits you set.
 
@@ -69,10 +70,18 @@ Contest kit (video script + X quote): [`SUBMIT.md`](./SUBMIT.md)
 ## Live product (no mocks)
 
 <p align="center">
+  <a href="https://youtu.be/eqBMozL5CgU">
+    <img src="https://img.youtube.com/vi/eqBMozL5CgU/maxresdefault.jpg" alt="METER contest demo video — six beats live 402 → prepaid → receipt → insufficient balance" width="100%" />
+  </a>
+</p>
+
+<p align="center"><em><a href="https://youtu.be/eqBMozL5CgU">Demo video</a> — Fund → 402 → quote+prepaid settle → invoice+pay → insufficient-balance 402 → $20/day cap</em></p>
+
+<p align="center">
   <img src="./public/demo-screenshot.png" alt="METER live demo — five beats against real /api/v1" width="100%" />
 </p>
 
-<p align="center"><em>/demo — Fund → 402 → quote+prepaid settle → invoice+pay → insufficient-balance 402 → $20/day cap</em></p>
+<p align="center"><em>/demo — interactive six-beat flow against real /api/v1</em></p>
 
 <p align="center">
   <img src="./public/dashboard-screenshot.png" alt="METER dashboard overview — live Flovia ledger" width="100%" />
@@ -193,7 +202,7 @@ Try production without installing: https://meter-sooty.vercel.app/demo
 
 ### Owner (contest bottleneck — today)
 
-1. **60–120s demo video** of `/demo` six beats → X quote (full word-for-word script in [`SUBMIT.md`](./SUBMIT.md))
+1. ~~**60–120s demo video**~~ → https://youtu.be/eqBMozL5CgU (**done**)
 2. Follow @Binance · **repost** official post · **quote** with video + GitHub + production URL
 3. Hackathon **survey** + jurisdiction check
 4. **Rotate** the Vercel token that was pasted in chat
@@ -207,7 +216,7 @@ Try production without installing: https://meter-sooty.vercel.app/demo
 | Timed voiceover script in SUBMIT.md | Judges hear the deletion test + live 402 path | **Done** |
 | Live `/demo` + `/dashboard` screenshots in README | Proof without clicking | **Done** |
 | OG image + meta (`og-meter.png`) for X/Discord unfurl | Link previews look finished | **Done** |
-| 30–60s **GIF/MP4** embed under Architecture | Motion packaging | Owner video clip |
+| Contest **demo video** on YouTube | Motion packaging for judges / X quote | **Done** — https://youtu.be/eqBMozL5CgU |
 
 ### Product (post-submit)
 

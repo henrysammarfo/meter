@@ -2,6 +2,7 @@
 
 **Production:** https://meter-sooty.vercel.app  
 **Demo:** https://meter-sooty.vercel.app/demo  
+**Demo video:** https://youtu.be/eqBMozL5CgU  
 **GitHub:** https://github.com/henrysammarfo/meter  
 **Deadline:** 2026-09-08 23:59 UTC  
 
@@ -25,7 +26,7 @@ Deletion test: remove the METER ledger → agents can still pay elsewhere, but s
 | Claim | Status |
 |---|---|
 | Live 402 / prepaid / receipt / invoice / insufficient-balance | **Real on production** |
-| Timed VO + six-beat `/demo` | **Ready** — script below |
+| Timed VO + six-beat `/demo` | **Recorded** — https://youtu.be/eqBMozL5CgU · script below |
 | Connect wallet (browser EIP-1193) | **UI identity** — MetaMask etc.; demo session works without it |
 | Mainnet BNB deposit for contest video | **Not required** for prepaid demo path |
 | Binance B402 merchant settle | **Deferred** (form blocked) — not faked |
@@ -33,7 +34,7 @@ Deletion test: remove the METER ledger → agents can still pay elsewhere, but s
 
 ## Owner submit checklist (you must do these)
 
-1. [ ] **Demo video** (90–120s) — read the full script below while clicking  
+1. [x] **Demo video** — https://youtu.be/eqBMozL5CgU  
 2. [ ] Follow [@Binance](https://x.com/Binance)  
 3. [ ] **Repost** the official Agent OS Mini Hackathon post  
 4. [ ] **Quote/reply** with video + this GitHub URL + production URL  
@@ -172,6 +173,7 @@ Agent↔agent metered APIs:
 live 402 → quote → prepaid settle → shared receipt/invoice → insufficient-balance gate → $20/day cap.
 
 Demo: https://meter-sooty.vercel.app/demo
+Video: https://youtu.be/eqBMozL5CgU
 GitHub: https://github.com/henrysammarfo/meter
 
 No mocks. Prepaid live. B402 merchant path deferred until partner form opens.
@@ -183,7 +185,7 @@ No mocks. Prepaid live. B402 merchant path deferred until partner form opens.
 2. Zoom the demo log panel if the judge cannot read status codes.  
 3. If a beat errors, hit **Reset**, hard-refresh, start again — do not narrate a failed run.  
 4. Do **not** say “unhackable.” If asked: residual risk is documented; prepaid demo path is the honest contest proof.  
-5. Upload the video unlisted or public, then attach the link in the Binance quote/reply + survey.
+5. **Demo video is live:** https://youtu.be/eqBMozL5CgU — attach it in the Binance quote/reply + survey.
 
 ## What ships / what doesn’t (honest)
 

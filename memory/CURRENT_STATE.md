@@ -1,11 +1,12 @@
 # METER — Current State
 
 **Updated:** 2026-09-08
-**Branch:** `main` (`e392608` — wallet fix + honesty packaging)
-**Phase:** FINAL FOR SUBMIT — production live; record video from SUBMIT.md script.
+**Branch:** `main` (demo video wired)
+**Phase:** FINAL FOR SUBMIT — demo video live; owner: X quote/repost + survey.
 
 ## What exists
 
+- **Demo video (2026-09-08):** https://youtu.be/eqBMozL5CgU — linked from README, SUBMIT, `/demo`.
 - **UI live path (2026-09-06):** shared `meter-api` + `meter-workspace` vault; Settings health parses real probe objects; pricing/merch waitlist CTAs hit `POST /api/v1/waitlist`; docs = real HTTP/OpenAPI; demo beats match `/demo/seed` + `/demo/invoice`; invoices Issue/Mark paid; dashboard workspace switcher filters ledger client-side (multi-tenant lite over shared ledger).
 
 - Marketing + brand + dashboard (Lovable / TanStack Start)
@@ -37,6 +38,7 @@
 - **Track B (optional parallel):** $40,000 USDC — first 10k eligible MCP+trade × $4 (not our primary win thesis)
 - **Submit:** Follow @Binance · repost · quote/reply (demo video + GitHub) · survey
 - Residual risk documented — never claim unhackable
+- **Demo video:** https://youtu.be/eqBMozL5CgU (**done**)
 
 ## API keys / Agent OS access — slow path (owner confirms each step)
 
@@ -111,7 +113,7 @@ Official apply: [developers.binance.com …/6.apply-developer-account](https://d
 ## 2026-09-06 15:18 UTC — Smoke green; next = contest packaging
 - `npm run smoke` **SMOKE OK** (health+settleRails, waitlist, openapi/mcp, fund w/ operator key, 402, paid research, invoice, ledger, stress×5).
 - Base mainnet pay-to wired; prepaid primary.
-- **Next (owner):** demo video + X quote/repost + survey before 2026-09-08 23:59 UTC.
+- **Next (owner):** X quote/repost + survey before 2026-09-08 23:59 UTC (demo video done: https://youtu.be/eqBMozL5CgU).
 
 
 ## 2026-09-06 16:13 UTC — ship hardening
@@ -120,3 +122,8 @@ Official apply: [developers.binance.com …/6.apply-developer-account](https://d
 - Public `/api/v1/demo/seed` + `/demo/invoice` for contest demo without exposing operator key.
 - CORS allowlist via `METER_CORS_ORIGINS`; error details redacted in production.
 - Binance B402 merchant onboarding: **out of scope for ship** (upgrade later).
+
+## 2026-09-08 — Demo video linked
+- Owner recording: https://youtu.be/eqBMozL5CgU
+- Wired into README (badge + thumbnail), SUBMIT checklist, `/demo` “Watch the contest demo” link.
+- Remaining owner actions: X follow/repost/quote + survey + rotate chat-pasted Vercel token.
