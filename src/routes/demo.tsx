@@ -11,6 +11,7 @@ import {
   ArrowRight,
   RotateCcw,
   Ban,
+  ExternalLink,
 } from "lucide-react";
 import { PageShell } from "@/components/site/PageShell";
 import {
@@ -24,6 +25,9 @@ import {
 } from "@/lib/meter-data";
 import { addAgentToWorkspace, setActiveWorkspace, setAgentToken } from "@/lib/meter-workspace";
 import { touchSession } from "@/lib/meter-session";
+
+/** Contest demo recording (Track A submit). */
+export const DEMO_VIDEO_URL = "https://youtu.be/eqBMozL5CgU";
 
 export const Route = createFileRoute("/demo")({
   head: () => ({
@@ -261,6 +265,17 @@ function DemoPage() {
       title="Six beats. Real ledger. Live search."
       lede="Every step calls /api/v1. Quote → prepaid settle → invoice pay → insufficient balance gate. No animated fake receipts. No mainnet deposit required."
     >
+      <p className="mb-6 text-sm text-muted-foreground">
+        Prefer the recording?{" "}
+        <a
+          href={DEMO_VIDEO_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-1 text-primary hover:underline"
+        >
+          Watch the contest demo <ExternalLink className="h-3.5 w-3.5" />
+        </a>
+      </p>
       <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
         <div>
           <ol className="space-y-3">
