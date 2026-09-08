@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Wallet, LogOut, KeyRound } from "lucide-react";
 import { useWorkspaceRevision } from "@/components/site/WaitlistForm";
-import { getOperatorKey } from "@/lib/meter-workspace";
+import { getAgentToken, getOperatorKey } from "@/lib/meter-workspace";
+import { DEMO_AGENT } from "@/lib/meter-data";
 import {
   connectBrowserWallet,
   disconnectBrowserWallet,
@@ -12,6 +13,7 @@ import {
   shortAddress,
   subscribeWalletAccounts,
 } from "@/lib/meter-wallet";
+import { touchSession } from "@/lib/meter-session";
 
 type Props = {
   /** compact = icon-ish chip for nav; full = labeled dashboard control */
@@ -38,6 +40,7 @@ export function ConnectWalletButton({ variant = "nav", className = "" }: Props) 
     try {
       const next = await connectBrowserWallet();
       setAddress(next);
+      touchSession();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -49,6 +52,7 @@ export function ConnectWalletButton({ variant = "nav", className = "" }: Props) 
     disconnectBrowserWallet();
     setAddress("");
     setError(null);
+    touchSession();
   }
 
   if (address) {
@@ -129,12 +133,14 @@ export function AuthStatusChip() {
   const rev = useWorkspaceRevision();
   const [address, setAddress] = useState("");
   const operatorOn = Boolean(getOperatorKey());
+  const demoOn = Boolean(getAgentToken(DEMO_AGENT));
 
   useEffect(() => {
     setAddress(getStoredWalletAddress());
+    void refreshBrowserWallet().then(setAddress);
   }, [rev]);
 
-  if (!address && !operatorOn) {
+  if (!address && !operatorOn && !demoOn) {
     return (
       <span className="inline-flex items-center gap-1.5 text-[0.65rem] text-warning">
         <span className="size-1.5 rounded-full bg-warning" />
@@ -143,11 +149,18 @@ export function AuthStatusChip() {
     );
   }
 
+  const label = address
+    ? shortAddress(address)
+    : operatorOn
+      ? "Operator key"
+      : "Demo session";
+
   return (
     <span className="inline-flex items-center gap-1.5 text-[0.65rem] text-primary">
       <span className="size-1.5 rounded-full bg-primary" />
-      {address ? shortAddress(address) : "Operator key"}
+      {label}
       {address && operatorOn ? " · key on" : ""}
+      {demoOn && !address && !operatorOn ? "" : demoOn ? " · demo" : ""}
     </span>
   );
 }

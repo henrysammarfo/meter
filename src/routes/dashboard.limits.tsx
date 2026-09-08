@@ -59,7 +59,7 @@ function Limits() {
             <tr key={r.id}>
               <Td>
                 <span className="inline-flex items-center gap-2">
-                  {r.used / r.cap >= 0.9 ? (
+                  {r.cap > 0 && r.used / r.cap >= 0.9 ? (
                     <TriangleAlert className="h-3.5 w-3.5 text-destructive" />
                   ) : (
                     <ShieldCheck className="h-3.5 w-3.5 text-primary" />

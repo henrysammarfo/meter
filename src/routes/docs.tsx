@@ -190,7 +190,8 @@ function DocsPage() {
             </h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {[
-                ["CAP_EXCEEDED / 429", "Workspace daily cap hit. Debit blocked; audited on the ledger."],
+                ["LIMIT_WORKSPACE_DAILY / 429", "Workspace daily cap hit. Debit blocked; audited on the ledger."],
+                ["INSUFFICIENT_BALANCE / 402", "Prepaid agent balance below call price — quote shows this before convert."],
                 ["PAYMENT_REQUIRED / 402", "Missing or invalid prepaid/x402 credentials before research runs."],
                 ["UNAUTHORIZED / 401", "Bad operator key or agent token hash mismatch."],
                 ["PROVIDER_ERROR", "Tavily/TinyFish failed after debit — prepaid amount is refunded."],

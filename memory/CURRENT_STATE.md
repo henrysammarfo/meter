@@ -1,8 +1,8 @@
 # METER — Current State
 
 **Updated:** 2026-09-08
-**Branch:** `main` (`1456a56` — Connect wallet auth surface)
-**Phase:** SHIPPED TO PRODUCTION — Connect wallet live on nav/dashboard; contest submit = owner video + X + survey.
+**Branch:** `cursor/meter-session-charts-demo-b2de`
+**Phase:** Session + protected dashboard + chart fixes + six-beat demo (insufficient balance) shipping; contest video path needs no mainnet deposit.
 
 ## What exists
 

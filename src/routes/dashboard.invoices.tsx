@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Badge, Kpi, PageHead, Panel, Table, Td } from "@/components/dashboard/ui";
-import { issueInvoice, markInvoicePaid } from "@/lib/meter-api";
-import { fetchLedgerOverview, num, type LedgerOverview, usd } from "@/lib/meter-data";
+import { issueInvoice, markDemoInvoicePaid, markInvoicePaid } from "@/lib/meter-api";
+import { DEMO_AGENT, fetchLedgerOverview, num, type LedgerOverview, usd } from "@/lib/meter-data";
 import { getOperatorKey } from "@/lib/meter-workspace";
+import { canMutateLedger } from "@/lib/meter-session";
 import { useWorkspaceRevision } from "@/components/site/WaitlistForm";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard/invoices")({
   head: () => ({
@@ -45,14 +47,19 @@ function Invoices() {
     return filter === "all" ? list : list.filter((i) => i.status === filter);
   }, [data, filter]);
 
-  async function onMarkPaid(id: string) {
+  async function onMarkPaid(id: string, agentId?: string) {
     setBusyId(id);
     setActionMsg(null);
     try {
-      if (!getOperatorKey()) {
-        throw new Error("Save an operator key in Settings first");
+      const isDemo = agentId === DEMO_AGENT;
+      if (!isDemo && !getOperatorKey()) {
+        throw new Error("Save an operator key in Settings — or mark demo invoices via /demo");
       }
-      await markInvoicePaid(id);
+      if (isDemo && !getOperatorKey()) {
+        await markDemoInvoicePaid(id);
+      } else {
+        await markInvoicePaid(id);
+      }
       setActionMsg(`Marked ${id} paid`);
       reload();
     } catch (e) {
@@ -64,8 +71,9 @@ function Invoices() {
 
   async function onIssue() {
     setActionMsg(null);
+    setBusyId("issue");
     try {
-      if (!getOperatorKey()) throw new Error("Save an operator key in Settings first");
+      if (!canMutateLedger()) throw new Error("Save an operator key in Settings first");
       const agentId = issueAgent.trim();
       if (!agentId) throw new Error("Agent id required");
       const { data: inv } = await issueInvoice(agentId);
@@ -74,6 +82,8 @@ function Invoices() {
       reload();
     } catch (e) {
       setActionMsg(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusyId(null);
     }
   }
 
@@ -84,7 +94,7 @@ function Invoices() {
     <div>
       <PageHead
         title="Invoices"
-        sub="Issued from unbilled live receipts. Mark paid via POST /api/v1/invoices/:id/pay."
+        sub="Issued from unbilled live receipts. Demo agent invoices can be marked paid without operator key; other agents need the vault operator key."
       />
       <div className="grid gap-4 sm:grid-cols-3">
         <Kpi label="Open" value={usd(data.openInvoiceTotal)} />
@@ -92,7 +102,7 @@ function Invoices() {
         <Kpi label="Failed" value={usd(data.failedInvoiceTotal)} tone="danger" />
       </div>
 
-      <Panel className="mt-6" title="Issue invoice" subtitle="Rolls unbilled receipts for an agent">
+      <Panel className="mt-6" title="Issue invoice" subtitle="Rolls unbilled receipts for an agent (operator key)">
         <div className="flex flex-col gap-2 sm:flex-row">
           <input
             value={issueAgent}
@@ -102,12 +112,22 @@ function Invoices() {
           />
           <button
             type="button"
+            disabled={busyId === "issue" || !canMutateLedger()}
             onClick={() => void onIssue()}
-            className="rounded-full bg-primary px-5 py-2 text-sm text-primary-foreground"
+            className="rounded-full bg-primary px-5 py-2 text-sm text-primary-foreground disabled:opacity-50"
           >
-            Issue
+            {busyId === "issue" ? "Issuing…" : "Issue"}
           </button>
         </div>
+        {!canMutateLedger() && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Need operator key for Issue.{" "}
+            <Link to="/dashboard/settings" className="text-primary hover:underline">
+              Open Settings
+            </Link>{" "}
+            · demo invoices: finish /demo beat 4 (auto mark-paid).
+          </p>
+        )}
         {actionMsg && <p className="mt-2 text-xs text-muted-foreground">{actionMsg}</p>}
       </Panel>
 
@@ -156,7 +176,7 @@ function Invoices() {
                   <button
                     type="button"
                     disabled={busyId === inv.id}
-                    onClick={() => void onMarkPaid(inv.id)}
+                    onClick={() => void onMarkPaid(inv.id, inv.agentId ?? inv.agent)}
                     className="text-xs text-primary hover:underline disabled:opacity-50"
                   >
                     {busyId === inv.id ? "…" : "Mark paid"}

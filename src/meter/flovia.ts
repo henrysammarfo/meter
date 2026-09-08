@@ -64,7 +64,8 @@ export async function buildFloviaOverview(): Promise<FloviaOverview> {
   const buckets = new Map<string, { settled: number; batched: number; declined: number }>();
   for (const r of recent) {
     const hour = new Date(r.time);
-    const t = `${String(hour.getUTCHours()).padStart(2, "0")}:00`;
+    // Include UTC date so yesterday 15:00 and today 15:00 do not collide.
+    const t = `${String(hour.getUTCMonth() + 1).padStart(2, "0")}-${String(hour.getUTCDate()).padStart(2, "0")} ${String(hour.getUTCHours()).padStart(2, "0")}:00Z`;
     const b = buckets.get(t) ?? { settled: 0, batched: 0, declined: 0 };
     if (r.settle === "settled") b.settled += 1;
     else if (r.settle === "batched") b.batched += 1;

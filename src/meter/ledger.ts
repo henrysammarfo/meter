@@ -4,7 +4,7 @@
  * (Cloudflare Workers). Never seeds fake demo receipts.
  */
 
-import { getEnv } from "./env";
+import { getEnv, MeterLiveError } from "./env";
 import { mintAgentToken, publicAgent } from "./security";
 import type { AgentAccount, Invoice, LedgerSnapshot, LimitRule, PublicAgentAccount, RateCardEndpoint, Receipt } from "./types";
 
@@ -240,6 +240,23 @@ export async function fundAgent(input: {
     agentToken: plaintext,
     tokenRotated,
   };
+}
+
+/** Demo-only: zero the demo agent balance so the next prepaid call returns INSUFFICIENT_BALANCE. */
+export async function drainDemoAgentBalance(agentId = "agent_demo_7c1"): Promise<{
+  agentId: string;
+  balance: number;
+}> {
+  let balance = 0;
+  await mutateLedger((ledger) => {
+    const agent = ledger.agents.find((a) => a.id === agentId);
+    if (!agent) {
+      throw new MeterLiveError("AGENT_NOT_FOUND", `Unknown agent ${agentId}`, 404);
+    }
+    agent.balance = 0;
+    balance = 0;
+  });
+  return { agentId, balance };
 }
 
 export async function appendReceipt(receipt: Receipt): Promise<void> {

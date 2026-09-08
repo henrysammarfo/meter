@@ -239,3 +239,11 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - No Privy/wagmi deps — browser `window.ethereum` only.
 - **Merged to `main`:** `1456a56`.
 
+## 2026-09-08 — Sessions, charts, demo balance gate
+
+- Unified `meter-session` + protected `/dashboard/*` (Settings allowed unsigned).
+- Demo seed persists agentToken → vault (session). Demo invoice pay + drain → real `402 INSUFFICIENT_BALANCE`.
+- `GET /api/v1/research/quote` OKX-style preview; Paystream Quote→Convert UI.
+- Flovia series uses UTC date+hour; workspace filter recomputes charts/KPIs with 24h cutoff; bar empty-states; limits cap=0 safe.
+- Clarified: wallet = UI identity; operator key = non-demo ledger mutations; demo path needs no mainnet deposit.
+
