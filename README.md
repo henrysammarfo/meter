@@ -27,6 +27,28 @@
 
 ---
 
+## What's real vs what's deferred (read before judging)
+
+| Surface | Status | Evidence |
+|---|---|---|
+| Unpaid research → **HTTP 402** | **Live** | `/demo` beat 2 · production API |
+| Prepaid debit → Tavily + TinyFish → receipt | **Live** | `/demo` beat 3 · providers in response |
+| Quote preview (price / balance / cap, no debit) | **Live** | `GET /api/v1/research/quote` |
+| Shared invoice + demo mark-paid | **Live** | `/demo` beat 4 · `/api/v1/demo/invoice/pay` |
+| **402 INSUFFICIENT_BALANCE** when empty | **Live** | `/demo` beat 5 · drain then prepaid call |
+| Workspace **$20/UTC-day** cap | **Live** | `GET /api/v1/limits` · blocks with 429 |
+| Flovia ledger dashboard | **Live** | `/dashboard` over real ledger rows |
+| Browser Connect wallet (EIP-1193) | **Live (UI identity)** | MetaMask/Rabby/Coinbase · does **not** replace operator key |
+| Public `/demo` session (seed → vault) | **Live** | No mainnet deposit required for contest path |
+| Open x402 Base facilitator | **Configured when pay-to set** | Optional rail beside prepaid |
+| Binance B402 merchant RSA settle | **Deferred** | Partner form blocked — documented, not faked |
+| Multi-region durable ledger | **Not claimed** | Vercel `/tmp` is demo-durable per instance |
+| “Unhackable” | **Never claimed** | Residual risk in [`memory/FACT_CHECK.md`](./memory/FACT_CHECK.md) |
+
+Timed voiceover for the contest video: [`SUBMIT.md`](./SUBMIT.md).
+
+---
+
 ## Why this wins Track A
 
 Peers will ship chat wrappers and “I traded once” MCP demos.
@@ -50,7 +72,7 @@ Contest kit (video script + X quote): [`SUBMIT.md`](./SUBMIT.md)
   <img src="./public/demo-screenshot.png" alt="METER live demo — five beats against real /api/v1" width="100%" />
 </p>
 
-<p align="center"><em>/demo — Fund → 402 → prepaid settle (Tavily + TinyFish) → invoice → $20/day cap</em></p>
+<p align="center"><em>/demo — Fund → 402 → quote+prepaid settle → invoice+pay → insufficient-balance 402 → $20/day cap</em></p>
 
 <p align="center">
   <img src="./public/dashboard-screenshot.png" alt="METER dashboard overview — live Flovia ledger" width="100%" />
@@ -133,6 +155,9 @@ Browser vault stores operator key + agent tokens. Workspaces filter the shared l
 | GET | `/api/v1/mcp/skills` | Skill catalog |
 | POST | `/api/v1/demo/seed` | Public demo fund |
 | POST | `/api/v1/demo/invoice` | Public demo invoice |
+| POST | `/api/v1/demo/invoice/pay` | Mark demo invoice paid |
+| POST | `/api/v1/demo/drain` | Zero demo balance (for insufficient-balance proof) |
+| GET | `/api/v1/research/quote` | OKX-style price/balance/cap preview (no debit) |
 | POST | `/api/v1/waitlist` | Access waitlist |
 
 Prepaid headers: `X-Meter-Agent-Id`, `X-Meter-Agent-Token`, `X-Meter-Payment: prepaid`.
@@ -168,7 +193,7 @@ Try production without installing: https://meter-sooty.vercel.app/demo
 
 ### Owner (contest bottleneck — today)
 
-1. **60–120s demo video** of `/demo` five beats → X quote (script in [`SUBMIT.md`](./SUBMIT.md))
+1. **60–120s demo video** of `/demo` six beats → X quote (full word-for-word script in [`SUBMIT.md`](./SUBMIT.md))
 2. Follow @Binance · **repost** official post · **quote** with video + GitHub + production URL
 3. Hackathon **survey** + jurisdiction check
 4. **Rotate** the Vercel token that was pasted in chat
@@ -177,11 +202,12 @@ Try production without installing: https://meter-sooty.vercel.app/demo
 
 | Add | Why | Status |
 |---|---|---|
-| Netro-style README hero + badges + architecture SVG | Judges land on GitHub first | **Done (this PR)** |
-| Live `/demo` + `/dashboard` screenshots in README | Proof without clicking | **Done (this PR)** |
-| OG image + meta (`og-meter.png`) for X/Discord unfurl | Link previews look finished | **Done (this PR)** |
-| 30–60s **GIF/MP4** embed under Architecture | Biggest remaining gap vs NetroBNB motion packaging | Owner video clip |
-| 10s MCP beat (Binance MCP in VS Code + METER skill catalog) | Track A checkbox without becoming a trading bot | Owner / optional |
+| Netro-style README hero + badges + architecture SVG | Judges land on GitHub first | **Done** |
+| Honest “what's real vs deferred” table | Afterimage-style packaging discipline | **Done** |
+| Timed voiceover script in SUBMIT.md | Judges hear the deletion test + live 402 path | **Done** |
+| Live `/demo` + `/dashboard` screenshots in README | Proof without clicking | **Done** |
+| OG image + meta (`og-meter.png`) for X/Discord unfurl | Link previews look finished | **Done** |
+| 30–60s **GIF/MP4** embed under Architecture | Motion packaging | Owner video clip |
 
 ### Product (post-submit)
 

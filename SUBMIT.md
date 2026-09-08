@@ -20,6 +20,17 @@
 
 Deletion test: remove the METER ledger → agents can still pay elsewhere, but shared usage + invoice + receipt truth disappears.
 
+## What's real vs deferred (one-glance)
+
+| Claim | Status |
+|---|---|
+| Live 402 / prepaid / receipt / invoice / insufficient-balance | **Real on production** |
+| Timed VO + six-beat `/demo` | **Ready** — script below |
+| Connect wallet (browser EIP-1193) | **UI identity** — MetaMask etc.; demo session works without it |
+| Mainnet BNB deposit for contest video | **Not required** for prepaid demo path |
+| Binance B402 merchant settle | **Deferred** (form blocked) — not faked |
+| Unhackable | **Never claimed** |
+
 ## Owner submit checklist (you must do these)
 
 1. [ ] **Demo video** (90–120s) — read the full script below while clicking  
@@ -39,7 +50,7 @@ Optional Track B: one MCP trade if eligible for the $4 — not the product thesi
 **Target length:** 90–120 seconds  
 **Screen:** start on https://meter-sooty.vercel.app then go to `/demo`, then `/dashboard`  
 **Tone:** calm, clear, contest-judge friendly. Do not claim “unhackable.”  
-**Before record:** hard-refresh the site · use a private window if the tab icon looks wrong · have `/demo` ready.
+**Before record:** hard-refresh https://meter-sooty.vercel.app · private window if the tab icon looks wrong · MetaMask optional (demo path does not need a wallet) · have `/demo` ready.
 
 ### [0:00–0:12] Open home
 

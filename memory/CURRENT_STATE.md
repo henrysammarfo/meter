@@ -1,8 +1,8 @@
 # METER — Current State
 
 **Updated:** 2026-09-08
-**Branch:** `main` (`2ef2cb3` — sessions/charts/demo balance gate)
-**Phase:** SHIPPED — protected ledger + six-beat demo with INSUFFICIENT_BALANCE; contest video needs no mainnet deposit.
+**Branch:** `cursor/meter-packaging-wallet-fix-b2de`
+**Phase:** Final packaging (what's-real table) + Connect wallet fix; contest video path ready.
 
 ## What exists
 
