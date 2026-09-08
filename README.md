@@ -195,5 +195,3 @@ Try production without installing: https://meter-sooty.vercel.app/demo
 ## Doctrine
 
 No mocks. No silent fallbacks. Not “unhackable” — residual risk (serverless ledger path, deferred B402, WAF egress for some LLM hosts) is documented in [`memory/FACT_CHECK.md`](./memory/FACT_CHECK.md).
-
-Built with [Lovable](https://lovable.dev). Editor: https://lovable.dev/projects/31455f2e-fb0d-456f-b67f-cf904f224cc3

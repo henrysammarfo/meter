@@ -1,8 +1,8 @@
 # METER — Current State
 
 **Updated:** 2026-09-08
-**Branch:** `main` (`3ec2ec2` — Netro README packaging merged)
-**Phase:** SHIPPED TO PRODUCTION — https://meter-sooty.vercel.app live; Netro-style README on main; contest submit = owner video + X + survey.
+**Branch:** `cursor/meter-favicon-brand-b2de` (favicon + strip public Lovable traces)
+**Phase:** SHIPPED TO PRODUCTION — https://meter-sooty.vercel.app live; Netro README on main; favicon brand fix in flight; contest submit = owner video + X + survey.
 
 ## What exists
 
