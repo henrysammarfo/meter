@@ -217,3 +217,11 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - Highest remaining packaging gap vs NetroBNB: owner 30–60s GIF/MP4 of `/demo`.
 - **Merged to `main`:** `3ec2ec2` (merge commit); pushed for Lovable/GitHub sync. PR #4.
 
+## 2026-09-08 — Favicon + strip public Lovable traces
+
+- Replaced default Lovable `favicon.ico` with METER mark assets (`favicon.svg` / multi-size ico / apple-touch / png).
+- Removed README “Built with Lovable” + editor link.
+- Renamed `lovable-error-reporting` → generic `runtime-error-reporting` (no `__lovable*` hooks in app code).
+- Softened `vite.config.ts` comments. Build still uses `@lovable.dev/vite-tanstack-config` (required toolchain; not user-facing).
+- `src/` + `README.md` + `public/` have **no** Lovable string matches.
+
