@@ -160,6 +160,14 @@ export async function markInvoicePaid(id: string) {
   });
 }
 
+/** Public demo path — marks agent_demo_7c1 invoices paid without operator key. */
+export async function markDemoInvoicePaid(id: string) {
+  return meterFetch(`/api/v1/demo/invoice/pay`, {
+    method: "POST",
+    body: { id },
+  });
+}
+
 export async function issueInvoice(agentId: string) {
   return meterFetch("/api/v1/invoices", {
     method: "POST",
@@ -181,5 +189,48 @@ export async function fundSubaccount(input: {
     method: "POST",
     operator: true,
     body: input,
+  });
+}
+
+export type ResearchQuote = {
+  endpoint: string;
+  priceUsdc: number;
+  agentId: string;
+  balance: number;
+  workspaceUsed: number;
+  workspaceCap: number;
+  workspaceRemaining: number;
+  canAfford: boolean;
+  underCap: boolean;
+  next: string;
+  message: string;
+};
+
+export async function quoteResearch(agentId: string, agentToken?: string) {
+  return meterFetch<ResearchQuote>("/api/v1/research/quote", {
+    agentId,
+    ...(agentToken ? { agentToken } : {}),
+  });
+}
+
+export async function runPrepaidResearch(agentId: string, q: string, agentToken?: string) {
+  const path = `/api/v1/research?q=${encodeURIComponent(q)}`;
+  return meterFetch<{
+    receiptId?: string;
+    providers?: string[];
+    sources?: unknown[];
+    error?: string;
+    message?: string;
+  }>(path, {
+    agentId,
+    ...(agentToken ? { agentToken } : {}),
+    payment: "prepaid",
+  });
+}
+
+export async function demoDrain(agentToken: string) {
+  return meterFetch<{ agentId: string; balance: number; note?: string }>("/api/v1/demo/drain", {
+    method: "POST",
+    headers: { "X-Meter-Agent-Token": agentToken },
   });
 }

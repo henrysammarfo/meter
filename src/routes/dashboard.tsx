@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, redirect, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
@@ -16,11 +16,14 @@ import { SETTLE_ASSET, SETTLE_CHAIN } from "@/lib/meter-data";
 import { fetchHealth, probeLabel, type MeterHealth } from "@/lib/meter-api";
 import {
   getActiveWorkspace,
-  getOperatorKey,
   listWorkspaces,
   setActiveWorkspace,
 } from "@/lib/meter-workspace";
-import { getStoredWalletAddress } from "@/lib/meter-wallet";
+import {
+  isMeterSignedIn,
+  operatorKeyHint,
+  restoreSession,
+} from "@/lib/meter-session";
 import { useWorkspaceRevision } from "@/components/site/WaitlistForm";
 import {
   AuthStatusChip,
@@ -28,6 +31,14 @@ import {
 } from "@/components/site/ConnectWalletButton";
 
 export const Route = createFileRoute("/dashboard")({
+  beforeLoad: ({ location }) => {
+    if (typeof window === "undefined") return;
+    const path = location.pathname;
+    const isSettings = path === "/dashboard/settings" || path.startsWith("/dashboard/settings/");
+    if (!isSettings && !isMeterSignedIn()) {
+      throw redirect({ to: "/dashboard/settings" });
+    }
+  },
   head: () => ({
     meta: [
       { title: "Ledger — METER dashboard" },
@@ -55,6 +66,20 @@ function DashboardLayout() {
   const rev = useWorkspaceRevision();
   const workspace = getActiveWorkspace();
   const workspaces = listWorkspaces();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
+  const signedIn = isMeterSignedIn();
+  const isSettings = pathname.startsWith("/dashboard/settings");
+
+  useEffect(() => {
+    void restoreSession();
+  }, []);
+
+  useEffect(() => {
+    if (!isSettings && !isMeterSignedIn()) {
+      void navigate({ to: "/dashboard/settings" });
+    }
+  }, [isSettings, navigate, rev]);
 
   useEffect(() => {
     let cancelled = false;
@@ -73,7 +98,6 @@ function DashboardLayout() {
   const ledgerLive = health?.ok === true;
   const tavily = health ? probeLabel(health.live.tavily) : "…";
   const isDemoWs = workspace.id === "ws_public_demo";
-  const signedIn = Boolean(getStoredWalletAddress() || getOperatorKey());
 
   return (
     <div className="grid-ink min-h-screen lg:grid lg:grid-cols-[248px_1fr]">
@@ -94,7 +118,10 @@ function DashboardLayout() {
           </div>
 
           <div className="mt-5">
-            <ConnectWalletButton variant="dashboard" className="items-stretch w-full [&_button]:w-full [&_button]:justify-center" />
+            <ConnectWalletButton
+              variant="dashboard"
+              className="w-full items-stretch [&_button]:w-full [&_button]:justify-center"
+            />
           </div>
 
           <label className="mt-6 block text-[0.65rem] tracking-widest text-muted-foreground uppercase">
@@ -170,28 +197,23 @@ function DashboardLayout() {
             </button>
           </div>
         </div>
-        {!signedIn && (
+        {!signedIn && isSettings && (
           <div className="border-b border-border/70 bg-primary/8 px-4 py-3 text-xs sm:px-8">
-            <p className="text-foreground">
-              Sign in to operate your ledger — connect a browser wallet (Base / x402 identity) or
-              save an operator key in Settings.
-            </p>
+            <p className="font-medium text-foreground">Sign in to open the ledger</p>
+            <p className="mt-1 text-muted-foreground">{operatorKeyHint()}</p>
             <div className="mt-2 flex flex-wrap items-center gap-3">
               <ConnectWalletButton variant="dashboard" />
-              <Link to="/dashboard/settings" className="text-primary hover:underline">
-                Operator key vault →
+              <Link to="/demo" className="text-primary hover:underline">
+                Or run /demo (stores demo session) →
               </Link>
             </div>
           </div>
         )}
-        {isDemoWs && (
+        {isDemoWs && signedIn && (
           <div className="border-b border-border/70 bg-secondary/40 px-4 py-2.5 text-xs text-muted-foreground sm:px-8">
             Viewing the <span className="text-foreground">public demo</span> workspace (
-            agent_demo_7c1). Switch workspace or open{" "}
-            <Link to="/dashboard/settings" className="text-primary hover:underline">
-              Settings
-            </Link>{" "}
-            to fund your own agents with an operator key.
+            agent_demo_7c1). Demo invoices can be marked paid without an operator key. Fund / issue
+            for other agents still needs the operator key in Settings.
           </div>
         )}
         <main className="px-4 pb-16 sm:px-8 lg:py-10">

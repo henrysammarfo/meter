@@ -96,7 +96,7 @@ function Overview() {
       </div>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.6fr_1fr]">
-        <Panel title="Flovia settlement stream" subtitle="Live settled / batched / declined buckets (UTC hour)">
+        <Panel title="Flovia settlement stream" subtitle="Live settled / batched / declined buckets (UTC date+hour)">
           <div className="h-72">
             {data.settleSeries.length === 0 ? (
               <p className="p-4 text-sm text-muted-foreground">No settled calls in the last 24h yet. Run /demo.</p>
@@ -110,7 +110,7 @@ function Overview() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid stroke="var(--color-border)" vertical={false} />
-                  <XAxis dataKey="t" stroke="var(--color-muted-foreground)" fontSize={11} tickLine={false} />
+                  <XAxis dataKey="t" stroke="var(--color-muted-foreground)" fontSize={10} tickLine={false} />
                   <YAxis stroke="var(--color-muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
                   <Tooltip />
                   <Legend />
@@ -168,17 +168,21 @@ function Overview() {
           </Table>
         </Panel>
 
-        <Panel title="Endpoint rate card" subtitle="Calls + revenue last 24h">
+        <Panel title="Endpoint rate card" subtitle="Calls + revenue last 24h (workspace filter)">
           <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data.endpoints}>
-                <CartesianGrid stroke="var(--color-border)" vertical={false} />
-                <XAxis dataKey="path" stroke="var(--color-muted-foreground)" fontSize={11} tickLine={false} />
-                <YAxis stroke="var(--color-muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
-                <Tooltip />
-                <Bar dataKey="revenue24h" fill="var(--color-primary)" radius={4} />
-              </BarChart>
-            </ResponsiveContainer>
+            {data.endpoints.every((e) => (e.revenue24h ?? 0) === 0) ? (
+              <p className="p-4 text-sm text-muted-foreground">No endpoint revenue in the last 24h yet. Run /demo.</p>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data.endpoints}>
+                  <CartesianGrid stroke="var(--color-border)" vertical={false} />
+                  <XAxis dataKey="path" stroke="var(--color-muted-foreground)" fontSize={11} tickLine={false} />
+                  <YAxis stroke="var(--color-muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
+                  <Tooltip />
+                  <Bar dataKey="revenue24h" fill="var(--color-primary)" radius={4} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </Panel>
       </div>

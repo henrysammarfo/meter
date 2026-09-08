@@ -250,3 +250,6 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 | Tab icon is Lovable default | **FIXED** | Replaced with METER mark favicon.svg/ico/apple-touch (2026-09-08) |
 | Public product surfaces mention Lovable | **FIXED** | README credit removed; runtime error helper renamed; no matches under `src/`/`README.md`/`public/` |
 | Connect wallet UI exists | **VERIFIED** | EIP-1193 button on landing/nav/dashboard/settings (2026-09-08); not Privy |
+| Dashboard protected without session | **FIXED** | Redirect to Settings unless wallet / operator key / demo token |
+| Chart workspace filter mismatch | **FIXED** | Client rebuilds settleSeries + endpoint revenue from filtered 24h receipts |
+| Demo proves INSUFFICIENT_BALANCE | **VERIFIED** | `/api/v1/demo/drain` + prepaid research → 402 `INSUFFICIENT_BALANCE` |

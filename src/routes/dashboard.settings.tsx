@@ -26,6 +26,7 @@ import {
   getStoredWalletAddress,
   shortAddress,
 } from "@/lib/meter-wallet";
+import { touchSession } from "@/lib/meter-session";
 
 export const Route = createFileRoute("/dashboard/settings")({
   head: () => ({
@@ -184,7 +185,7 @@ function SettingsPage() {
       <Panel
         className="mt-6"
         title="Sign in"
-        subtitle="Browser wallet = operator identity for the UI / future x402. Operator key still required to fund agents and mark invoices paid."
+        subtitle="Wallet = who you are in the UI. Operator key = fund/issue/mark-paid for non-demo agents (matches server METER_OPERATOR_KEY). Demo session from /demo unlocks the ledger + demo invoice pay without that key."
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-sm text-muted-foreground">
@@ -283,6 +284,7 @@ function SettingsPage() {
               onClick={() => {
                 setOperatorKey(opKey);
                 setVaultMsg("Operator key saved");
+                touchSession();
               }}
             >
               Save operator key
@@ -294,6 +296,7 @@ function SettingsPage() {
                 setOpKey("");
                 setOperatorKey("");
                 setVaultMsg("Operator key cleared");
+                touchSession();
               }}
             >
               Clear

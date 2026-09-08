@@ -33,9 +33,9 @@ Optional Track B: one MCP trade if eligible for the $4 — not the product thesi
 
 1. Open https://meter-sooty.vercel.app — “METER meters agent↔agent API spend with shared receipts.”  
 2. Open **/demo** → Start live flow  
-   - Beat 1 Fund → Beat 2 **402** → Beat 3 prepaid settle (live Tavily+TinyFish) → Beat 4 invoice → Beat 5 daily cap  
-3. Open **/dashboard** — show receipt + invoice on the shared ledger; switch workspace if useful  
-4. Close: “Prepaid primary. B402 merchant deferred honestly. No mocks.”
+   - Beat 1 Fund → Beat 2 **402** → Beat 3 quote + prepaid settle (live Tavily+TinyFish) → Beat 4 invoice + demo mark-paid → Beat 5 **402 INSUFFICIENT_BALANCE** after drain → Beat 6 daily cap  
+3. Open **/dashboard** — session restored from demo vault; show Flovia charts + Paystream Quote→Convert  
+4. Close: “Prepaid primary. Real insufficient-balance gate. No mocks. No mainnet deposit required for the demo path.”
 
 ## Suggested X quote text
 

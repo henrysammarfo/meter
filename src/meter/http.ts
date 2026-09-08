@@ -5,9 +5,10 @@
 
 import { MeterConfigError, MeterLiveError, getEnv, isProductionMode } from "./env";
 import { buildFloviaOverview } from "./flovia";
-import { fundAgent, getLedger, getReceipt, refreshLimitUsage } from "./ledger";
+import { fundAgent, drainDemoAgentBalance, getLedger, getReceipt, refreshLimitUsage } from "./ledger";
 import { issueInvoiceForAgent, markInvoicePaid } from "./invoice";
 import { handleResearch } from "./research";
+import { quoteResearch } from "./quote";
 import { meterChat } from "./llm";
 import { tinyfishWallet } from "./clients/tinyfish";
 import { probeLiveProviders } from "./health";
@@ -15,11 +16,13 @@ import { mcpSkillCatalog, openApiDocument } from "./catalog";
 import {
   assertDemoSeedRateLimit,
   corsHeaders,
+  hashAgentToken,
   idempotencyKey,
   publicAgent,
   readIdempotent,
   requireOperator,
   storeIdempotent,
+  tokensEqual,
 } from "./security";
 import { joinWaitlist, waitlistCount } from "./waitlist";
 
@@ -111,6 +114,21 @@ export async function handleMeterApi(request: Request): Promise<Response | null>
       (request.method === "GET" || request.method === "POST")
     ) {
       response = await handleResearch(request);
+    } else if (url.pathname === "/api/v1/research/quote" && request.method === "GET") {
+      const agentId =
+        request.headers.get("x-meter-agent-id") ?? url.searchParams.get("agentId") ?? "";
+      const agentToken =
+        request.headers.get("x-meter-agent-token") ??
+        request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
+        "";
+      if (!agentId || !agentToken) {
+        throw new MeterLiveError(
+          "PREPAID_NEEDS_TOKEN",
+          "Quote requires X-Meter-Agent-Id and X-Meter-Agent-Token",
+          401,
+        );
+      }
+      response = Response.json(await quoteResearch({ agentId, agentToken }));
     } else if (url.pathname === "/api/v1/subaccounts" && request.method === "POST") {
       requireOperator(request);
       const body = await readJson<{
@@ -252,7 +270,56 @@ export async function handleMeterApi(request: Request): Promise<Response | null>
       }
       assertDemoSeedRateLimit(request);
       response = Response.json(await issueInvoiceForAgent("agent_demo_7c1"), { status: 201 });
-} else {
+    } else if (url.pathname === "/api/v1/demo/invoice/pay" && request.method === "POST") {
+      const env = getEnv();
+      const demoEnabled = env.METER_DEMO_PUBLIC ?? !isProductionMode();
+      if (!demoEnabled) {
+        throw new MeterLiveError("DEMO_DISABLED", "Public demo invoice pay is disabled", 403);
+      }
+      assertDemoSeedRateLimit(request);
+      const body = await readJson<{ id?: string; invoiceId?: string }>(request);
+      const id = body.id ?? body.invoiceId;
+      if (!id) throw new MeterLiveError("MISSING_INVOICE", "id required", 400);
+      const ledger = await getLedger();
+      const inv = ledger.invoices.find((i) => i.id === id);
+      if (!inv) throw new MeterLiveError("INVOICE_NOT_FOUND", `Unknown invoice ${id}`, 404);
+      if (inv.agentId !== "agent_demo_7c1") {
+        throw new MeterLiveError(
+          "DEMO_INVOICE_ONLY",
+          "Demo pay only marks invoices for agent_demo_7c1. Use operator key for other agents.",
+          403,
+        );
+      }
+      response = Response.json(await markInvoicePaid(id));
+    } else if (url.pathname === "/api/v1/demo/drain" && request.method === "POST") {
+      const env = getEnv();
+      const demoEnabled = env.METER_DEMO_PUBLIC ?? !isProductionMode();
+      if (!demoEnabled) {
+        throw new MeterLiveError("DEMO_DISABLED", "Public demo drain is disabled", 403);
+      }
+      assertDemoSeedRateLimit(request);
+      // Require demo agent token so random clients cannot zero the shared demo balance.
+      const agentToken =
+        request.headers.get("x-meter-agent-token") ??
+        request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
+        "";
+      if (!agentToken) {
+        throw new MeterLiveError(
+          "PREPAID_NEEDS_TOKEN",
+          "Demo drain requires X-Meter-Agent-Token for agent_demo_7c1",
+          401,
+        );
+      }
+      const ledger = await getLedger();
+      const agent = ledger.agents.find((a) => a.id === "agent_demo_7c1");
+      if (!agent?.tokenHash || !tokensEqual(hashAgentToken(agentToken), agent.tokenHash)) {
+        throw new MeterLiveError("AGENT_UNAUTHORIZED", "Invalid demo agent token", 401);
+      }
+      response = Response.json({
+        ...(await drainDemoAgentBalance("agent_demo_7c1")),
+        note: "Balance zeroed. Next prepaid research should return 402 INSUFFICIENT_BALANCE.",
+      });
+    } else {
       response = Response.json(
         { error: "NOT_FOUND", message: `No route ${url.pathname}` },
         { status: 404 },

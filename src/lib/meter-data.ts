@@ -110,9 +110,32 @@ function inFilter(agentId: string | undefined, filter: string[] | null): boolean
   return filter.includes(agentId);
 }
 
+function since24hMs(): number {
+  return Date.now() - 24 * 3600 * 1000;
+}
+
+function buildSettleSeries(
+  receipts: Receipt[],
+): Array<{ t: string; settled: number; batched: number; declined: number }> {
+  const buckets = new Map<string, { settled: number; batched: number; declined: number }>();
+  for (const r of receipts) {
+    const hour = new Date(r.time);
+    const t = `${String(hour.getUTCMonth() + 1).padStart(2, "0")}-${String(hour.getUTCDate()).padStart(2, "0")} ${String(hour.getUTCHours()).padStart(2, "0")}:00Z`;
+    const b = buckets.get(t) ?? { settled: 0, batched: 0, declined: 0 };
+    if (r.settle === "settled") b.settled += 1;
+    else if (r.settle === "batched") b.batched += 1;
+    else if (r.settle === "declined") b.declined += 1;
+    buckets.set(t, b);
+  }
+  return [...buckets.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([t, v]) => ({ t, ...v }));
+}
+
 export async function fetchLedgerOverview(): Promise<LedgerOverview> {
   const { data } = await meterFetch<LedgerOverview>("/api/v1/ledger");
   const filter = workspaceAgentFilter();
+  const cutoff = since24hMs();
 
   const agents = data.agents.filter((a) => inFilter(a.id, filter));
   const receipts = data.receipts
@@ -128,6 +151,9 @@ export async function fetchLedgerOverview(): Promise<LedgerOverview> {
       agent: i.agentId,
     }));
 
+  const recent = receipts.filter((r) => Date.parse(r.time) >= cutoff);
+  const paidRecent = recent.filter((r) => r.settle === "settled" || r.settle === "batched");
+
   const openInvoiceTotal = invoices
     .filter((i) => i.status === "open")
     .reduce((s, i) => s + i.amount, 0);
@@ -138,17 +164,39 @@ export async function fetchLedgerOverview(): Promise<LedgerOverview> {
     .filter((i) => i.status === "failed")
     .reduce((s, i) => s + i.amount, 0);
 
-  const grossVolume24h = receipts
-    .filter((r) => r.settle === "settled" || r.settle === "batched")
-    .reduce((s, r) => s + r.amount, 0);
-  const calls24h = receipts.filter((r) => r.settle === "settled" || r.settle === "batched").length;
+  const grossVolume24h = paidRecent.reduce((s, r) => s + r.amount, 0);
+  const calls24h = paidRecent.length;
   const meterFee24h = Number((grossVolume24h * (data.takeRate ?? TAKE_RATE)).toFixed(6));
+
+  const byEndpoint = new Map<string, { revenue24h: number; calls24h: number }>();
+  for (const r of paidRecent) {
+    const cur = byEndpoint.get(r.endpoint) ?? { revenue24h: 0, calls24h: 0 };
+    cur.revenue24h += r.amount;
+    cur.calls24h += 1;
+    byEndpoint.set(r.endpoint, cur);
+  }
+
+  const endpoints = data.endpoints.map((e) => {
+    const stats = byEndpoint.get(e.path) ?? { revenue24h: 0, calls24h: 0 };
+    return {
+      ...e,
+      revenue24h: Number(stats.revenue24h.toFixed(4)),
+      calls24h: stats.calls24h,
+    };
+  });
+
+  const revenueByEndpoint = endpoints
+    .filter((e) => e.status === "live")
+    .map((e) => ({ name: e.path, value: e.revenue24h ?? 0 }));
 
   return {
     ...data,
     agents,
     receipts,
     invoices,
+    endpoints,
+    settleSeries: buildSettleSeries(recent),
+    revenueByEndpoint,
     openInvoiceTotal: Number(openInvoiceTotal.toFixed(6)),
     paidInvoiceTotal: Number(paidInvoiceTotal.toFixed(6)),
     failedInvoiceTotal: Number(failedInvoiceTotal.toFixed(6)),
