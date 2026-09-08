@@ -1,8 +1,8 @@
 # METER — Current State
 
-**Updated:** 2026-09-07
+**Updated:** 2026-09-08
 **Branch:** `main`
-**Phase:** PRODUCTION — merged to `main`; Vercel project `meter` production deploy from main.
+**Phase:** SHIPPED TO PRODUCTION — https://meter-sooty.vercel.app live; contest submit = owner video + X + survey.
 
 ## What exists
 

@@ -201,3 +201,11 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - Linked Vercel project `meter` (`prj_ZqeNwddRXdHWdGUAw5vgVk9ADisn`) to `henrysammarfo/meter`; production deploy from `main` started (`dpl_38y2WFo2yHcFVEvDoTA7JGTDsB6K`).
 - Lovable sync: push to connected `main` should update Lovable editor.
 
+## 2026-09-08 — Production secrets + contest submit package
+
+- Set Vercel Production/Preview env for project `meter` (Tavily, TinyFish, operator, AgentRouter+proxy, pay-to, demo public, `/tmp` ledger path).
+- Redeployed production `dpl_69eVQJrDtwwvD5wYFJGLuhqe8dsg` → READY.
+- Verified live on https://meter-sooty.vercel.app: health ok=true; demo seed → 402 → paid research (tavily+tinyfish) → invoice 201 → ledger rows.
+- Added `SUBMIT.md` with video script + X quote + owner checklist.
+- Owner must still: record demo video, X follow/repost/quote, survey; **rotate the chat-pasted Vercel token**.
+

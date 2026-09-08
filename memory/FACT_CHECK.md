@@ -237,3 +237,11 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 | Multi-tenant | **PARTIAL** | Client workspace filter over shared ledger; no per-tenant server partition yet |
 | Browser GUI click-through | **UNKNOWN** | computerUse agent unavailable (spend limit); API+HTML source verified instead |
 
+## Production ship (2026-09-08)
+
+| Claim | Status | Evidence |
+|---|---|---|
+| Vercel production URL serves METER | **VERIFIED** | https://meter-sooty.vercel.app home/demo/dashboard 200 |
+| Health ok with Tavily+TinyFish configured | **VERIFIED** | `GET /api/v1/health` → ok:true |
+| Live demo path on production | **VERIFIED** | seed → 402 → prepaid 200 (tavily+tinyfish) → demo invoice 201 → ledger |
+| Contest social/survey complete | **OWNER ACTION** | See SUBMIT.md |

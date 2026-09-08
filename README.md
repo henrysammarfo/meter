@@ -4,6 +4,9 @@ Agent↔agent pay + API metering + shared receipts for **Binance Agent OS Track 
 
 > Soft pitch: When AIs pay each other or charge for an API call, METER shows the money, the receipt, and settles it — inside limits you set.
 
+**Production:** https://meter-sooty.vercel.app · **Demo:** https://meter-sooty.vercel.app/demo  
+**Contest submit kit:** [`SUBMIT.md`](./SUBMIT.md)
+
 ## Live surface
 
 | Method | Path | Job |
