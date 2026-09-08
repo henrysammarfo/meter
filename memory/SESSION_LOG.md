@@ -226,3 +226,8 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - `src/` + `README.md` + `public/` have **no** Lovable string matches.
 - **Merged to `main`:** `3b57c40`. PR #5.
 
+## 2026-09-08 — Favicon cache-bust (Lovable icon still in some tabs)
+
+- Production already served METER `/favicon.ico`, but Chrome keeps old Lovable mark for `/favicon.ico`.
+- New paths `/icons/meter.*` + `?v=meter-2`, client `ForceMeterFavicon`, `site.webmanifest`, Vercel `Cache-Control` must-revalidate on legacy favicon routes.
+
