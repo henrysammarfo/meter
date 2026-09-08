@@ -224,4 +224,5 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - Renamed `lovable-error-reporting` → generic `runtime-error-reporting` (no `__lovable*` hooks in app code).
 - Softened `vite.config.ts` comments. Build still uses `@lovable.dev/vite-tanstack-config` (required toolchain; not user-facing).
 - `src/` + `README.md` + `public/` have **no** Lovable string matches.
+- **Merged to `main`:** `3b57c40`. PR #5.
 
