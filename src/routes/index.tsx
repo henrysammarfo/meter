@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { ArrowUpRight, Menu, X, Check } from "lucide-react";
 import { MeterMark } from "@/components/brand/MeterMark";
+import { ConnectWalletButton } from "@/components/site/ConnectWalletButton";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -95,6 +96,7 @@ function Landing() {
           </div>
 
           <div className="hidden items-center gap-3 sm:flex">
+            <ConnectWalletButton variant="nav" />
             <Link
               to="/demo"
               className="rounded-full border border-border px-5 py-3 text-sm text-foreground/85 backdrop-blur-md hover:text-foreground"
@@ -118,6 +120,12 @@ function Landing() {
                 <Link to="/brand" onClick={() => setMenuOpen(false)} className="text-sm">Brand</Link>
                 <Link to="/merch" onClick={() => setMenuOpen(false)} className="text-sm">Merch</Link>
                 <Link to="/demo" onClick={() => setMenuOpen(false)} className="text-sm">Live demo</Link>
+                <div onClick={() => setMenuOpen(false)}>
+                  <ConnectWalletButton
+                    variant="nav"
+                    className="items-stretch [&_button]:w-full [&_button]:justify-center"
+                  />
+                </div>
                 <Link
                   to="/dashboard"
                   onClick={() => setMenuOpen(false)}

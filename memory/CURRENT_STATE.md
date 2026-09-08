@@ -1,8 +1,8 @@
 # METER — Current State
 
 **Updated:** 2026-09-08
-**Branch:** `main` (`3b57c40` — METER favicon + Lovable public traces stripped)
-**Phase:** SHIPPED TO PRODUCTION — https://meter-sooty.vercel.app live; Netro README + METER favicon on main; contest submit = owner video + X + survey.
+**Branch:** `cursor/meter-wallet-auth-b2de` (Connect wallet UI)
+**Phase:** SHIPPED TO PRODUCTION — wallet connect UI shipping; contest submit = owner video + X + survey.
 
 ## What exists
 

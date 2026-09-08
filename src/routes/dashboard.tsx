@@ -16,10 +16,16 @@ import { SETTLE_ASSET, SETTLE_CHAIN } from "@/lib/meter-data";
 import { fetchHealth, probeLabel, type MeterHealth } from "@/lib/meter-api";
 import {
   getActiveWorkspace,
+  getOperatorKey,
   listWorkspaces,
   setActiveWorkspace,
 } from "@/lib/meter-workspace";
+import { getStoredWalletAddress } from "@/lib/meter-wallet";
 import { useWorkspaceRevision } from "@/components/site/WaitlistForm";
+import {
+  AuthStatusChip,
+  ConnectWalletButton,
+} from "@/components/site/ConnectWalletButton";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -67,6 +73,7 @@ function DashboardLayout() {
   const ledgerLive = health?.ok === true;
   const tavily = health ? probeLabel(health.live.tavily) : "…";
   const isDemoWs = workspace.id === "ws_public_demo";
+  const signedIn = Boolean(getStoredWalletAddress() || getOperatorKey());
 
   return (
     <div className="grid-ink min-h-screen lg:grid lg:grid-cols-[248px_1fr]">
@@ -84,6 +91,10 @@ function DashboardLayout() {
             <button className="lg:hidden" onClick={() => setOpen(false)} aria-label="Close menu">
               <X className="size-5" />
             </button>
+          </div>
+
+          <div className="mt-5">
+            <ConnectWalletButton variant="dashboard" className="items-stretch w-full [&_button]:w-full [&_button]:justify-center" />
           </div>
 
           <label className="mt-6 block text-[0.65rem] tracking-widest text-muted-foreground uppercase">
@@ -136,6 +147,9 @@ function DashboardLayout() {
               {health ? (ledgerLive ? "ledger live" : "ledger degraded") : "checking…"}
             </span>
             <p className="mt-1 text-[0.65rem]">Tavily {tavily}</p>
+            <div className="mt-2">
+              <AuthStatusChip />
+            </div>
           </div>
           <Link to="/demo" className="inline-flex items-center gap-1 hover:text-foreground">
             Replay the demo <ArrowUpRight className="size-3.5" />
@@ -144,15 +158,32 @@ function DashboardLayout() {
       </aside>
 
       <div className="min-w-0">
-        <div className="flex items-center justify-between px-4 py-4 lg:hidden">
+        <div className="flex items-center justify-between gap-3 px-4 py-4 lg:hidden">
           <Link to="/" className="flex items-center gap-2">
             <MeterMark className="size-6 text-primary" />
             <span className="font-display text-base">METER</span>
           </Link>
-          <button onClick={() => setOpen(true)} aria-label="Open menu">
-            <Menu className="size-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <ConnectWalletButton variant="nav" />
+            <button onClick={() => setOpen(true)} aria-label="Open menu">
+              <Menu className="size-5" />
+            </button>
+          </div>
         </div>
+        {!signedIn && (
+          <div className="border-b border-border/70 bg-primary/8 px-4 py-3 text-xs sm:px-8">
+            <p className="text-foreground">
+              Sign in to operate your ledger — connect a browser wallet (Base / x402 identity) or
+              save an operator key in Settings.
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-3">
+              <ConnectWalletButton variant="dashboard" />
+              <Link to="/dashboard/settings" className="text-primary hover:underline">
+                Operator key vault →
+              </Link>
+            </div>
+          </div>
+        )}
         {isDemoWs && (
           <div className="border-b border-border/70 bg-secondary/40 px-4 py-2.5 text-xs text-muted-foreground sm:px-8">
             Viewing the <span className="text-foreground">public demo</span> workspace (

@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Menu, X, ArrowUpRight } from "lucide-react";
 import { useState } from "react";
 import { MeterMark } from "@/components/brand/MeterMark";
+import { ConnectWalletButton } from "@/components/site/ConnectWalletButton";
 
 const links = [
   { to: "/product", label: "Product" },
@@ -50,6 +51,7 @@ export function SiteNav({ tone = "over" }: { tone?: "over" | "solid" }) {
       </div>
 
       <div className="hidden items-center gap-3 sm:flex">
+        <ConnectWalletButton variant="nav" />
         <Link
           to="/demo"
           className="rounded-full border border-border px-5 py-3 text-sm font-medium text-foreground/80 transition-colors hover:text-foreground"
@@ -77,6 +79,12 @@ export function SiteNav({ tone = "over" }: { tone?: "over" | "solid" }) {
                 {l.label}
               </Link>
             ))}
+            <div onClick={() => setOpen(false)}>
+              <ConnectWalletButton
+                variant="nav"
+                className="items-stretch [&_button]:w-full [&_button]:justify-center"
+              />
+            </div>
             <Link to="/demo" onClick={() => setOpen(false)} className="text-sm text-foreground/85">
               Live demo
             </Link>
