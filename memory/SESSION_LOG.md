@@ -237,4 +237,5 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - METER had no wallet UI (operator key buried in Settings only). Added EIP-1193 `Connect wallet` on landing, SiteNav, dashboard sidebar/banner, Settings Sign-in panel.
 - Wallet address stored in localStorage as UI identity; fund/invoice still need operator key + agent token (honest, not fake Privy).
 - No Privy/wagmi deps — browser `window.ethereum` only.
+- **Merged to `main`:** `1456a56`.
 

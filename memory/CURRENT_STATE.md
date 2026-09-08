@@ -1,8 +1,8 @@
 # METER — Current State
 
 **Updated:** 2026-09-08
-**Branch:** `cursor/meter-wallet-auth-b2de` (Connect wallet UI)
-**Phase:** SHIPPED TO PRODUCTION — wallet connect UI shipping; contest submit = owner video + X + survey.
+**Branch:** `main` (`1456a56` — Connect wallet auth surface)
+**Phase:** SHIPPED TO PRODUCTION — Connect wallet live on nav/dashboard; contest submit = owner video + X + survey.
 
 ## What exists
 
