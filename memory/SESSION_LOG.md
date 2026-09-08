@@ -230,4 +230,11 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 
 - Production already served METER `/favicon.ico`, but Chrome keeps old Lovable mark for `/favicon.ico`.
 - New paths `/icons/meter.*` + `?v=meter-2`, client `ForceMeterFavicon`, `site.webmanifest`, Vercel `Cache-Control` must-revalidate on legacy favicon routes.
+- **Merged to `main`:** `b716208`. PR #6.
+
+## 2026-09-08 — Connect wallet auth surface
+
+- METER had no wallet UI (operator key buried in Settings only). Added EIP-1193 `Connect wallet` on landing, SiteNav, dashboard sidebar/banner, Settings Sign-in panel.
+- Wallet address stored in localStorage as UI identity; fund/invoice still need operator key + agent token (honest, not fake Privy).
+- No Privy/wagmi deps — browser `window.ethereum` only.
 

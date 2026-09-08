@@ -249,3 +249,4 @@ Prior “fix” that remapped to `co.agentrouter.org` was reverted. Fail closed;
 | README packaging includes live screenshots | **VERIFIED** | `public/demo-screenshot.png`, `public/dashboard-screenshot.png` captured from production |
 | Tab icon is Lovable default | **FIXED** | Replaced with METER mark favicon.svg/ico/apple-touch (2026-09-08) |
 | Public product surfaces mention Lovable | **FIXED** | README credit removed; runtime error helper renamed; no matches under `src/`/`README.md`/`public/` |
+| Connect wallet UI exists | **VERIFIED** | EIP-1193 button on landing/nav/dashboard/settings (2026-09-08); not Privy |

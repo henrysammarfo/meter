@@ -21,6 +21,11 @@ import {
   setOperatorKey,
 } from "@/lib/meter-workspace";
 import { useWorkspaceRevision } from "@/components/site/WaitlistForm";
+import { ConnectWalletButton } from "@/components/site/ConnectWalletButton";
+import {
+  getStoredWalletAddress,
+  shortAddress,
+} from "@/lib/meter-wallet";
 
 export const Route = createFileRoute("/dashboard/settings")({
   head: () => ({
@@ -111,6 +116,8 @@ function SettingsPage() {
   if (error && !health) return <p className="text-sm text-destructive">{error}</p>;
   if (!health) return <PageHead title="Settings" sub="Loading provider health…" />;
 
+  const wallet = getStoredWalletAddress();
+
   const probeRows: Array<{ key: string; probe: ProbeStatus | { configured: boolean }; note: string }> = [
     {
       key: "tavily",
@@ -173,6 +180,34 @@ function SettingsPage() {
         <Kpi label="Daily cap" value={`$${health.dailyCapUsdc}`} hint="USDC / UTC day" />
         <Kpi label="Research price" value={`$${health.researchPriceUsdc}`} hint="per query" />
       </div>
+
+      <Panel
+        className="mt-6"
+        title="Sign in"
+        subtitle="Browser wallet = operator identity for the UI / future x402. Operator key still required to fund agents and mark invoices paid."
+      >
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-sm text-muted-foreground">
+            {wallet ? (
+              <p>
+                Connected as{" "}
+                <span className="font-mono text-foreground" title={wallet}>
+                  {shortAddress(wallet)}
+                </span>
+              </p>
+            ) : (
+              <p>No wallet connected yet. MetaMask / Rabby / Coinbase Wallet via the browser.</p>
+            )}
+            <p className="mt-1 text-xs">
+              Operator key:{" "}
+              <span className={getOperatorKey() ? "text-primary" : "text-warning"}>
+                {getOperatorKey() ? "saved in vault" : "not set"}
+              </span>
+            </p>
+          </div>
+          <ConnectWalletButton variant="dashboard" />
+        </div>
+      </Panel>
 
       <Panel className="mt-6" title="Workspace" subtitle="Multi-tenant filter over the shared live ledger">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
