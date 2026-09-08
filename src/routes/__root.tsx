@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportRuntimeError } from "../lib/runtime-error-reporting";
+import { ForceMeterFavicon } from "../components/brand/ForceMeterFavicon";
 
 function NotFoundComponent() {
   return (
@@ -118,10 +119,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
-      { rel: "icon", href: "/favicon.ico", sizes: "any" },
-      { rel: "icon", href: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
-      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      // New /icons/meter.* paths — browsers cache /favicon.ico forever (Lovable leftover).
+      { rel: "icon", href: "/icons/meter.svg?v=meter-2", type: "image/svg+xml" },
+      { rel: "icon", href: "/icons/meter.ico?v=meter-2", sizes: "any" },
+      { rel: "shortcut icon", href: "/icons/meter.ico?v=meter-2" },
+      { rel: "icon", href: "/icons/meter-32.png?v=meter-2", type: "image/png", sizes: "32x32" },
+      { rel: "apple-touch-icon", href: "/icons/meter-180.png?v=meter-2" },
+      { rel: "manifest", href: "/site.webmanifest" },
     ],
   }),
   shellComponent: RootShell,
@@ -149,6 +153,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ForceMeterFavicon />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
     </QueryClientProvider>
