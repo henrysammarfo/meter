@@ -84,7 +84,28 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "METER meters your APIs, settles agent-to-agent payments over x402, and turns every call into a receipt, invoice and limit you can audit.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:title", content: "METER — the agent-money ledger" },
+      {
+        property: "og:description",
+        content:
+          "Live 402 → prepaid settle → shared receipt/invoice. Binance Agent OS Track A. No mocks.",
+      },
+      {
+        property: "og:image",
+        content: "https://meter-sooty.vercel.app/og-meter.png",
+      },
+      { property: "og:url", content: "https://meter-sooty.vercel.app" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "METER — the agent-money ledger" },
+      {
+        name: "twitter:description",
+        content:
+          "Live 402 → prepaid settle → shared receipt/invoice. Binance Agent OS Track A. No mocks.",
+      },
+      {
+        name: "twitter:image",
+        content: "https://meter-sooty.vercel.app/og-meter.png",
+      },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },

@@ -209,3 +209,10 @@ Waiting on owner for Binance / Venice / pay-to keys — no mocks while blocked.
 - Added `SUBMIT.md` with video script + X quote + owner checklist.
 - Owner must still: record demo video, X follow/repost/quote, survey; **rotate the chat-pasted Vercel token**.
 
+## 2026-09-08 — Netro-style README packaging (no UI rewrite)
+
+- Branch `cursor/meter-readme-netro-b2de`: banner + architecture SVGs, OG PNG, live `/demo` + `/dashboard` screenshots in README.
+- Badges (Track A / demo / health / OpenAPI / MCP skills), mermaid flow, Agent OS surface map, settle rails, ordered “what we can still add” (owner vs packaging vs post-submit).
+- Wired `og:image` / `twitter:image` in `__root.tsx` → `/og-meter.png`.
+- Highest remaining packaging gap vs NetroBNB: owner 30–60s GIF/MP4 of `/demo`.
+
